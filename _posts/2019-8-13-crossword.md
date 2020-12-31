@@ -3,4 +3,4 @@ layout: post
 title: A *Cuppa*-themed Crossword
 ---
 
-![](/images/crossword.pdf?raw=true)
+![](/images/crossword.png?raw=true)
