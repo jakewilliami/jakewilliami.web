@@ -193,7 +193,7 @@ deploydocs(;
 
 This file will tell `Documenter.jl` how to structure your documentation.  Once again, here is an extremely simple example:
 
-```markdown
+~~~markdown
 # MyCoolPackage.jl Documentation
 
 ```@contents
@@ -221,7 +221,7 @@ Modules = [MyCoolPackage]
 
 ```@index
 ```
-```
+~~~
 
 #### `.github/workflows/CI.yml`
 
