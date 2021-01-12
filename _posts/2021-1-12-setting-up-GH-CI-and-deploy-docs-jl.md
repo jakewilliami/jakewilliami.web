@@ -316,7 +316,21 @@ The last thing we need to do is to go to your repository at [https://github.com/
 
 **And you are done!**
 
-## Post Script: other workflows.
+## Post Script: other notes.
+
+You might want to add some tags to your `README.md`:
+
+~~~markdown
+<h1 align="center">
+    MyCoolPackage.jl
+</h1>
+
+<!-- [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://username.github.io/MyCoolPackage.jl/stable) -->
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://username.github.io/MyCoolPackage.jl/dev)
+[![CI](https://github.com/invenia/PkgTemplates.jl/workflows/CI/badge.svg)](https://github.com/username/MyCoolPackage.jl/actions?query=workflow%3ACI)
+[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+![Project Status](https://img.shields.io/badge/status-maturing-green)
+~~~
 
 There are two other workflows I really like to have: one is a `CompatHelper`, which ensures your package's dependencies stay up-to-date; and one is `TagBot`, which will automatically update the version number based on the version of your package.
 
