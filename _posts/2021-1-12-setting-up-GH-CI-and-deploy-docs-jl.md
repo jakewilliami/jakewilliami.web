@@ -31,7 +31,7 @@ my_identity_function(a) = a
 
 When you go into help mode (`?` in the Julia REPL), your string will display as documentation for that function:
 
-``julia
+```julia
 help?> my_sum
 search: my_sum
 
