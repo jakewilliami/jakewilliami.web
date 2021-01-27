@@ -56,7 +56,7 @@ There is a very helpful tool called [`Documenter.jl`](https://github.com/JuliaDo
 To install `Documenter.jl`, you need to enter Julia's REPL and type
 
 ```julia
-julia> import Pkg; Pkg.install("Documenter")
+julia> import Pkg; Pkg.add("Documenter")
 ```
 
 ## 2. Creating the necessary _folders_ for `Documenter.jl`
@@ -118,9 +118,9 @@ $ julia --project=
 
 julia> import Pkg; Pkg.activate(".")
 
-julia> Pkg.install("Documenter")
+julia> Pkg.add("Documenter")
 
-julia> Pkg.install("") # HERE YOU NEED TO INSTALL ANY DEPENDENCIES YOUR PACKAGE HAS
+julia> Pkg.add("") # HERE YOU NEED TO INSTALL ANY DEPENDENCIES YOUR PACKAGE HAS
 ```
 
 Now that you have **installed any dependencies your package has in the `docs` folder**, your directory structure will look something like this:
