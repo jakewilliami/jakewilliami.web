@@ -245,7 +245,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "1.0"   # old LTS
           - "1.5"   # current
           - "nightly"   # Latest Release
         os:
@@ -254,12 +253,10 @@ jobs:
           - windows-latest
         arch:
           - x64
-          - x86
+          - x86 # 32-bit; i686
         exclude:
-          # Test 32-bit only on Linux
+          # 32-bit Julia binaries are not available on macOS
           - os: macOS-latest
-            arch: x86
-          - os: windows-latest
             arch: x86
     steps:
       - uses: actions/checkout@v2
@@ -302,7 +299,7 @@ jobs:
             Pkg.instantiate();'
       - run: julia --project=docs docs/make.jl
         env:
-          GITHUB_TOKEN: $\{\{ secrets.GITHUB_TOKEN \}\}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 ~~~
 
