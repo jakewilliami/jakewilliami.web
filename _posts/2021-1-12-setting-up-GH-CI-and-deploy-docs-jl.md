@@ -116,7 +116,7 @@ $ cd docs
 
 $ julia --project=
 
-julia> import Pkg; Pkg.instantiate()
+julia> import Pkg; Pkg.activate(".")
 
 julia> Pkg.install("Documenter")
 
@@ -227,7 +227,7 @@ Modules = [MyCoolPackage]
 
 Finally, this is the CI (continuous integration) part, which _actually does the deploying_.  All you need to have is something like the following:
 
-```yaml
+~~~yaml
 name: CI
 # Run on master, tags, or any pull request
 on:
@@ -302,9 +302,9 @@ jobs:
             Pkg.instantiate();'
       - run: julia --project=docs docs/make.jl
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: $\{\{ secrets.GITHUB_TOKEN \}\}
 
-```
+~~~
 
 The first part of this file will run some tests, and the second part will deploy the documentation.
 
