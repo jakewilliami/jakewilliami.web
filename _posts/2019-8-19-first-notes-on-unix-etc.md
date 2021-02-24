@@ -43,7 +43,39 @@ Paths usually start with <code>/</code>
 <code>mv</code> = move
 <code>touch</code> = make file
 <code>cp</code> = copy
-<code>rm</code> = 
+<code>rm</code> = remove
+<code>rm -i</code> = are you sure you want to delete?
+<code>more &#x3008;file&#x3009;</code> = shows file
+'<code>&ast;</code>' = names ending with <code>&ast;&#x3008;name end&#x3009;</code>
+'<code>?</code>' = single character wild-card
+<code>clear</code> = clear terminal (note: can still scroll up unless configured otherwise)
+
+> Note:
+> A note on spaces in path names: they need to be "escaped" using a backslash:
+> ```bash
+> cd Victoria\ University/
+> ```
+
+<code>open &#3008;path&#3009;</code> = opens a path
+<code>wc</code> = word count
+<code>wc -c</code> = characters
+<code>wc -l &ast;.pdb > lengths.txt</code> = makes lengths file and puts lengths of pdb files in there
+<code>cat</code> = concatenate [similar to <code>more</code>]
+'<code>&#3009;</code>' = redirects output into file
+'<code>&#3009;&#3009;</code>' _appends_ file (adds to it instead of overwriting it)
+<code>head</code> = prints n head lines of each file
+<code>tail</code> = ... bottom lines
+<code>head 2 &ast;.pdb</code> = first 2 lines of all pdb files
+'<code>|</code>' = "pipe" (kind of like subset)
+
+> E.g.
+> <code>sort -n lengths.txt | head -n 1</code>
+> Sorts lengths.txt and then of those, prints the first line
+
+<code>man</code> = manual
+<code>cut -d</code> = separate each line
+<code>-f</code> = give back fields
+<code>-d</code> = delmiter
 
 > Note:
 > After day 1 of the tutorial, I actually went home and changed my bash prompt.  The following code, I put in my `.bashrc`:
