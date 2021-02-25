@@ -1,6 +1,7 @@
-<h1 align="center">
-	HackTheBox Notes
-</h1>
+---
+layout: post
+title: General notes on HackTheBox
+---
 
 ## Beginning Notes
 
