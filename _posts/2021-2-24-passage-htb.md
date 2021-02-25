@@ -1,6 +1,6 @@
 ---
 layout: post
-title: HackTheBox Notes &emdash; Passage
+title: HackTheBox Notes &mdash; Passage
 ---
 
 This machine is currently active, and is my first attempt at HTB.  Its IP address is `10.10.10.206`.
