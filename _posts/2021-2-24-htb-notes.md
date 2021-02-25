@@ -4,7 +4,7 @@
 
 ## Beginning Notes
 
-[HackTheBox](https://hackthebox.eu/) (HTB) is a great tool to learn penetration testing (pentesting).  However, some other useful ones exist, such as [TryHackMe](https://tryhackme.com) (which also has a nice [beginner guide](https://tryhackme.com/path/outline/beginner), as well as [INE](pathway for free (https://checkout.ine.com/starter-pass)), and .  Also, CTF (capture the flag) games exist (e.g., [here](https://ctf.hacker101.com/)), as well as [VulnHub](https://www.vulnhub.com/), if you are not ready for HTB.
+[HackTheBox](https://hackthebox.eu/) (HTB) is a great tool to learn penetration testing (pentesting).  However, some other useful ones exist, such as [TryHackMe](https://tryhackme.com) (which also has a nice [beginner guide](https://tryhackme.com/path/outline/beginner), as well as [INE](pathway for free (https://checkout.ine.com/starter-pass)), and (JuiceShop)[https://owasp.org/www-project-juice-shop/].  Also, CTF (capture the flag) games exist (e.g., [here](https://ctf.hacker101.com/)), as well as [VulnHub](https://www.vulnhub.com/), if you are not ready for HTB.
 
 For getting started with HTB, first, get some helpful tools:
   - `python-python3`
@@ -45,6 +45,9 @@ Now you can go to `http://some_name:<port>`, if one of the ports from the `nmap`
 
 This now might show something!  For example, it might allow you to upload "images".  See if you can upload a PHP file instead...  However, it is always good to "View Page Source" to see if you can find anything interesting off the bat.
 
+One of the simplest ways to get information is to look up `<something> exploit` to see if you know anything about exploiting the webpage.  For example, if the webpage uses a converter, see if there is a converter exploit.  If there is, append your search with `git`, as you then might find something on GitHub.
+
+Look to get a reverse shell.
 
 ## Quick reference
 
@@ -69,3 +72,7 @@ See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes
 ```bash
 netcap -lvnp 5353
 ```
+
+username: Christopher Tatlock
+emacs: ct@example.com
+password: W@ci5M%QS^Kr8x3ov7!7
