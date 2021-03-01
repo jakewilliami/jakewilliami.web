@@ -84,9 +84,4 @@ See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes
 netcap -lvnp 5353
 ```
 
-username: Christopher Tatlock
-emacs: ct@example.com
-password: W@ci5M%QS^Kr8x3ov7!7
-
-
 [This is cool](https://github.com/7h3rAm/writeups)
