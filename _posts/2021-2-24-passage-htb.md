@@ -1,6 +1,6 @@
 ---
 layout: post
-title: HackTheBox Notes &mdash; Passage
+title: HackTheBox Write-up &mdash; Passage
 ---
 
 *WARNING: This is my first "hack"; as such, I change tack a couple of times, and it is messy...*
