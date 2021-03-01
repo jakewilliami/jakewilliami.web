@@ -16,7 +16,7 @@ For getting started with HTB, first, get some helpful tools:
   - `saclist`
   - [`searchsploit`](https://1gbits.com/blog/install-searchsploit-on-kali-linux/)
 
-You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  These steps will give you good tools to hack, as well as protect your network and your computer.
+You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  *Ensure you run `openvpn` on the VM, **not** your base computer, as running it on your computer and then running the VM will not allow any `tun` connection.*  (This took me a hot minute to figure out...).  These steps will give you good tools to hack, as well as protect your network and your computer.
 
 It looks like you can also set this up [inside Docker instead](https://amar-laksh.github.io/2019/08/24/Setting-up-Kali-docker-for-HackTheBox.html) (just make sure to run `brew install --cask docker` first):
 ```bash
@@ -87,3 +87,6 @@ netcap -lvnp 5353
 username: Christopher Tatlock
 emacs: ct@example.com
 password: W@ci5M%QS^Kr8x3ov7!7
+
+
+[This is cool](https://github.com/7h3rAm/writeups)

