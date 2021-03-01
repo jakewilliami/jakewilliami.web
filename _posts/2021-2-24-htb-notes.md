@@ -14,8 +14,18 @@ For getting started with HTB, first, get some helpful tools:
   - `arpscan`
   - `netcap` (or `nc`)
   - `saclist`
+  - [`searchsploit`](https://1gbits.com/blog/install-searchsploit-on-kali-linux/)
 
 You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  These steps will give you good tools to hack, as well as protect your network and your computer.
+
+It looks like you can also set this up [inside Docker instead](https://amar-laksh.github.io/2019/08/24/Setting-up-Kali-docker-for-HackTheBox.html) (just make sure to run `brew install --cask docker` first):
+```bash
+$ brew install --cask docker
+$ open /Applications/Docker.app
+$ docker pull kalilinux/kali-rolling
+$ docker run -t -i kalilinux/kali-rolling /bin/bash
+root💀2cf5de3321a6:/# apt-get update && apt-get install metasploit-framework
+```
 
 ## Where to Start
 

