@@ -1,9 +1,15 @@
+# Mandatory settings
+
+blog_theme: dark # Or use light
+paginate: 25
+url: http://jakewilliami.github.io/
+
 #
 # This file contains configuration flags to customize your site
 #
 
 # Name of your site (displayed in the header)
-name: Jake W. Ireland
+name: Jake W. Ireland's Blog
 
 # Short bio or description (displayed in the header)
 description: Self-taught programmer and amateur mathematician/psychologist
@@ -53,35 +59,53 @@ baseurl: ""
 # !! You don't need to change any of the configuration flags below !!
 #
 
-permalink: /:title/
+# Optional settings
 
-# The release of Jekyll Now that you're using
-version: v1.2.0
+about_enabled: true # Change to true if you wish to show an icon in the navigation that redirects to the about page
+local_fonts: false # Change to true if you wish to use local fonts
+rss_enabled: false # Change to false if not
+scrollappear_enabled: true # Change to false to disable
+tag_nav_enabled: false # Change to true if you wish to show an additional 'tag-list' navigation below the header
+theme_toggle: false # Change to true if you wish to show an icon in the navigation for dynamic theme toggling
 
-# Jekyll 3 now only supports Kramdown for Markdown
-kramdown:
-  # Use GitHub flavored markdown, including triple backtick fenced code blocks
-  input: GFM
-  # Jekyll 3 and GitHub Pages now only support rouge for syntax highlighting
-  syntax_highlighter: rouge
-  syntax_highlighter_opts:
-    # Use existing pygments syntax highlighting css
-    css_class: 'highlight'
+# Important settings (change at own risk)
 
-# Set the Sass partials directory, as we're using @imports
-sass:
-  style: :expanded # You might prefer to minify using :compressed
-
-# Use the following plug-ins
-gems:
-  - jekyll-chalk
-  - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
-  - jekyll-feed # Create an Atom feed using the official Jekyll feed gem
-
-# Exclude these files from your production _site
+assets:
+  plugins:
+    css: { autoprefixer: {}}
+    img: { optim: {}}
+  source_maps: false
+  sources:
+    - _assets/icons
+    - _assets/javascripts
+    - _assets/stylesheets
+    - _assets/yarn
+collections:
+  my_tags:
+    output: true
+    permalink: /tag/:slug/
+defaults:
+  -
+    scope:
+      path: ""
+      type: my_tags
+    values:
+      layout: articles_by_tag
 exclude:
+  - .travis.yml
+  - bin/*
+  - circle.yml
   - Gemfile
   - Gemfile.lock
-  - LICENSE
+  - package.json
+  - package-lock.json
   - README.md
-  - CNAME
+  - vendor/
+  - yarn.lock
+plugins:
+  - jekyll-assets
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jemoji
+paginate_path: /posts/page/:num/
+permalink: posts/:slug
