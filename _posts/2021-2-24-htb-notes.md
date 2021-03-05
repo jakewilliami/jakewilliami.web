@@ -69,10 +69,12 @@ Take some time to understand how `nmap` works and why it was written.  That bein
 #### `nmap` short, quick SYN scan
 
 ```bash
-nmap -sV -sC -oA nmap 10.10.10.x # top 1000 ports
+nmap -sC -sV -O -p- -oA nmap/full <IP> # full scan
+nmap -sV -sC -oA nmap <ip> # top 1000 ports
 nmap -sC -sV -v -oN nmap.txt <IP>
 masscan -e tun0 -p1-65535 --rate=1000 <IP>
 sudo nmap -sU -sV -A -T4 -v -oN udp.txt <IP>
+nmap -T4 -p- -A <IP>
 ```
 
 See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96).
