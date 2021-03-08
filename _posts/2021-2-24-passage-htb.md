@@ -513,7 +513,7 @@ My first instict is to go to the home directory; the most familiar part of linux
 ```
 paul@passage:~$ cat user.txt    
 cat user.txt
-592dbc85750aec2f97786b6ff1fe9269
+592d************************9269
 ```
 
 `hash-identify` thinks it might be a `MD4` or `Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))`, but `hashcat` doesn't produce much.  
@@ -541,7 +541,7 @@ And we have root access!  In the `/root` file there is another text file with wh
 ```
 root@passage:~# cat root.txt    
 cat root.txt
-c02216e9d3cc7e27a9d36d031ea98a65
+c022************************8a65
 root@passage:~# pwd
 pwd
 /root

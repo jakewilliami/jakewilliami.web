@@ -29,6 +29,11 @@ root💀2cf5de3321a6:/# apt-get update && apt-get install metasploit-framework
 
 ## Where to Start
 
+First, I have noticed three main steps in HTB:
+  1. Gain a foothold&mdash;: you will fumble around in the dark for a while until you have a foothold on the system.  This may look like a reverse shell, or something similar.
+  2. Gain user access&mdash;: you gain access to a user of the system from said foothold.  You're nearly there!
+  3. Gain root access&mdash;: this is the final goal, and you are in!
+
 One great way to start your pentesting journey is to have a look at some walkthroughs for HTB.  Whether they are blogs or videos, this will give you a good understanding of the kind of workflow used to approach this task
 
 First, if you have an IP address of the machine you want to try to hack, start by pinging the machine.
