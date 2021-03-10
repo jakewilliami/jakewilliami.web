@@ -2,7 +2,7 @@
 
 # Run this script to deploy the app to Github Pages.
 
-# Exit if any subcommand fails.
+# Exit if [[ $(git branch | grep gh-pages) ]]ny subcommand fails.
 set -e
 
 echo "Started deploying"
