@@ -15,40 +15,40 @@ Transcribed here are my initial, very shorthand notes from a workshop I went to 
 Bash is programmable!
   - The GUI is intuitive and user-friendly
      - Bash can do the same things, but automatically, > 1,000 times.
-<code>ls</code> = listing command
+  - <code>ls</code> = listing command
   - The file system arranges things in hierarchy
-<code>pwd</code> = print working directory
+  - <code>pwd</code> = print working directory
 Note: the <code>ls</code> command, unless specified otherwise, will list the contents of the present working directory
-<code>cd</code> = takes you back to your home directory
-<code>-</code> = tells it is an option for a command (also called a "flag")
-<code>cd &#x3008;path&#x3009;</code> = sets working directory
-<code>ls &#x3008;path&#x3009;</code> = lists contents of path
-<code>man ls</code> = find the <code>man</code>(ual) page
-  - Press q to quit.
-  - Some systems may require you to use <code>ls --help</code>.
-<code>ls -l</code> = long listing (in bytes)
-<code>ls -l -h</code> &equiv; <code>ls -lh</code> = human readible form
-<code>ls ~</code> &equiv; <code>ls $HOME</code> &equiv <code>ls</code>
+  - <code>cd</code> = takes you back to your home directory
+  - <code>-</code> = tells it is an option for a command (also called a "flag")
+  - <code>cd &#x3008;path&#x3009;</code> = sets working directory
+  - <code>ls &#x3008;path&#x3009;</code> = lists contents of path
+  - <code>man ls</code> = find the <code>man</code>(ual) page
+    - Press q to quit.
+    - Some systems may require you to use <code>ls --help</code>.
+  - <code>ls -l</code> = long listing (in bytes)
+  - <code>ls -l -h</code> &equiv; <code>ls -lh</code> = human readible form
+  - <code>ls ~</code> &equiv; <code>ls $HOME</code> &equiv <code>ls</code>
 Paths usually start with <code>/</code>
-<code>cd</code> = change directory
-<code>cd ..</code> = moves to parent directory
-<code>cd ../../</code> = parent of parent
-<code>ls -a</code> = list all (including hidden files)
-<code>.</code> = shortcut for current directory
-<code>~/&#x3008;path&#x3009;</code> = expands to home directory + path
-<code>cd -</code> = previous working directory
+  - <code>cd</code> = change directory
+  - <code>cd ..</code> = moves to parent directory
+  - <code>cd ../../</code> = parent of parent
+  - <code>ls -a</code> = list all (including hidden files)
+  - <code>.</code> = shortcut for current directory
+  - <code>~/&#x3008;path&#x3009;</code> = expands to home directory + path
+  - <code>cd -</code> = previous working directory
 
 #### Relative vs. absolute paths
-<code>mkdir</code> = make directory
-<code>mv</code> = move
-<code>touch</code> = make file
-<code>cp</code> = copy
-<code>rm</code> = remove
-<code>rm -i</code> = are you sure you want to delete?
-<code>more &#x3008;file&#x3009;</code> = shows file
-'<code>&ast;</code>' = names ending with <code>&ast;&#x3008;name end&#x3009;</code>
-'<code>?</code>' = single character wild-card
-<code>clear</code> = clear terminal (note: can still scroll up unless configured otherwise)
+  - <code>mkdir</code> = make directory
+  - <code>mv</code> = move
+  - <code>touch</code> = make file
+  - <code>cp</code> = copy
+  - <code>rm</code> = remove
+  - <code>rm -i</code> = are you sure you want to delete?
+  - <code>more &#x3008;file&#x3009;</code> = shows file
+  - '<code>&ast;</code>' = names ending with <code>&ast;&#x3008;name end&#x3009;</code>
+  - '<code>?</code>' = single character wild-card
+  - <code>clear</code> = clear terminal (note: can still scroll up unless configured otherwise)
 
 > Note:
 > A note on spaces in path names: they need to be "escaped" using a backslash:
@@ -56,26 +56,26 @@ Paths usually start with <code>/</code>
 > cd Victoria\ University/
 > ```
 
-<code>open &#3008;path&#3009;</code> = opens a path
-<code>wc</code> = word count
-<code>wc -c</code> = characters
-<code>wc -l &ast;.pdb > lengths.txt</code> = makes lengths file and puts lengths of pdb files in there
-<code>cat</code> = concatenate [similar to <code>more</code>]
-'<code>&#3009;</code>' = redirects output into file
-'<code>&#3009;&#3009;</code>' _appends_ file (adds to it instead of overwriting it)
-<code>head</code> = prints n head lines of each file
-<code>tail</code> = ... bottom lines
-<code>head 2 &ast;.pdb</code> = first 2 lines of all pdb files
-'<code>|</code>' = "pipe" (kind of like subset)
+  - <code>open &lt;path&gt;</code> = opens a path
+  - <code>wc</code> = word count
+  - <code>wc -c</code> = characters
+  - <code>wc -l &ast;.pdb > lengths.txt</code> = makes lengths file and puts lengths of pdb files in there
+  - <code>cat</code> = concatenate [similar to <code>more</code>]
+  - '<code>&gt;</code>' = redirects output into file
+  - '<code>&gt;&gt;</code>' _appends_ file (adds to it instead of overwriting it)
+  - <code>head</code> = prints n head lines of each file
+  - <code>tail</code> = ... bottom lines
+  - <code>head 2 &ast;.pdb</code> = first 2 lines of all pdb files
+  - '<code>|</code>' = "pipe" (kind of like subset)
 
 > E.g.
-> <code>sort -n lengths.txt | head -n 1</code>
+> <code>sort -n lengths.txt | head -n 1</code><br></br>
 > Sorts lengths.txt and then of those, prints the first line
 
-<code>man</code> = manual
-<code>cut -d</code> = separate each line
-<code>-f</code> = give back fields
-<code>-d</code> = delmiter
+  - <code>man</code> = manual
+  - <code>cut -d</code> = separate each line
+  - <code>-f</code> = give back fields
+  - <code>-d</code> = delmiter
 
 > Note:
 > After day 1 of the tutorial, I actually went home and changed my bash prompt.  The following code, I put in my `.bashrc`:
@@ -131,3 +131,4 @@ Paths usually start with <code>/</code>
 > PS1="\n\[\033[0;31m\]\342\224\214\342\224\200\$()[\[\033[1;38;5;2m\]\u\[\033[0;1m\]@\033[1;33m\]\h: \[\033[1;34m\]\W\[\033[1;33m\]\[\033[0;31m\]]\[\033[0;32m\] \[\033[1;33m\]\`parse_git_branch\`\[\033[0;31m\]\n\[\033[0;31m\]\342\224\224\342\224\200\342\224\200\342\225\274 \[\033[0;1m\]\$\[\033[0;38m\] "
 > export PS1
 > ```
+
