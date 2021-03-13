@@ -310,3 +310,23 @@ An important note: <code>git</code> &ne; GitHub.
 ### Git continued (with Wes Harrell, now)
 
 GitHub allows you to share your changes with other people. 
+
+  - `pull` requests exist (allows people to suggest changes).
+  - Password-less identification
+  - `git push`
+  - `git pull`
+  - Merge conflicts can sometimes happen!  Conflict resolution is not easy&mdash;sometimes it takes hours, or even days&mdash;but `git` gives you the tools to do this.
+
+> Note: these are some notes I made about the night before, and changing my prompt
+> > I had a bit of trouble last night when trying to change `.bashrc1 to include `PS1` by
+> > ```bash
+> > nano .bashrc
+> > ```
+> > and restarting terminal, it would only update typing
+> > ```bash
+> > exec bash
+> > ```
+> > So then I went into
+> > ```bash
+> > /etc/bashrc
+> > 
