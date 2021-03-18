@@ -15,6 +15,7 @@ For getting started with HTB, first, get some helpful tools:
   - `netcap` (or `nc`)
   - `saclist`
   - [`searchsploit`](https://1gbits.com/blog/install-searchsploit-on-kali-linux/)
+  - Burp Suite
 
 You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  *Ensure you run `openvpn` on the VM, **not** your base computer, as running it on your computer and then running the VM will not allow any `tun` connection.*  (This took me a hot minute to figure out...).  These steps will give you good tools to hack, as well as protect your network and your computer.
 
@@ -26,6 +27,10 @@ $ docker pull kalilinux/kali-rolling
 $ docker run -t -i kalilinux/kali-rolling /bin/bash
 root💀2cf5de3321a6:/# apt-get update && apt-get install metasploit-framework
 ```
+
+To set Burp Suite up with a browser (say, Firefox), go into FF and go to Preferences > Network Settings > Settings.  Now select Manual proxy configuration, and put in the HTTP Proxy box `127.0.0.1`, with port `8080`.  Now your browser will be configured to Burp Suite, and you don't have to use their even laggier embedded Chromium browser.
+
+Burp sits between your browser and the website, so now if you try to go onto a website, it will intercept the traffic in Burp Suite, under the Proxy tab.
 
 ## Where to Start
 
@@ -82,13 +87,11 @@ sudo nmap -sU -sV -A -T4 -v -oN udp.txt <IP>
 nmap -T4 -p- -A <IP>
 ```
 
-See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96).
+## Misc Notes
 
-
----
-
-```bash
-netcap -lvnp 5353
-```
-
-[This is cool](https://github.com/7h3rAm/writeups)
+  - [This is cool](https://github.com/7h3rAm/writeups)
+  - ```bash
+    netcap -lvnp 5353
+    ```
+  - See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96).
+  - Burp Suite is a great GUI for intercepting and altering `HTTP` requests, but be warned: complex GUI applications run in a VM on 1 GM RAM are lagging at best.  Be prepared for 2 FPS.  Same can be said for the browser, I suppose.  I would like to save up for a machine with more RAM to allocate to my VM... 
