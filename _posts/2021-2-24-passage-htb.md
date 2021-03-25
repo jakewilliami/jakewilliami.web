@@ -596,4 +596,6 @@ sshd:*:18464:0:99999:7:::
 
 ---
 
+# Notes
+
 One big take-home message from this&mdash; my first HTB task&mdash; is: just Google!  Unless you think you have a great idea what to try, if you are only starting out
