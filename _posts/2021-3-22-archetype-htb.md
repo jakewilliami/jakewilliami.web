@@ -612,6 +612,8 @@ b91c************************8528
 
 ---
 
+<br>
+
 # Notes
 
 I must admit, I know this is supposed to be the easiest one, made even by the person who created HTB (I believe), but without an HTTP server I must admit I struggled a bit, as I had only experience with HTTP servers.  And naturally, it's always a bit of a struggle to escalate privileges, as there are some pretty niche footholds to do so out there...  And a lot.  Either way, this was a fun experience.
