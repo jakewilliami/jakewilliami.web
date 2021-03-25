@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Jake W. Ireland's Blog | General notes on HackTheBox</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="General notes on HackTheBox">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jakewilliami.github.io//posts/htb-notes">
+  <meta property="og:description" content="">
+  <meta property="og:site_name" content="Jake W. Ireland's Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://jakewilliami.github.io//posts/htb-notes">
+  <meta name="twitter:title" content="General notes on HackTheBox">
+  <meta name="twitter:description" content="">
+
+  
+    <meta property="og:image" content="https://jakewilliami.github.io//assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+    <meta name="twitter:image" content="https://jakewilliami.github.io//assets/og-image-ee46bbc61b334e821e81534b1fd43f3fee6f020ec174b3c2114445695fd48c01.jpg">
+  
+
+  <link href="https://jakewilliami.github.io//feed.xml" type="application/rss+xml" rel="alternate" title="Jake W. Ireland's Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-dark-8a826c1e6f10210e502cf6122e9967e86aca67e7c73112953ecb1f7825224740.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-dark-8b247c57e0723af875715bdb5192f71527f76df4a09fcaa3ddf8b565f8b71cc2.png">
+      <link rel="stylesheet" type="text/css" href="/assets/dark-831218bc9e41aef39ee6a0bae4501195bccafcc13101ae2b9cd20493a6ec04c0.css">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Jake W. Ireland's Blog">Jake W. Ireland's Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>General notes on HackTheBox</h1>
+            <p></p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    February 24, 2021
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      5 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <h2 id="beginning-notes">Beginning Notes</h2>
+
+<p><a href="https://hackthebox.eu/">HackTheBox</a> (HTB) is a great tool to learn penetration testing (pentesting).  However, some other useful ones exist, such as <a href="https://tryhackme.com">TryHackMe</a> (which also has a nice <a href="https://tryhackme.com/path/outline/beginner">beginner guide</a>, as well as <a href="pathway for free (https://checkout.ine.com/starter-pass)">INE</a>, and (JuiceShop)[https://owasp.org/www-project-juice-shop/].  Also, CTF (capture the flag) games exist (e.g., <a href="https://ctf.hacker101.com/">here</a>), as well as <a href="https://www.vulnhub.com/">VulnHub</a>, if you are not ready for HTB.  You will also need a good amount of knowledge of <code class="highlighter-rouge">bash</code> and <code class="highlighter-rouge">powershell</code>.  This has come from experience with me, using Linux and doing general sysadmin stuff.  Familiarity and comfortablilty with the command line is almost essential, but you will become familiar soon enough if you don’t have that yet.</p>
+
+<p>For getting started with HTB, first, get some helpful tools:</p>
+<ul>
+  <li><code class="highlighter-rouge">python-python3</code></li>
+  <li><code class="highlighter-rouge">python-pip3</code></li>
+  <li><code class="highlighter-rouge">nmap</code></li>
+  <li><code class="highlighter-rouge">arpscan</code></li>
+  <li><code class="highlighter-rouge">netcap</code> (or <code class="highlighter-rouge">nc</code>)</li>
+  <li><code class="highlighter-rouge">saclist</code></li>
+  <li><a href="https://1gbits.com/blog/install-searchsploit-on-kali-linux/"><code class="highlighter-rouge">searchsploit</code></a></li>
+  <li>Burp Suite</li>
+  <li><a href="https://github.com/SecureAuthCorp/impacket"><code class="highlighter-rouge">mssqlclient.py</code></a></li>
+</ul>
+
+<p>You will also need a virtual machine (See <a href="https://www.virtualbox.org/">VirtualBox</a>), preferably running Linux (do not use Windows; use <a href="https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b">Kali</a> if possible), and <a href="https://www.hackthebox.eu/home/start">HTB’s VPN</a> given to you to use.  <em>Ensure you run <code class="highlighter-rouge">openvpn</code> on the VM, <strong>not</strong> your base computer, as running it on your computer and then running the VM will not allow any <code class="highlighter-rouge">tun</code> connection.</em>  (This took me a hot minute to figure out…).  These steps will give you good tools to hack, as well as protect your network and your computer.</p>
+
+<p>It looks like you can also set this up <a href="https://amar-laksh.github.io/2019/08/24/Setting-up-Kali-docker-for-HackTheBox.html">inside Docker instead</a> (just make sure to run <code class="highlighter-rouge">brew install --cask docker</code> first):</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>brew <span class="nb">install</span> <span class="nt">--cask</span> docker
+<span class="nv">$ </span>open /Applications/Docker.app
+<span class="nv">$ </span>docker pull kalilinux/kali-rolling
+<span class="nv">$ </span>docker run <span class="nt">-t</span> <span class="nt">-i</span> kalilinux/kali-rolling /bin/bash
+root💀2cf5de3321a6:/# apt-get update <span class="o">&amp;&amp;</span> apt-get <span class="nb">install </span>metasploit-framework
+</code></pre></div></div>
+
+<p>To set Burp Suite up with a browser (say, Firefox), go into FF and go to Preferences &gt; Network Settings &gt; Settings.  Now select Manual proxy configuration, and put in the HTTP Proxy box <code class="highlighter-rouge">127.0.0.1</code>, with port <code class="highlighter-rouge">8080</code>.  Now your browser will be configured to Burp Suite, and you don’t have to use their even laggier embedded Chromium browser.</p>
+
+<p>Burp sits between your browser and the website, so now if you try to go onto a website, it will intercept the traffic in Burp Suite, under the Proxy tab.</p>
+
+<h2 id="where-to-start">Where to Start</h2>
+
+<p>First, I have noticed three main steps in HTB:</p>
+<ol>
+  <li>Gain a foothold—: you will fumble around in the dark for a while until you have a foothold on the system.  This may look like a reverse shell, or something similar.</li>
+  <li>Gain user access—: you gain access to a user of the system from said foothold.  You’re nearly there!</li>
+  <li>Gain root access—: this is the final goal, and you are in!</li>
+</ol>
+
+<p>One great way to start your pentesting journey is to have a look at some walkthroughs for HTB.  Whether they are blogs or videos, this will give you a good understanding of the kind of workflow used to approach this task</p>
+
+<p>First, if you have an IP address of the machine you want to try to hack, start by pinging the machine.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ping 10.10.xx.xx
+</code></pre></div></div>
+
+<p>If it is responding to pings, you can try some <code class="highlighter-rouge">nmap</code> commands.  See the Quick Reference section for more <code class="highlighter-rouge">nmap</code> functionality.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap <span class="nt">-sV</span> <span class="nt">-sC</span> 10.10.xx.xx
+</code></pre></div></div>
+
+<p>This will take a minute to load, and then looks through the top 1000 ports for this machine, and shows us if any of them are open for use.</p>
+
+<p>A lot will come up on the screen.  Maybe one of the first things you will notice is one of the open ports is FTP, and maybe HTTP.</p>
+
+<p>Consider editing <code class="highlighter-rouge">/etc/hosts</code> to add the IP address of the machine:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>10.10.xx.xx		some_name
+</code></pre></div></div>
+
+<p>Now you can go to <code class="highlighter-rouge">http://some_name:&lt;port&gt;</code>, if one of the ports from the <code class="highlighter-rouge">nmap</code> commands are open.</p>
+
+<p>This now might show something!  For example, it might allow you to upload “images”.  See if you can upload a PHP file instead…  However, it is always good to “View Page Source” to see if you can find anything interesting off the bat.</p>
+
+<p>One of the simplest ways to get information is to look up <code class="highlighter-rouge">&lt;something&gt; exploit</code> to see if you know anything about exploiting the webpage.  For example, if the webpage uses a converter, see if there is a converter exploit.  If there is, append your search with <code class="highlighter-rouge">git</code>, as you then might find something on GitHub.</p>
+
+<p>Look to get a reverse shell.</p>
+
+<h2 id="quick-reference">Quick reference</h2>
+
+<h3 id="enumeration">Enumeration</h3>
+
+<p>Take some time to understand how <code class="highlighter-rouge">nmap</code> works and why it was written.  That being said, here are some helpful quick tools using <code class="highlighter-rouge">nmap</code>.</p>
+
+<h4 id="nmap-short-quick-syn-scan"><code class="highlighter-rouge">nmap</code> short, quick SYN scan</h4>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap <span class="nt">-sC</span> <span class="nt">-sV</span> <span class="nt">-O</span> <span class="nt">-p-</span> <span class="nt">-oA</span> nmap/full &lt;IP&gt; <span class="c"># full scan</span>
+nmap <span class="nt">-sV</span> <span class="nt">-sC</span> <span class="nt">-oA</span> nmap &lt;ip&gt; <span class="c"># top 1000 ports</span>
+nmap <span class="nt">-sC</span> <span class="nt">-sV</span> <span class="nt">-v</span> <span class="nt">-oN</span> nmap.txt &lt;IP&gt;
+masscan <span class="nt">-e</span> tun0 <span class="nt">-p1-65535</span> <span class="nt">--rate</span><span class="o">=</span>1000 &lt;IP&gt;
+<span class="nb">sudo </span>nmap <span class="nt">-sU</span> <span class="nt">-sV</span> <span class="nt">-A</span> <span class="nt">-T4</span> <span class="nt">-v</span> <span class="nt">-oN</span> udp.txt &lt;IP&gt;
+nmap <span class="nt">-T4</span> <span class="nt">-p-</span> <span class="nt">-A</span> &lt;IP&gt;
+</code></pre></div></div>
+
+<h2 id="metasploit">Metasploit</h2>
+
+<p>There are various key words used when using metasploit.  (See <a href="https://www.youtube.com/watch?v=8lR27r8Y_ik">here</a> for reference.)</p>
+<ul>
+  <li>exploits: A module that will take advantage of a system’s vulnerability;</li>
+  <li>payloads: Exploits will install a payload on a system (usually a reverse shell or an interpretter), giving one access to the computer being exploited;</li>
+  <li>auxiliary;</li>
+  <li>nops;</li>
+  <li>post;</li>
+  <li>encoders.</li>
+</ul>
+
+<p>Here are some basic commands for <code class="highlighter-rouge">msfconsole</code>:</p>
+<ul>
+  <li><code class="highlighter-rouge">help</code>: Self evident; displays help;</li>
+  <li><code class="highlighter-rouge">use</code>: Allows you to load a module;
+    <ul>
+      <li>e.g., <code class="highlighter-rouge">use exploit/windows/browser/adobe_flash_avm2</code>;</li>
+      <li>Once using the module;
+        <ul>
+          <li>You can use the <code class="highlighter-rouge">show</code> command to give information about the module;</li>
+          <li>You can use the <code class="highlighter-rouge">show options</code> command to display what options you can change about this explot;
+            <ul>
+              <li>After running <code class="highlighter-rouge">show options</code>, you can use the <code class="highlighter-rouge">set</code> command to set the options;</li>
+            </ul>
+          </li>
+          <li><code class="highlighter-rouge">show payloads</code> will give you the different ways of approaching the attack;</li>
+          <li><code class="highlighter-rouge">show targets</code> will display the possible targets; you can even specify many targets;</li>
+          <li><code class="highlighter-rouge">show info</code> will give you information about the exploit you are using;</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><code class="highlighter-rouge">search</code>: finding the right module is probably the most important part of using metasploit, so this is very important; it has some important keywords that it comes with:
+    <ul>
+      <li><code class="highlighter-rouge">platform</code> is used to target platform specifically;</li>
+      <li><code class="highlighter-rouge">type</code> will allow you to specify the type of module (for example, exploits, payloads, etc.);</li>
+      <li><code class="highlighter-rouge">name</code> allows you to specify what you are searching for, by name;</li>
+      <li>e.g., <code class="highlighter-rouge">search type:exploit platform:windows microsoft sql</code>;</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="misc-notes">Misc Notes</h2>
+
+<ul>
+  <li><a href="https://github.com/7h3rAm/writeups">This is cool</a></li>
+  <li>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netcap <span class="nt">-lvnp</span> 5353
+</code></pre></div>    </div>
+  </li>
+  <li>See also <a href="https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96">here</a>.</li>
+  <li>Burp Suite is a great GUI for intercepting and altering <code class="highlighter-rouge">HTTP</code> requests, but be warned: complex GUI applications run in a VM on 1 GM RAM are lagging at best.  Be prepared for 2 FPS.  Same can be said for the browser, I suppose.  I would like to save up for a machine with more RAM to allocate to my VM…</li>
+</ul>
+
+
+          </div>
+          <div class="article-share">
+            
+            
+            <a href="https://twitter.com/home?status=General+notes+on+HackTheBox%20-%20https://jakewilliami.github.io//posts/htb-notes" title="Share on Twitter" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M492 109.5c-17.4 7.7-36 12.9-55.6 15.3 20-12 35.4-31 42.6-53.6 -18.7 11.1-39.4 19.2-61.5 23.5C399.8 75.8 374.6 64 346.8 64c-53.5 0-96.8 43.4-96.8 96.9 0 7.6 0.8 15 2.5 22.1 -80.5-4-151.9-42.6-199.6-101.3 -8.3 14.3-13.1 31-13.1 48.7 0 33.6 17.2 63.3 43.2 80.7C67 210.7 52 206.3 39 199c0 0.4 0 0.8 0 1.2 0 47 33.4 86.1 77.7 95 -8.1 2.2-16.7 3.4-25.5 3.4 -6.2 0-12.3-0.6-18.2-1.8 12.3 38.5 48.1 66.5 90.5 67.3 -33.1 26-74.9 41.5-120.3 41.5 -7.8 0-15.5-0.5-23.1-1.4C62.8 432 113.7 448 168.3 448 346.6 448 444 300.3 444 172.2c0-4.2-0.1-8.4-0.3-12.5C462.6 146 479 129 492 109.5z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://jakewilliami.github.io//posts/htb-notes" title="Share on Facebook" rel="noreferrer noopener" target="_blank">
+              <svg viewBox="0 0 512 512"><path d="M288 192v-38.1c0-17.2 3.8-25.9 30.5-25.9H352V64h-55.9c-68.5 0-91.1 31.4-91.1 85.3V192h-45v64h45v192h83V256h56.4l7.6-64H288z"/></svg>
+            </a>
+          </div>
+
+          
+        </article>
+      </div>
+    </div>
+  </main>
+  
+
+<script src="/assets/vendor-130c9c254effc51f3283620bc635851da7b99c20901216948f11ba72ee13317f.js" type="text/javascript"></script>
+
+
+  <script src="/assets/webfonts-96493456d319d1bf419afdf8701552d4d486fee6afd304897d4fd81eb4e0cc0b.js" type="text/javascript"></script>
+
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+</body>
+</html>
