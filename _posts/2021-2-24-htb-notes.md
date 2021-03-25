@@ -5,7 +5,7 @@ title: General notes on HackTheBox
 
 ## Beginning Notes
 
-[HackTheBox](https://hackthebox.eu/) (HTB) is a great tool to learn penetration testing (pentesting).  However, some other useful ones exist, such as [TryHackMe](https://tryhackme.com) (which also has a nice [beginner guide](https://tryhackme.com/path/outline/beginner), as well as [INE](pathway for free (https://checkout.ine.com/starter-pass)), and (JuiceShop)[https://owasp.org/www-project-juice-shop/].  Also, CTF (capture the flag) games exist (e.g., [here](https://ctf.hacker101.com/)), as well as [VulnHub](https://www.vulnhub.com/), if you are not ready for HTB.
+[HackTheBox](https://hackthebox.eu/) (HTB) is a great tool to learn penetration testing (pentesting).  However, some other useful ones exist, such as [TryHackMe](https://tryhackme.com) (which also has a nice [beginner guide](https://tryhackme.com/path/outline/beginner), as well as [INE](pathway for free (https://checkout.ine.com/starter-pass)), and (JuiceShop)[https://owasp.org/www-project-juice-shop/].  Also, CTF (capture the flag) games exist (e.g., [here](https://ctf.hacker101.com/)), as well as [VulnHub](https://www.vulnhub.com/), if you are not ready for HTB.  You will also need a good amount of knowledge of `bash` and `powershell`.  This has come from experience with me, using Linux and doing general sysadmin stuff.  Familiarity and comfortablilty with the command line is almost essential, but you will become familiar soon enough if you don't have that yet.
 
 For getting started with HTB, first, get some helpful tools:
   - `python-python3`
@@ -16,6 +16,7 @@ For getting started with HTB, first, get some helpful tools:
   - `saclist`
   - [`searchsploit`](https://1gbits.com/blog/install-searchsploit-on-kali-linux/)
   - Burp Suite
+  - [`mssqlclient.py`](https://github.com/SecureAuthCorp/impacket)
 
 You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  *Ensure you run `openvpn` on the VM, **not** your base computer, as running it on your computer and then running the VM will not allow any `tun` connection.*  (This took me a hot minute to figure out...).  These steps will give you good tools to hack, as well as protect your network and your computer.
 
@@ -87,6 +88,33 @@ sudo nmap -sU -sV -A -T4 -v -oN udp.txt <IP>
 nmap -T4 -p- -A <IP>
 ```
 
+## Metasploit
+
+There are various key words used when using metasploit.  (See [here](https://www.youtube.com/watch?v=8lR27r8Y_ik) for reference.)
+  - exploits: A module that will take advantage of a system's vulnerability;
+  - payloads: Exploits will install a payload on a system (usually a reverse shell or an interpretter), giving one access to the computer being exploited;
+  - auxiliary;
+  - nops;
+  - post;
+  - encoders.
+
+Here are some basic commands for `msfconsole`:
+  - `help`: Self evident; displays help;
+  - `use`: Allows you to load a module;
+    - e.g., `use exploit/windows/browser/adobe_flash_avm2`;
+    - Once using the module;
+      - You can use the `show` command to give information about the module;
+      - You can use the `show options` command to display what options you can change about this explot;
+        - After running `show options`, you can use the `set` command to set the options;
+      - `show payloads` will give you the different ways of approaching the attack;
+      - `show targets` will display the possible targets; you can even specify many targets;
+      - `show info` will give you information about the exploit you are using;
+  - `search`: finding the right module is probably the most important part of using metasploit, so this is very important; it has some important keywords that it comes with:
+    - `platform` is used to target platform specifically;
+    - `type` will allow you to specify the type of module (for example, exploits, payloads, etc.);
+    - `name` allows you to specify what you are searching for, by name;
+    - e.g., `search type:exploit platform:windows microsoft sql`;
+
 ## Misc Notes
 
   - [This is cool](https://github.com/7h3rAm/writeups)
@@ -95,3 +123,4 @@ nmap -T4 -p- -A <IP>
     ```
   - See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96).
   - Burp Suite is a great GUI for intercepting and altering `HTTP` requests, but be warned: complex GUI applications run in a VM on 1 GM RAM are lagging at best.  Be prepared for 2 FPS.  Same can be said for the browser, I suppose.  I would like to save up for a machine with more RAM to allocate to my VM... 
+

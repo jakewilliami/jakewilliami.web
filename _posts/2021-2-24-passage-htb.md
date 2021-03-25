@@ -112,7 +112,7 @@ Note: you can allow embedded browsers to run without sandbox for BurpSuite by do
 
 After trying a lot of those exploits, I appended my search with `git`, and found [this repo](https://github.com/CRFSlick/CVE-2019-11447-POC), which I cloned.  I then made a CuteNews account for Passage by putting `/CuteNews/` before `index.php`, and logged into CuteNews using this python script, and uploaded the evil image (`sad.gif`).  This gave me a reverse shell, but it wasn't quite what I wanted; every command I ran gave me a bunch of HTML.  I needed to find a similar exploit, but this one wasn't working.
 
-I went back to my Google search and found [this](https://github.com/mt-code/CVE-2019-11447).  I ran this, which uploads a php shell file as my avatar.  After that was successful, I must admit I was a little lost: how do I now use this exploit?  I went back to my refined search once again and found [this](https://raw.githubusercontent.com/musyoka101/CuteNews_2.1.2_RCE_exploit/master/exploit.py) exploit script, which I then ran and put the URL in, as well as my user credentials, and voila&emdash;: a reverse shell!
+I went back to my Google search and found [this](https://github.com/mt-code/CVE-2019-11447).  I ran this, which uploads a php shell file as my avatar.  After that was successful, I must admit I was a little lost: how do I now use this exploit?  I went back to my refined search once again and found [this](https://raw.githubusercontent.com/musyoka101/CuteNews_2.1.2_RCE_exploit/master/exploit.py) exploit script, which I then ran and put the URL in, as well as my user credentials, and voila&mdash;: a reverse shell!
 
 ```
 ┌──(kali㉿kali)-[~/testing]
