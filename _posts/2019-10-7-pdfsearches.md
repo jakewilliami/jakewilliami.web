@@ -3,7 +3,9 @@ layout: post
 title: PDF Searching Programmes
 ---
 
-I am trying to write some programmes to search PDFs from directories using
+I am trying to write some programmes to search PDFs from directories.
+
+I am hoping to use:
   - Bash
   - Python
   - Perl

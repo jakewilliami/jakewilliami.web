@@ -3,7 +3,9 @@ layout: post
 title: HackTheBox Write-up &mdash; Oopsie
 ---
 
-I enumerate the box (which is apparently easy) and get the following:
+I enumerate the box (which is apparently easy) and get the following.
+
+
 ```
 $ bash common/nmap.sh oopsie     
 Starting Nmap 7.91 ( https://nmap.org ) at 2021-03-22 20:37 NZDT

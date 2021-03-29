@@ -4,7 +4,7 @@ title: Perfect Power Checker in Julia
 ---
 
 A perfect power is an integer <i>m</i> whose <i>n</i><sup>th</sup> root is an integer <i>a</i>.  That is, &mdash;
-<img src="https://render.githubusercontent.com/render/math?math=\color{white}m=a^m">
+<img src="https://render.githubusercontent.com/render/math?math=\color{white}m=a^m" align="center">
 
 For a very long time, intermittently, I have been trying to write an efficient function to check if a number is a perfect power or not.  It's been about 5 months now actually, and I can't remember why.  All I recall is that I wanted to know specifically if a number was a perfect power or not&mdash;not necessarily what numbers combine to produce the given number.  
 

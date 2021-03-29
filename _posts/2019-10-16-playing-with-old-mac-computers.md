@@ -1,6 +1,6 @@
 ---
 layout: post
-title: How I fixed my 2008 iMac
+title: Playing with old mac computers
 ---
 
 My 2008 iMac had a flashing lock symbol on it when I turned it on.
@@ -32,4 +32,21 @@ sudo /Applications/install-sys.app/Contents/Resources/createinstallmedia --volum
 I have tried (and failed) using this method found [here](lewan.com/2012/02/10/making-a-bootable-usb-stick-on-an-apple-mac-os-x-from-an-iso).  I also tried using Etcher.io, but it didn't work.
 
 *Note: see a later blog post from 2nd November, to see a good method of making bootable drives for Linux OS's, on a Mac.*
+
+---
+
+A funny turn of events: after, on 24th October, 2019, I tried installing OS X Lion on my 2007 MacBook.  It didn't have anough RAM.  It needed 2 GB...
+
+---
+
+After getting my 2002 iMac, I tried to get OS Tiger.  I found it [here](macintoshgarden.org/apps/mac-osx-mac-os-10-ppc) and downloaded `Tiger_4_6.dmg_.zip`.  I also found [a Snow Leopard install](archive.org/details/SnowLeopardInstall) for my 2008 iMac, which worked!
+
+To get Ruby worjing on my old iMac, I had to run
+```tcsh
+\curl -sSL https://get.rvm.io | bash -s stable && source ~/.rvm/scripts && rvm install 2.2.3 --disable-binary && brew install icu4c cmake pkg-config
+```
+
+---
+
+I decided (based on notes from 3rd November, 2019) that I would install Linux on my 2008 iMac.  I tried fedora, and using [this](cyberciti.biz/faq/fedora-linux-install-broadcom-wl-sta-wireless-driver-for-bcm43228) and [this](forums.fedoraforum.org/showthread.php?281874-Activation-of-network-connection-failed), I managed to install the correct drivers for my `BCM4321` interface, and get WiFi working!
 
