@@ -85,7 +85,19 @@ Clever (`c`) | `Int8` | 100 | 122.749 μs | 2,927 | 170.95 KiB
 `c` | `Int128` | 1,000 | 40.835 s | 51,785,224 | 8.46 GiB
 `c` | `Int128` | 10,000 | 669.043 s | 532,334,303 | 89.17 GiB
 
+To be honest, though, I don't know how much set-size actually matters here.  Here are some better statistics:
+
+
 
 ---
 
-Going a bit deeper into why this method works so seemingly efficiently, we need to 
+Going a bit deeper into why this method works so seemingly efficiently, we need to check out `Nemo.jl`.  I've talked to a couple of the maintainers of this package on Slack in the past, and they are very knowledgable.  
+
+Let's see where `fmpz` comes from.
+
+```julia
+julia> @which fmpz(1)
+fmpz(x::Int64) in Main.Nemo at /home/jakeireland/projects/julia-workspace/Nemo.jl/src/flint/FlintTypes.jl:28
+```
+
+Going into `FlintTypes.jl`, it looks like these are using integer Rings, and `ccall`s to `fmpz`, which seems to be [fast, arbitrarily large integers](http://flintlib.org/sphinx/fmpz.html).  Rings are structures in mathematics which I won't go too much into detail in this post, but see [here]() for further reading.
