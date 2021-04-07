@@ -17,6 +17,7 @@ For getting started with HTB, first, get some helpful tools:
   - [`searchsploit`](https://1gbits.com/blog/install-searchsploit-on-kali-linux/)
   - Burp Suite
   - [`mssqlclient.py`](https://github.com/SecureAuthCorp/impacket)
+  - [`ffuf`](https://github.com/ffuf/ffuf) or [`gobuster`](https://github.com/OJ/gobuster) or [`dirsearch.py`](https://github.com/maurosoria/dirsearch.git)
 
 You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  *Ensure you run `openvpn` on the VM, **not** your base computer, as running it on your computer and then running the VM will not allow any `tun` connection.*  (This took me a hot minute to figure out...).  These steps will give you good tools to hack, as well as protect your network and your computer.
 
