@@ -18,6 +18,9 @@ For getting started with HTB, first, get some helpful tools:
   - Burp Suite
   - [`mssqlclient.py`](https://github.com/SecureAuthCorp/impacket)
   - [`ffuf`](https://github.com/ffuf/ffuf) or [`gobuster`](https://github.com/OJ/gobuster) or [`dirsearch.py`](https://github.com/maurosoria/dirsearch.git)
+  - WireShark or `tcpdump`
+  - `ss` (or `netstat` for macOS)
+  - Hydra (for brute force)
 
 You will also need a virtual machine (See [VirtualBox](https://www.virtualbox.org/)), preferably running Linux (do not use Windows; use [Kali](https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b) if possible), and [HTB's VPN](https://www.hackthebox.eu/home/start) given to you to use.  *Ensure you run `openvpn` on the VM, **not** your base computer, as running it on your computer and then running the VM will not allow any `tun` connection.*  (This took me a hot minute to figure out...).  These steps will give you good tools to hack, as well as protect your network and your computer.
 
@@ -54,6 +57,8 @@ If it is responding to pings, you can try some `nmap` commands.  See the Quick R
 ```bash
 nmap -sV -sC 10.10.xx.xx
 ```
+
+(An alternative to this on linux is `ss -tulnp` (or `ss --tcp --udp --listening --numeric --processes`); or [equivalently for macOS](https://superuser.com/questions/724712/what-is-the-equivalent-of-ss-for-mac), `netstat -tuln --program` (or `netstat --tcp --udp --listening --numeric --program`; or [`sudo lsof -iTCP -sTCP:LISTEN -P`](https://apple.stackexchange.com/questions/157893/what-is-the-equivalent-of-netstat-tln-on-os-x)).
 
 This will take a minute to load, and then looks through the top 1000 ports for this machine, and shows us if any of them are open for use.
 
@@ -118,10 +123,12 @@ Here are some basic commands for `msfconsole`:
 
 ## Misc Notes
 
-  - [This is cool](https://github.com/7h3rAm/writeups)
+  - [Payload of all things](https://github.com/swisskyrepo/PayloadsAllTheThings);
+  - [This is cool](https://github.com/7h3rAm/writeups).  As is [this](https://github.com/Purp1eW0lf/HackTheBoxWriteups/).
   - ```bash
     netcap -lvnp 5353
     ```
   - See also [here](https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96).
   - Burp Suite is a great GUI for intercepting and altering `HTTP` requests, but be warned: complex GUI applications run in a VM on 1 GM RAM are lagging at best.  Be prepared for 2 FPS.  Same can be said for the browser, I suppose.  I would like to save up for a machine with more RAM to allocate to my VM... 
-
+  - FTB traffic is generally not encrypted.
+  - [This](https://drt.sh/) is such a nice website.

@@ -93,7 +93,7 @@ We try again, this time without a port to let the server do the work:
 ```
 http://breadcrumbs/
 ```
-And we find this online library website.  Interesting.  A quick look at the source code reveals an open directory!: `http://breadcrumbs/php/books.php led me to
+And we find this online library website.  Interesting.  A quick look at the source code reveals an open directory!: `http://breadcrumbs/php/books.php` led me to
 ```
 http://breadcrumbs/php/
 ```
