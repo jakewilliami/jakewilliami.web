@@ -97,7 +97,7 @@
   <span class="article-list-minutes">
     
     
-      5 minute read
+      6 minute read
     
   </span>
   <span class="article-list-divider">-</span>
@@ -123,6 +123,10 @@
   <li><a href="https://1gbits.com/blog/install-searchsploit-on-kali-linux/"><code class="highlighter-rouge">searchsploit</code></a></li>
   <li>Burp Suite</li>
   <li><a href="https://github.com/SecureAuthCorp/impacket"><code class="highlighter-rouge">mssqlclient.py</code></a></li>
+  <li><a href="https://github.com/ffuf/ffuf"><code class="highlighter-rouge">ffuf</code></a> or <a href="https://github.com/OJ/gobuster"><code class="highlighter-rouge">gobuster</code></a> or <a href="https://github.com/maurosoria/dirsearch.git"><code class="highlighter-rouge">dirsearch.py</code></a></li>
+  <li>WireShark or <code class="highlighter-rouge">tcpdump</code></li>
+  <li><code class="highlighter-rouge">ss</code> (or <code class="highlighter-rouge">netstat</code> for macOS)</li>
+  <li>Hydra (for brute force)</li>
 </ul>
 
 <p>You will also need a virtual machine (See <a href="https://www.virtualbox.org/">VirtualBox</a>), preferably running Linux (do not use Windows; use <a href="https://www.offensive-security.com/kali-linux-vm-vmware-virtualbox-image-download/#1572305786534-030ce714-cc3b">Kali</a> if possible), and <a href="https://www.hackthebox.eu/home/start">HTB’s VPN</a> given to you to use.  <em>Ensure you run <code class="highlighter-rouge">openvpn</code> on the VM, <strong>not</strong> your base computer, as running it on your computer and then running the VM will not allow any <code class="highlighter-rouge">tun</code> connection.</em>  (This took me a hot minute to figure out…).  These steps will give you good tools to hack, as well as protect your network and your computer.</p>
@@ -159,6 +163,8 @@ root💀2cf5de3321a6:/# apt-get update <span class="o">&amp;&amp;</span> apt-get
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nmap <span class="nt">-sV</span> <span class="nt">-sC</span> 10.10.xx.xx
 </code></pre></div></div>
+
+<p>(An alternative to this on linux is <code class="highlighter-rouge">ss -tulnp</code> (or <code class="highlighter-rouge">ss --tcp --udp --listening --numeric --processes</code>); or <a href="https://superuser.com/questions/724712/what-is-the-equivalent-of-ss-for-mac">equivalently for macOS</a>, <code class="highlighter-rouge">netstat -tuln --program</code> (or <code class="highlighter-rouge">netstat --tcp --udp --listening --numeric --program</code>; or <a href="https://apple.stackexchange.com/questions/157893/what-is-the-equivalent-of-netstat-tln-on-os-x"><code class="highlighter-rouge">sudo lsof -iTCP -sTCP:LISTEN -P</code></a>).</p>
 
 <p>This will take a minute to load, and then looks through the top 1000 ports for this machine, and shows us if any of them are open for use.</p>
 
@@ -238,15 +244,17 @@ nmap <span class="nt">-T4</span> <span class="nt">-p-</span> <span class="nt">-A
 <h2 id="misc-notes">Misc Notes</h2>
 
 <ul>
-  <li><a href="https://github.com/7h3rAm/writeups">This is cool</a></li>
+  <li><a href="https://github.com/swisskyrepo/PayloadsAllTheThings">Payload of all things</a>;</li>
+  <li><a href="https://github.com/7h3rAm/writeups">This is cool</a>.  As is <a href="https://github.com/Purp1eW0lf/HackTheBoxWriteups/">this</a>.</li>
   <li>
     <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>netcap <span class="nt">-lvnp</span> 5353
 </code></pre></div>    </div>
   </li>
   <li>See also <a href="https://medium.com/bug-bounty-hunting/beginner-tips-to-own-boxes-at-hackthebox-9ae3fec92a96">here</a>.</li>
   <li>Burp Suite is a great GUI for intercepting and altering <code class="highlighter-rouge">HTTP</code> requests, but be warned: complex GUI applications run in a VM on 1 GM RAM are lagging at best.  Be prepared for 2 FPS.  Same can be said for the browser, I suppose.  I would like to save up for a machine with more RAM to allocate to my VM…</li>
+  <li>FTB traffic is generally not encrypted.</li>
+  <li><a href="https://drt.sh/">This</a> is such a nice website.</li>
 </ul>
-
 
           </div>
           <div class="article-share">

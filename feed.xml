@@ -1,20 +1,90 @@
----
----
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="https://www.w3.org/2005/Atom" xmlns:dc="https://purl.org/dc/elements/1.1/">
   <channel>
-    <title>{{ site.name | xml_escape }}</title>
-    <description>{% if site.description %}{{ site.description | xml_escape }}{% endif %}</description>
-    <link>{{ site.url }}</link>
-    <atom:link href="{{ page.path | absolute_url }}" rel="self" type="application/rss+xml" />
-    {% for post in site.posts limit:10 %}
+    <title>Jake W. Ireland's Blog</title>
+    <description>Self-taught programmer and amateur mathematician/psychologist</description>
+    <link>https://jakewilliami.github.io/</link>
+    <atom:link href="https://jakewilliami.github.io//feed.xml" rel="self" type="application/rss+xml" />
+    
       <item>
-        <title>{{ post.title | xml_escape }}</title>
-        <description>{{ post.description | xml_escape }}</description>
-        <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-        <link>{{ post.url | absolute_url }}</link>
-        <guid isPermaLink="true">{{ post.url | absolute_url }}</guid>
+        <title>URI versus /URL</title>
+        <description></description>
+        <pubDate>Tue, 20 Apr 2021 00:00:00 +1200</pubDate>
+        <link>https://jakewilliami.github.io//posts/uri-vs-url</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/uri-vs-url</guid>
       </item>
-    {% endfor %}
+    
+      <item>
+        <title>Blue team versus red team</title>
+        <description></description>
+        <pubDate>Tue, 20 Apr 2021 00:00:00 +1200</pubDate>
+        <link>https://jakewilliami.github.io//posts/blue-team-vs-red-ream</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/blue-team-vs-red-ream</guid>
+      </item>
+    
+      <item>
+        <title>HackTheBox Write-up &amp;mdash; Ready</title>
+        <description></description>
+        <pubDate>Mon, 12 Apr 2021 00:00:00 +1200</pubDate>
+        <link>https://jakewilliami.github.io//posts/ready-htb</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/ready-htb</guid>
+      </item>
+    
+      <item>
+        <title>Perfect Power Checker in Julia</title>
+        <description></description>
+        <pubDate>Sun, 28 Mar 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/perfect-powers</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/perfect-powers</guid>
+      </item>
+    
+      <item>
+        <title>HackTheBox Write-up &amp;mdash; Oopsie</title>
+        <description></description>
+        <pubDate>Mon, 22 Mar 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/oopsie-htb</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/oopsie-htb</guid>
+      </item>
+    
+      <item>
+        <title>HackTheBox Write-up &amp;mdash; Archetype</title>
+        <description></description>
+        <pubDate>Mon, 22 Mar 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/archetype-htb</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/archetype-htb</guid>
+      </item>
+    
+      <item>
+        <title>HackTheBox Write-up &amp;mdash; Passage</title>
+        <description></description>
+        <pubDate>Wed, 24 Feb 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/passage-htb</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/passage-htb</guid>
+      </item>
+    
+      <item>
+        <title>General notes on HackTheBox</title>
+        <description></description>
+        <pubDate>Wed, 24 Feb 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/htb-notes</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/htb-notes</guid>
+      </item>
+    
+      <item>
+        <title>Approximating GitHub Language Colours in iTerm-256 Colour Terminal</title>
+        <description></description>
+        <pubDate>Sun, 24 Jan 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/iterm256-approx-colours</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/iterm256-approx-colours</guid>
+      </item>
+    
+      <item>
+        <title>Setting up CI on GitHub Actions, and deploying docs for Julia</title>
+        <description></description>
+        <pubDate>Tue, 12 Jan 2021 00:00:00 +1300</pubDate>
+        <link>https://jakewilliami.github.io//posts/setting-up-gh-ci-and-deploy-docs-jl</link>
+        <guid isPermaLink="true">https://jakewilliami.github.io//posts/setting-up-gh-ci-and-deploy-docs-jl</guid>
+      </item>
+    
   </channel>
 </rss>

