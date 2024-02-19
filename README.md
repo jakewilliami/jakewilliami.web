@@ -1,5 +1,7 @@
 # jakewilliami.github.io
 
+**NOTE:** I think this blog is broken.  I seem to have updated `about.html` and I recall working on a new template that never properly pushed.  I should re-assess the template and workflows again at some point.  As this is static, I should consider using one of the good static site generators written in Julia.
+
 ## Blog
 
 This blog uses the [chalk](https://github.com/nielsenramon/chalk) theme.  See also: [ptsurbeleu/jekyll-theme-chalk](https://github.com/ptsurbeleu/jekyll-theme-chalk).
