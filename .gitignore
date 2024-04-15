@@ -1,6 +1,11 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
-.DS_Store
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+*DS_Store
+Manifest.toml
+sandbox/
+sandbox-site/
+docs/build/
+test/__tmp/
+docs/__site/
+demos/__site/

@@ -1,11 +1,24 @@
-# jakewilliami.github.io
-
-**NOTE:** I think this blog is broken.  I seem to have updated `about.html` and I recall working on a new template that never properly pushed.  I should re-assess the template and workflows again at some point.  As this is static, I should consider using one of the good static site generators written in Julia.
+# jakewilliami.github.io (v2)
 
 ## Blog
 
-This blog uses the [chalk](https://github.com/nielsenramon/chalk) theme.  See also: [ptsurbeleu/jekyll-theme-chalk](https://github.com/ptsurbeleu/jekyll-theme-chalk).
+This blog considered using [Franklin.jl](https://github.com/tlienart/Franklin.jl/)
+
+This blog uses [Zola](https://github.com/getzola/zola) ([v0.18.0](https://github.com/getzola/zola/tree/v0.18.0))
+
+Used to use the [Chalk](https://github.com/ptsurbeleu/jekyll-theme-chalk) Gem-based [Jekyll](https://github.com/jekyll/jekyll) theme (ported from its [original Jekyll theme by Nielsen Ramon](https://github.com/nielsenramon/chalk)).  unfortunately it stopped being updated in 2017 and 2019 respectively, and was having too much greif with ruby verisons on macos and bloated dependencies (gems, npm, etc.)
+
+Deciding between the following themes:
+  - [Emily](https://github.com/kyoheiu/emily_zola_theme) (at [`1c1d560c`](https://github.com/kyoheiu/emily_zola_theme/tree/1c1d560c9ea209a988b78ab2a3514bf5c6846f29))
+  - [Kita](https://github.com/st1020/kita) (at [`04a31a78`](https://github.com/st1020/kita/tree/04a31a78f8b2a697c51b93e31aeead79d39d9936))
+  - [Mabuya](https://github.com/semanticdata/mabuya) (at [`9ff7ef60`](https://github.com/semanticdata/mabuya/tree/9ff7ef60c4f4a9632abe01a3b39672d027c24de7))
+  - [Papermod](https://github.com/cydave/zola-theme-papermod) (at [`0aea7bb0`](https://github.com/cydave/zola-theme-papermod/tree/0aea7bb064c508e0e67417a405b0304c40b588e6))
+  - [Sam](https://github.com/janbaudisch/zola-sam) (at [`890b51b4`](https://github.com/janbaudisch/zola-sam/tree/890b51b4105fd2e63f5e417e5cb63b8e25d5721f))
 
 ## Updating the repository
 
-You can add posts to [`_posts/`](./_posts/), and update the about section in [`about.html`](./about.html).  Once you are happy with your changes, commit them with a descriptive commit message.  Now you can publish your changes to [jakewilliami.github.io](https://jakewilliami.github.io) but running [the deploy script](./bin/deploy) (make sure you run this from the master branch, or any branch that isn't already `gh-pages`).  I believe to deploy you need to have Jekyll installed.
+**TODO**
+
+## Version 1
+
+See previous version at [`v1/`](./archive/v1/).
