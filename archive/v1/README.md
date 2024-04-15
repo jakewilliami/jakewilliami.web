@@ -1,6 +1,6 @@
-# jakewilliami.github.io
+**NOTE: this version of the script has been archived.  Its last live version somewhere between [`ca061b7e`](https://github.com/jakewilliami/jakewilliami.github.io/tree/ca061b7ea839fe2a8c928e1083238de25c9f3fd5) and [`0f4bc9ca`](https://github.com/jakewilliami/jakewilliami.github.io/tree/0f4bc9ca38c0f9b5cd0f5ee9ab50391b1db5690a).**
 
-**NOTE:** I think this blog is broken.  I seem to have updated `about.html` and I recall working on a new template that never properly pushed.  I should re-assess the template and workflows again at some point.  As this is static, I should consider using one of the good static site generators written in Julia.
+# jakewilliami.github.io
 
 ## Blog
 

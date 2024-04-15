@@ -17,7 +17,14 @@ Deciding between the following themes:
 
 ## Updating the repository
 
-**TODO**
+You will primarily want to make changes in the [`content/`](./content/) directory.  This is where all of your public facing material should be.  You may occasionally need to make configuration changes in [`templates/`](./templates/) or [`static`](./static/).
+
+To test changes locally, simply run
+```bash
+zola serve
+```
+
+**TODO: update deplpoyment instructions once that has been set up**
 
 ## Version 1
 

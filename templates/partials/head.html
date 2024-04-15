@@ -1,0 +1,23 @@
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ get_url(path='main.css') | safe }}">
+  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+  <meta name="description" itemprop="about" content="{{config.description}}">
+
+  {% if config.extra.dark_mode | default(value=true) %}
+  <link rel="icon" type="image/x-icon" href="{{ get_url(path='assets/icons/favicon-dark.ico') | safe }}">
+  <link rel="apple-touch-icon" href="{{ get_url(path='assets/icons/apple-touch-icon-dark.png') | safe }}">
+  {% else %}
+  <link rel="icon" type="image/x-icon" href="{{ get_url(path='assets/icons/favicon-light.ico') | safe }}">
+  <link rel="apple-touch-icon" href="{{ get_url(path='assets/icons/apple-touch-icon-light.png') | safe }}">
+  {% endif %}
+
+  {% if config.generate_feed %}
+  <link type="application/atom+xml" rel="alternate"
+    href="{{ get_url(path=config.feed_filename | default(value='atom.xml')) | safe }}"
+    title="{{ config.title | default(value="Jake W. Ireland's Blog") }}" />
+  {% endif %}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap" />
+</head>
