@@ -1,0 +1,17 @@
+# getzola.org/documentation/deployment/github-pages
+on: push
+name: Build and deploy to GitHub Pages
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/68414395
+    if: github.event.ref_name == github.event.repository.default_branch
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: build_and_deploy
+        uses: shalzz/zola-deploy-action@v0.18.0
+        env:
+          # Target branch
+          PAGES_BRANCH: gh-pages
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
