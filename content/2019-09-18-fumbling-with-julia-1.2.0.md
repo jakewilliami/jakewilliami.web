@@ -1,7 +1,7 @@
----
-title: "Fumbling with Julia 1.2.0"
-date: 2019-09-18
----
++++
+title = "Fumbling with Julia 1.2.0"
+date = 2019-09-18
++++
 
 I was first told about Julia very recently by a friend from mathematics class.  He told me that it is very good for maths, but not very well known.
 

@@ -1,7 +1,7 @@
----
-title: "Setting up CI on GitHub Actions, and deploying docs for Julia"
-date: 2021-01-12
----
++++
+title = "Setting up CI on GitHub Actions, and deploying docs for Julia"
+date = 2021-01-12
++++
 
 I didn't know this when I first started learning Julia, but if you write a function; e.g.
 

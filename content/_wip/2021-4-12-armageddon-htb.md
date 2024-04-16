@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Armageddon
----
++++
+title = "HackTheBox Write-up&mdash;Armageddon"
++++
 
 This machine has IP 10.10.10.233.
 
@@ -48,7 +47,7 @@ sites                   [Status: 301, Size: 232, Words: 14, Lines: 8]
 themes                  [Status: 301, Size: 233, Words: 14, Lines: 8]
 ```
 
-We note that in `/scripts` we see a `password-hash.sh` file.  This is actually some PHP code. 
+We note that in `/scripts` we see a `password-hash.sh` file.  This is actually some PHP code.
 
 We also have a `/robots.txt` file, which looks pretty generic.
 
@@ -105,4 +104,3 @@ The same file actually contains a username line:
 ```php
 'username' => 'drupaluser',
 ```
-

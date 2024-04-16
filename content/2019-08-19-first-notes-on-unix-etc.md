@@ -1,7 +1,7 @@
----
-title: "First Notes from a UNIX, Git and R Workshop"
-date: 2019-08-19
----
++++
+title = "First Notes from a UNIX, Git and R Workshop"
+date = 2019-08-19
++++
 
 Though I had expressed in my first notebook, in late 2018 at nerve.fancy.chained, that I wanted to "learn terminal" (I obviously didn't know what "terminal" was...), and though I had used ample Excel over the summer of 2018--2019 working in Sue Schenk's lab., I didn't actually do any "proper" programming until relatively recently.
 

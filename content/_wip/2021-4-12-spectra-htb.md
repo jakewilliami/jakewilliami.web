@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Spectra
----
++++
+title = "HackTheBox Write-up&mdash;Spectra"
++++
 
 This machine has IP 10.10.10.229.
 

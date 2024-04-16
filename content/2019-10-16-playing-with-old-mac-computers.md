@@ -1,7 +1,7 @@
----
-title: "Playing with old mac computers"
-date: 2019-10-16
----
++++
+title = "Playing with old mac computers"
+date = 2019-10-16
++++
 
 My 2008 iMac had a flashing lock symbol on it when I turned it on.
 

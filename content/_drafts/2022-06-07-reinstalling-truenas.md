@@ -1,8 +1,8 @@
----
-title: "Setting up TrueNAS from scratch"
-date: 2022-06-07
-draft: true
----
++++
+title = "Setting up TrueNAS from scratch"
+date = 2022-06-07
+draft = true
++++
 
 ## Background
 

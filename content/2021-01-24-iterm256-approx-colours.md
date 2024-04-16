@@ -1,7 +1,7 @@
----
-title: "Approximating GitHub Language Colours in iTerm-256 Colour Terminal"
-date: 2021-01-24
----
++++
+title = "Approximating GitHub Language Colours in iTerm-256 Colour Terminal"
+date = 2021-01-24
++++
 
 When I first made [`ls.py`](https://github.com/jakewilliami/scripts/blob/master/python/ls.py), as a good exercise to teach me programming, I went through GitHub and manually tried to match colours.
 

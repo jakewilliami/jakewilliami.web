@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Delivery
----
++++
+title = "HackTheBox Write-up&mdash;Delivery"
++++
 
 This machine has IP 10.10.10.222.
 

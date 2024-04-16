@@ -1,7 +1,7 @@
----
-title: "HackTheBox Write-up&mdash;Passage"
-date: 2021-02-24
----
++++
+title = "HackTheBox Write-up&mdash;Passage"
+date = 2021-02-24
++++
 
 *WARNING: This is my first "hack"; as such, I change tack a couple of times, and it is messy...*
 

@@ -1,7 +1,7 @@
----
-title: "Resetting old mac computer passwords"
-date: 2019-10-30
----
++++
+title = "Resetting old mac computer passwords"
+date = 2019-10-30
++++
 
 We are going to cover two methods to do this in this little section.
 

@@ -1,7 +1,7 @@
----
-title: "Steps to create a bootable USB drive for Linux"
-date: 2019-11-02
----
++++
+title = "Steps to create a bootable USB drive for Linux"
+date = 2019-11-02
++++
 
 These steps work near-flawlessly on a OSX operating system to create Linux bootable drives.
 

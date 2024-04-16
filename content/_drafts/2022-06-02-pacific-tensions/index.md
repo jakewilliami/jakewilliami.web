@@ -1,8 +1,8 @@
----
-title: "Pacific Tensions Threaten NZ Infrastructure"
-date: 2022-06-02
-draft: true
----
++++
+title = "Pacific Tensions Threaten NZ Infrastructure"
+date = 2022-06-02
+draft = true
++++
 
 ## Introduction
 

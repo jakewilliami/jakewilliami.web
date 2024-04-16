@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; The Notebook
----
++++
+title = "HackTheBox Write-up&mdash;The Notebook"
++++
 
 This machine is a Linux machine on IP `10.10.10.230`.
 
@@ -14,7 +13,7 @@ Host is up (0.23s latency).
 Not shown: 996 closed ports
 PORT      STATE    SERVICE VERSION
 22/tcp    open     ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
-| ssh-hostkey: 
+| ssh-hostkey:
 |   2048 86:df:10:fd:27:a3:fb:d8:36:a7:ed:90:95:33:f5:bf (RSA)
 |   256 e7:81:d6:6c:df:ce:b7:30:03:91:5c:b5:13:42:06:44 (ECDSA)
 |_  256 c6:06:34:c7:fc:00:c4:62:06:c2:36:0e:ee:5e:bf:6b (ED25519)

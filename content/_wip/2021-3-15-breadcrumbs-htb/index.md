@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Breadcrumbs
----
++++
+title = "HackTheBox Write-up&mdash;Breadcrumbs"
++++
 
 This machine is a *Windows* machine on IP `10.10.10.228`.  This will be a challenge for it is a Windows machine, and my first one at that!
 
@@ -538,7 +537,7 @@ require_once 'authController.php';
                         <?php endforeach?>
                     </div>
                     <?php endif?>
-                    
+
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" name="username" class="form-control form-control-lg">
@@ -548,7 +547,7 @@ ttttt
                         <label for="password">Password</label>
                         <input type="password" name="password" class="form-control form-control-lg">
                     </div>
-                    
+
                     <input value="0" name="method" style="display:none;">
 
                     <div class="form-group">
@@ -586,7 +585,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
     if($_POST['method'] == 0){
         $username = $_POST['username'];
         $password = $_POST['password'];
-        
+
         $query = "SELECT username,position FROM users WHERE username=? LIMIT 1";
         $stmt = $con->prepare($query);
         $stmt->bind_param('s', $username);
@@ -625,7 +624,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             ));
 
             $jwt = JWT::encode($payload, $secret_key, 'HS256');
-            
+
             setcookie("token", $jwt, time() + (86400 * 30), "/");
 
             $_SESSION['username'] = $username;
@@ -636,7 +635,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
             else{
                 $_SESSION['role'] = $userdata[0]['position'];
             }
-            
+
             header("Location: /portal");
         }
 
@@ -650,7 +649,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
         $username=$_POST['username'];
         $password=$_POST['password'];
         $passwordConf=$_POST['passwordConf'];
-        
+
         if(empty($username)){
             $errors['username'] = "Username Required";
         }
@@ -784,7 +783,7 @@ function validate(){
     $jwt = $_COOKIE['token'];
 
     $secret_key = '6cb9c1a2786a483ca5e44571dcc5f3bfa298593a6376ad92185c3258acd5591e';
-    $ret = JWT::decode($jwt, $secret_key, array('HS256'));   
+    $ret = JWT::decode($jwt, $secret_key, array('HS256'));
     return $ret;
 }
 
@@ -799,7 +798,7 @@ if($_SERVER['REQUEST_METHOD'] === "POST"){
 
         if(move_uploaded_file($tmp_name, "$uploads_dir/$name")){
             $ret = "Success. Have a great weekend!";
-        }     
+        }
         else{
             $ret = "Missing file or title :(" ;
         }
@@ -935,7 +934,7 @@ http://breadcrumbs/portal/vendor (Status: 301)
 ===============================================================
 ```
 
-So there is an `uploads` subdomain in `portal`.  I look inside and it has `shell.php` inside.  I use the above method to look at what is inside `shell.php`.  It seems to be a simple RCE script.  So there is some way of uploading this.  
+So there is an `uploads` subdomain in `portal`.  I look inside and it has `shell.php` inside.  I use the above method to look at what is inside `shell.php`.  It seems to be a simple RCE script.  So there is some way of uploading this.
 
 We have a JSON Web Token for the user `paul`:
 ```
@@ -950,7 +949,7 @@ function makesession($username){
 	$seed = rand(0, $max);
 	$key = "s41Ty_stR1nG_".$username[$seed]."(!528./9890";
 	$session_cookie = $username.md5($key);
-	
+
 	return $session_cookie;
 }
 ```
@@ -988,4 +987,3 @@ pauld7901126265b858ff3d2646bf402c5ee
 paul74a686659cde9de73eed602c6fe3860e
 paul7fc31e65879e3e44827ac798a3d4f586
 ```
-

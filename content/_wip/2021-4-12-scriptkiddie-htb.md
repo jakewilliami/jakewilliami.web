@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; ScriptKiddie
----
++++
+title = "HackTheBox Write-up&mdash;ScriptKiddie"
++++
 
 This machine has IP 10.10.10.226.
 
@@ -26,7 +25,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 30.57 seconds
 ```
 
-So we go to `http://scriptkiddie:5000/` and we find a website that allows us to run scripts to help us hacking.  
+So we go to `http://scriptkiddie:5000/` and we find a website that allows us to run scripts to help us hacking.
 
 Let's intercept with Burp.  These are the body parameters to the `nmap` section:
 ```
@@ -38,6 +37,6 @@ I tried changing this to
 ip=10.10.10.226;ls&action=scan
 ```
 
-But it checks the validity of the IP address first.  
+But it checks the validity of the IP address first.
 
-For the `sploits` section, `action=searchsploit`.  
+For the `sploits` section, `action=searchsploit`.

@@ -1,7 +1,7 @@
----
-title: "Increasing trackpad speed on a Mac more than the maximum allowed"
-date: 2019-11-06
----
++++
+title = "Increasing trackpad speed on a Mac more than the maximum allowed"
+date = 2019-11-06
++++
 
 You can increase trackspeed in System Preferences, but that only goes up so far.
 

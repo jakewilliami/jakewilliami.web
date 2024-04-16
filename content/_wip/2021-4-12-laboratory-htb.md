@@ -1,7 +1,6 @@
----
-layout: post
-title: HackTheBox Write-up &mdash; Laboratory
----
++++
+title = "HackTheBox Write-up&mdash;Laboratory"
++++
 
 This machine has IP 10.10.10.216.
 
@@ -36,7 +35,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 45.18 seconds
 ```
 
-Note that there seems to be a git server associated with this!  
+Note that there seems to be a git server associated with this!
 
 We go to the HTTP server and are met with a Security and Development Services website.  This is ironic!  And there is a little funny note at the bottom of the page:
 ```

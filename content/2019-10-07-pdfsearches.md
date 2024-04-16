@@ -1,7 +1,7 @@
----
-title: "PDF Searching Programmes"
-date: 2019-10-07
----
++++
+title = "PDF Searching Programmes"
+date = 2019-10-07
++++
 
 I am trying to write some programmes to search PDFs from directories.
 
@@ -13,7 +13,7 @@ I am hoping to use:
 
 I have done the first two, and am timing them now (from `~/Desktop/Study/.../2018/Tri\ 2/`, searching for `allport`):
 
-|| Bash | Python 
+|| Bash | Python
 --- | --- | ---
 || 49.80 seconds | 119.56 seconds
 || 42.87 seconds | 118.58 seconds

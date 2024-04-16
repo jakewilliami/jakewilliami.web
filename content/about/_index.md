@@ -1,7 +1,7 @@
----
-title: "About"
-template: "about/section.html"
----
++++
+title = "About"
+template = "about/section.html"
++++
 
 I was born at the tender age of 0, but didn't enter into the world of tech till I was 21.  I got [a job](https://inphysecsecurity.com/) in information/cyber security after completing a Bachelor of Science at [Victoria University of Wellington](https://www.vuw.ac.nz) in 2020, where I majored in mathematics and psychology, and minored in chemistry.
 

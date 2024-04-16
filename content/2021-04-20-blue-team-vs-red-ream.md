@@ -1,7 +1,7 @@
----
-title: "Blue team versus red team"
-date: 2021-04-20
----
++++
+title = "Blue team versus red team"
+date = 2021-04-20
++++
 
 In preparation for my interview tomorrow in information security, I have been listening to some podcasts on information securit.  I think one of the biggest things you can do in information security is stay connected with new information and others in the field.  But one thing that keeps popping up in discourse is this red team/blue team discussion.  And one thing I have realised is that the best way for me to learn something new is to research it and write a post that covers the topic.  In the past, I would do this in notebooks (though I am slowly digitalising old notes on that), but here I will be assessing this distinction today.
 
