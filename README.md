@@ -16,6 +16,4 @@ To test changes locally, simply run
 zola serve
 ```
 
-**TODO: update deplpoyment instructions once that has been set up**
-
-
+The deployment configuration can be found in [`deploy.yml`](./.github/workflows/deploy.yml).  It is deployed when changes are pushed to trunk.
