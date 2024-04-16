@@ -1,0 +1,22 @@
+base_url = "https://jakewilliami.github.io/"
+default_language = "en"
+title = "Jake W. Ireland's Blog"
+description = "Blog for J. W. Ireland; computer programmer, psychologist, and mathematician"
+author = "Jake W. Ireland"
+theme = "mabuya"
+# avatar = "https://raw.githubusercontent.com/jakewilliami/jakewilliami.github.io/master/images/snufkin-avatar.jpg"
+
+compile_sass = true
+generate_feed = true
+build_search_index = false
+ignored_content = ["**/_wip/*"]
+
+[markdown]
+highlight_code = true
+highlight_theme = "dracula"
+
+[extra]
+github = "jakewilliami"
+email = "jakewilliami@icloud.com"
+timeformat = "%A, %-d %B, %Y" # e.g. Monday, 7 June, 2021
+dark_mode = true
