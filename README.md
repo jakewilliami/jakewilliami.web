@@ -2,18 +2,10 @@
 
 ## Blog
 
-This blog considered using [Franklin.jl](https://github.com/tlienart/Franklin.jl/)
+For some time, I struggled with Jekyll.  This was due to friction with the build system and dependencies.  Unfortunately, it was certainly the best on the market for a long time.  During framework research for [my other website](https://www.wikiwand.com/en/Gaston_Leroux), I considered using a language I am familiar with; e.g., using a SSG such as [Franklin.jl](https://github.com/tlienart/Franklin.jl/) or [StaticWebPages.jl](https://github.com/Humans-of-Julia/StaticWebPages.jl).  However, I ended up finding [Zola](https://github.com/getzola/zola) (at time of writing&mdash;April, 2024&mdash;I am using [v0.18.0](https://github.com/getzola/zola/tree/v0.18.0))..Zola appears to be simple with few dependencies, developed in Rust (a language that I know and hold in high regard), and growing in popularity.
 
-This blog uses [Zola](https://github.com/getzola/zola) ([v0.18.0](https://github.com/getzola/zola/tree/v0.18.0))
+The theme is an important talking point.  The blog [used to](./archives/v1/) use Pavel Tsurbeleu's theme, [Chalk](https://github.com/ptsurbeleu/jekyll-theme-chalk) Gem-based [Jekyll](https://github.com/jekyll/jekyll) (ported from its [original Jekyll theme by Nielsen Ramon](https://github.com/nielsenramon/chalk)).  Unfortunately, these have since grown obsolete with a lack of maintenance.  Between this and friction with the Ruby pipeline/build system using bloated dependencies (Gems; NPM), I decided to switch away from it all.  The present theme is based on [Chester How's Jekyl theme, Tale](https://github.com/chesterhow/tale) ([`361d8e33`](https://github.com/chesterhow/tale/tree/361d8e337536e4bdd8b110edac0836a56d6f2541)).  The theme was them [ported to Zola by Aaran Xu](https://github.com/aaranxu/tale-zola) ([`5108a4ae`](https://github.com/aaranxu/tale-zola/tree/5108a4ae31352ecd3aa3d7ab8fc85038975f46a8)), then [picked up by Miguel Pimentel and renamed as Mabuya](https://github.com/semanticdata/mabuya) ([`9ff7ef60`](https://github.com/semanticdata/mabuya/tree/9ff7ef60c4f4a9632abe01a3b39672d027c24de7)), and finally adapted by _moi_.
 
-Used to use the [Chalk](https://github.com/ptsurbeleu/jekyll-theme-chalk) Gem-based [Jekyll](https://github.com/jekyll/jekyll) theme (ported from its [original Jekyll theme by Nielsen Ramon](https://github.com/nielsenramon/chalk)).  unfortunately it stopped being updated in 2017 and 2019 respectively, and was having too much greif with ruby verisons on macos and bloated dependencies (gems, npm, etc.)
-
-Deciding between the following themes:
-  - [Emily](https://github.com/kyoheiu/emily_zola_theme) (at [`1c1d560c`](https://github.com/kyoheiu/emily_zola_theme/tree/1c1d560c9ea209a988b78ab2a3514bf5c6846f29))
-  - [Kita](https://github.com/st1020/kita) (at [`04a31a78`](https://github.com/st1020/kita/tree/04a31a78f8b2a697c51b93e31aeead79d39d9936))
-  - [Mabuya](https://github.com/semanticdata/mabuya) (at [`9ff7ef60`](https://github.com/semanticdata/mabuya/tree/9ff7ef60c4f4a9632abe01a3b39672d027c24de7))
-  - [Papermod](https://github.com/cydave/zola-theme-papermod) (at [`0aea7bb0`](https://github.com/cydave/zola-theme-papermod/tree/0aea7bb064c508e0e67417a405b0304c40b588e6))
-  - [Sam](https://github.com/janbaudisch/zola-sam) (at [`890b51b4`](https://github.com/janbaudisch/zola-sam/tree/890b51b4105fd2e63f5e417e5cb63b8e25d5721f))
 
 ## Updating the repository
 
