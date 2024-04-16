@@ -1,11 +1,14 @@
 +++
 title = "Perfect Power Checker in Julia"
 date = 2021-03-28
+
+[extra]
+katex = true
 +++
 
-A perfect power is an integer \(m\) whose \(n\)<sup>th</sup> root is an integer \(a\).  That is,&mdash;
+<p>A perfect power is an integer \(m\) whose \(n^\text{th}\) root is an integer \(a\).  That is,&mdash;</p>
 $$
-  m = a^m
+  m = a^n
 $$
 
 

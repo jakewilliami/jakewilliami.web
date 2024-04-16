@@ -1,10 +1,17 @@
 +++
 title = "Understanding a little bit about Posterior Probability"
 date = 2019-10-18
+
+[extra]
+katex = true
 +++
 
-<img src="https://render.githubusercontent.com/render/math?math=\color{white}\text{Pr}(p|W,N)=\frac{\text{Pr}(W|N,p)\text{Pr}(p)}{\Sigma\text{Pr}(W|N,p)\text{Pr}(p)\forall p}" align="center">
-<img src="https://render.githubusercontent.com/render/math?math=\color{white}\text{Posterior}=\frac{(\text{Prob. observed variables}\times(\text{Prior})}{\text{Normalising constant}}" align="center">
+$$
+  \text{Pr}(p|W,N)=\frac{\text{Pr}(W|N,p)\text{Pr}(p)}{\sum\text{Pr}(W|N,p)\text{Pr}(p)\forall p}
+$$
+$$
+  \text{Posterior}=\frac{(\text{Prob. observed variables}\times(\text{Prior})}{\text{Normalising constant}}
+$$
 
 (Where the normalising constant standardises it).  The probability of observed variables is also called the "likelihood".
 
