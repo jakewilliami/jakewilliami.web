@@ -5,7 +5,7 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/68414395
-    if: github.event.ref_name == github.event.repository.default_branch
+    if: github.ref_name == github.event.repository.default_branch
     steps:
       - name: checkout
         uses: actions/checkout@v4
